@@ -59,6 +59,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'website',
       },
       {
+        property: 'og:logo',
+        content: '/logo.png',
+      },
+      {
         property: 'og:title',
         content: 'Sumak - Revolucionando la Educación con IA',
       },
