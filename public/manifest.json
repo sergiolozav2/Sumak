@@ -1,6 +1,7 @@
 {
   "short_name": "Sumak AI",
-  "name": "Sumak AI",
+  "name": "Sumak - Educación con IA",
+  "description": "Plataforma educativa que revoluciona el aprendizaje en América Latina con inteligencia artificial personalizada",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,18 +9,22 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "logo.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "logo.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es-ES",
+  "categories": ["education", "productivity"]
 }
