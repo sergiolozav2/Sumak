@@ -60,7 +60,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         property: 'og:logo',
-        content: '/logo.png',
+        content: '/logo.jpeg',
       },
       {
         property: 'og:title',
@@ -73,7 +73,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         property: 'og:image',
-        content: '/logo.png',
+        content: '/logo.jpeg',
       },
       {
         property: 'og:url',
@@ -104,7 +104,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: 'twitter:image',
-        content: '/logo.png',
+        content: '/logo.jpeg',
       },
       {
         name: 'twitter:creator',
@@ -198,7 +198,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     description:
       'Plataforma educativa con inteligencia artificial que personaliza el aprendizaje para cada estudiante en América Latina',
     url: 'https://sumak.netlify.app',
-    logo: 'https://sumak.netlify.app/logo.png',
+    logo: 'https://sumak.netlify.app/logo.jpeg',
     applicationCategory: 'EducationalApplication',
     operatingSystem: 'Web, iOS, Android',
     offers: {
@@ -233,10 +233,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     '@type': 'Organization',
     name: 'Sumak',
     url: 'https://sumak.netlify.app',
-    logo: 'https://sumak.netlify.app/logo.png',
+    logo: 'https://sumak.netlify.app/logo.jpeg',
     description:
       'Revolucionando la educación en América Latina a través de la inteligencia artificial y experiencias de aprendizaje personalizadas',
-    foundingDate: '2024',
+    foundingDate: '2025',
     areaServed: [
       {
         '@type': 'Country',
