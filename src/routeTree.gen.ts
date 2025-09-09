@@ -9,38 +9,194 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminTeacherIndexRouteImport } from './routes/admin-teacher/index'
+import { Route as AdminStudentIndexRouteImport } from './routes/admin-student/index'
+import { Route as AdminTeacherStudentsRouteImport } from './routes/admin-teacher/students'
+import { Route as AdminTeacherSettingsRouteImport } from './routes/admin-teacher/settings'
+import { Route as AdminTeacherHomeRouteImport } from './routes/admin-teacher/home'
+import { Route as AdminTeacherDashboardRouteImport } from './routes/admin-teacher/dashboard'
+import { Route as AdminTeacherCoursesRouteImport } from './routes/admin-teacher/courses'
+import { Route as AdminTeacherAnalyticsRouteImport } from './routes/admin-teacher/analytics'
+import { Route as AdminStudentTopicTopicIdRouteImport } from './routes/admin-student/topic/$topicId'
+import { Route as AdminStudentClassClassIdRouteImport } from './routes/admin-student/class/$classId'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTeacherIndexRoute = AdminTeacherIndexRouteImport.update({
+  id: '/admin-teacher/',
+  path: '/admin-teacher/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminStudentIndexRoute = AdminStudentIndexRouteImport.update({
+  id: '/admin-student/',
+  path: '/admin-student/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTeacherStudentsRoute = AdminTeacherStudentsRouteImport.update({
+  id: '/admin-teacher/students',
+  path: '/admin-teacher/students',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTeacherSettingsRoute = AdminTeacherSettingsRouteImport.update({
+  id: '/admin-teacher/settings',
+  path: '/admin-teacher/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTeacherHomeRoute = AdminTeacherHomeRouteImport.update({
+  id: '/admin-teacher/home',
+  path: '/admin-teacher/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTeacherDashboardRoute = AdminTeacherDashboardRouteImport.update({
+  id: '/admin-teacher/dashboard',
+  path: '/admin-teacher/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTeacherCoursesRoute = AdminTeacherCoursesRouteImport.update({
+  id: '/admin-teacher/courses',
+  path: '/admin-teacher/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTeacherAnalyticsRoute = AdminTeacherAnalyticsRouteImport.update({
+  id: '/admin-teacher/analytics',
+  path: '/admin-teacher/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminStudentTopicTopicIdRoute =
+  AdminStudentTopicTopicIdRouteImport.update({
+    id: '/admin-student/topic/$topicId',
+    path: '/admin-student/topic/$topicId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminStudentClassClassIdRoute =
+  AdminStudentClassClassIdRouteImport.update({
+    id: '/admin-student/class/$classId',
+    path: '/admin-student/class/$classId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
+  '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
+  '/admin-teacher/dashboard': typeof AdminTeacherDashboardRoute
+  '/admin-teacher/home': typeof AdminTeacherHomeRoute
+  '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
+  '/admin-teacher/students': typeof AdminTeacherStudentsRoute
+  '/admin-student': typeof AdminStudentIndexRoute
+  '/admin-teacher': typeof AdminTeacherIndexRoute
+  '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
+  '/admin-student/topic/$topicId': typeof AdminStudentTopicTopicIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
+  '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
+  '/admin-teacher/dashboard': typeof AdminTeacherDashboardRoute
+  '/admin-teacher/home': typeof AdminTeacherHomeRoute
+  '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
+  '/admin-teacher/students': typeof AdminTeacherStudentsRoute
+  '/admin-student': typeof AdminStudentIndexRoute
+  '/admin-teacher': typeof AdminTeacherIndexRoute
+  '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
+  '/admin-student/topic/$topicId': typeof AdminStudentTopicTopicIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
+  '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
+  '/admin-teacher/dashboard': typeof AdminTeacherDashboardRoute
+  '/admin-teacher/home': typeof AdminTeacherHomeRoute
+  '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
+  '/admin-teacher/students': typeof AdminTeacherStudentsRoute
+  '/admin-student/': typeof AdminStudentIndexRoute
+  '/admin-teacher/': typeof AdminTeacherIndexRoute
+  '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
+  '/admin-student/topic/$topicId': typeof AdminStudentTopicTopicIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/admin-teacher/analytics'
+    | '/admin-teacher/courses'
+    | '/admin-teacher/dashboard'
+    | '/admin-teacher/home'
+    | '/admin-teacher/settings'
+    | '/admin-teacher/students'
+    | '/admin-student'
+    | '/admin-teacher'
+    | '/admin-student/class/$classId'
+    | '/admin-student/topic/$topicId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/admin-teacher/analytics'
+    | '/admin-teacher/courses'
+    | '/admin-teacher/dashboard'
+    | '/admin-teacher/home'
+    | '/admin-teacher/settings'
+    | '/admin-teacher/students'
+    | '/admin-student'
+    | '/admin-teacher'
+    | '/admin-student/class/$classId'
+    | '/admin-student/topic/$topicId'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/admin-teacher/analytics'
+    | '/admin-teacher/courses'
+    | '/admin-teacher/dashboard'
+    | '/admin-teacher/home'
+    | '/admin-teacher/settings'
+    | '/admin-teacher/students'
+    | '/admin-student/'
+    | '/admin-teacher/'
+    | '/admin-student/class/$classId'
+    | '/admin-student/topic/$topicId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
+  AdminTeacherAnalyticsRoute: typeof AdminTeacherAnalyticsRoute
+  AdminTeacherCoursesRoute: typeof AdminTeacherCoursesRoute
+  AdminTeacherDashboardRoute: typeof AdminTeacherDashboardRoute
+  AdminTeacherHomeRoute: typeof AdminTeacherHomeRoute
+  AdminTeacherSettingsRoute: typeof AdminTeacherSettingsRoute
+  AdminTeacherStudentsRoute: typeof AdminTeacherStudentsRoute
+  AdminStudentIndexRoute: typeof AdminStudentIndexRoute
+  AdminTeacherIndexRoute: typeof AdminTeacherIndexRoute
+  AdminStudentClassClassIdRoute: typeof AdminStudentClassClassIdRoute
+  AdminStudentTopicTopicIdRoute: typeof AdminStudentTopicTopicIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +204,92 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-teacher/': {
+      id: '/admin-teacher/'
+      path: '/admin-teacher'
+      fullPath: '/admin-teacher'
+      preLoaderRoute: typeof AdminTeacherIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-student/': {
+      id: '/admin-student/'
+      path: '/admin-student'
+      fullPath: '/admin-student'
+      preLoaderRoute: typeof AdminStudentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-teacher/students': {
+      id: '/admin-teacher/students'
+      path: '/admin-teacher/students'
+      fullPath: '/admin-teacher/students'
+      preLoaderRoute: typeof AdminTeacherStudentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-teacher/settings': {
+      id: '/admin-teacher/settings'
+      path: '/admin-teacher/settings'
+      fullPath: '/admin-teacher/settings'
+      preLoaderRoute: typeof AdminTeacherSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-teacher/home': {
+      id: '/admin-teacher/home'
+      path: '/admin-teacher/home'
+      fullPath: '/admin-teacher/home'
+      preLoaderRoute: typeof AdminTeacherHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-teacher/dashboard': {
+      id: '/admin-teacher/dashboard'
+      path: '/admin-teacher/dashboard'
+      fullPath: '/admin-teacher/dashboard'
+      preLoaderRoute: typeof AdminTeacherDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-teacher/courses': {
+      id: '/admin-teacher/courses'
+      path: '/admin-teacher/courses'
+      fullPath: '/admin-teacher/courses'
+      preLoaderRoute: typeof AdminTeacherCoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-teacher/analytics': {
+      id: '/admin-teacher/analytics'
+      path: '/admin-teacher/analytics'
+      fullPath: '/admin-teacher/analytics'
+      preLoaderRoute: typeof AdminTeacherAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-student/topic/$topicId': {
+      id: '/admin-student/topic/$topicId'
+      path: '/admin-student/topic/$topicId'
+      fullPath: '/admin-student/topic/$topicId'
+      preLoaderRoute: typeof AdminStudentTopicTopicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-student/class/$classId': {
+      id: '/admin-student/class/$classId'
+      path: '/admin-student/class/$classId'
+      fullPath: '/admin-student/class/$classId'
+      preLoaderRoute: typeof AdminStudentClassClassIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
+  AdminTeacherAnalyticsRoute: AdminTeacherAnalyticsRoute,
+  AdminTeacherCoursesRoute: AdminTeacherCoursesRoute,
+  AdminTeacherDashboardRoute: AdminTeacherDashboardRoute,
+  AdminTeacherHomeRoute: AdminTeacherHomeRoute,
+  AdminTeacherSettingsRoute: AdminTeacherSettingsRoute,
+  AdminTeacherStudentsRoute: AdminTeacherStudentsRoute,
+  AdminStudentIndexRoute: AdminStudentIndexRoute,
+  AdminTeacherIndexRoute: AdminTeacherIndexRoute,
+  AdminStudentClassClassIdRoute: AdminStudentClassClassIdRoute,
+  AdminStudentTopicTopicIdRoute: AdminStudentTopicTopicIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

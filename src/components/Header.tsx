@@ -7,13 +7,13 @@ export default function Header() {
         <div className="px-2 font-bold">
           <Link to="/">Home</Link>
         </div>
+      </nav>
 
+      <nav className="flex flex-row">
         <div className="px-2 font-bold">
-          <Link to="/demo/trpc-todo">tRPC Todo</Link>
-        </div>
-
-        <div className="px-2 font-bold">
-          <Link to="/demo/table">TanStack Table</Link>
+          <Link to="/login" className="btn btn-primary btn-sm">
+            Iniciar Sesión
+          </Link>
         </div>
       </nav>
     </header>

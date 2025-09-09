@@ -257,7 +257,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="es">
       <head>
         <HeadContent />
-        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -271,7 +270,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body>
+      <body data-theme="cmyk">
         {children}
         <Scripts />
       </body>
