@@ -15,7 +15,10 @@ function RouteComponent() {
             <h2 className="text-2xl font-bold leading-7 text-base-content sm:truncate sm:text-3xl sm:tracking-tight">
               Dashboard
             </h2>
-            <p className="text-sm text-base-content/70">
+            <p
+              className="text-sm text-base-content/70"
+              data-tip="Resumen general de la plataforma Sumak IA"
+            >
               Resumen general de la plataforma Sumak IA
             </p>
           </div>

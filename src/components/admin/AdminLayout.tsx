@@ -1,81 +1,129 @@
-import { Link, useLocation } from '@tanstack/react-router'
-import { BookA, ChartColumnIncreasing, Settings, Users } from 'lucide-react'
-import { useState } from 'react'
+import { Link, LinkOptions, useLocation } from '@tanstack/react-router'
+import {
+  BookOpenCheck,
+  ClipboardList,
+  Settings,
+  Sparkles,
+  SquarePen,
+} from 'lucide-react'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
-export function AdminLayout({ children }: AdminLayoutProps) {
-  const location = useLocation()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+type NavigationItem = {
+  name: string
+  href: NonNullable<LinkOptions['to']>
+  icon: React.ComponentType<{ size: number }>
+}
 
-  const navigation = [
+export function AdminLayout({ children }: AdminLayoutProps) {
+  const navigation: NavigationItem[] = [
     {
-      name: 'Dashboard',
+      name: 'Notes',
       href: '/admin-teacher/dashboard',
-      icon: ChartColumnIncreasing,
+      icon: SquarePen,
     },
     {
-      name: 'Estudiantes',
+      name: 'Tasks',
       href: '/admin-teacher/students',
-      icon: Users,
+      icon: ClipboardList,
     },
     {
-      name: 'Cursos',
+      name: 'AI Tutor',
       href: '/admin-teacher/courses',
-      icon: BookA,
+      icon: Sparkles,
     },
     {
-      name: 'IA & Analytics',
+      name: 'Study',
       href: '/admin-teacher/analytics',
-      icon: ChartColumnIncreasing,
+      icon: BookOpenCheck,
     },
     {
-      name: 'Configuración',
+      name: 'Settings',
       href: '/admin-teacher/settings',
       icon: Settings,
     },
   ]
 
+  return (
+    <div className="flex min-h-screen">
+      <div className="hidden min-h-screen w-fit flex-col md:block">
+        <DesktopSidebar navigation={navigation} />
+      </div>
+      <div className="block md:hidden">
+        <MobileSidebar navigation={navigation} />
+      </div>
+
+      <main className="flex-1 py-6">
+        <div className="px-4 lg:px-6">{children}</div>
+      </main>
+    </div>
+  )
+}
+
+function MobileSidebar({ navigation }: { navigation: NavigationItem[] }) {
+  const location = useLocation()
+  const isActive = (href: string) => {
+    return location.pathname === href
+  }
+  return (
+    <div className="dock bg-neutral text-neutral-content border-base-300 border-t">
+      {navigation.map((item) => (
+        <Link
+          key={item.name}
+          to={item.href}
+          data-tip={item.name}
+          className={`dock-item ${isActive(item.href) ? 'dock-active' : ''}`}
+        >
+          <div className="tooltip tooltip-top" data-tip={item.name}>
+            <item.icon size={24} />
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
+  const location = useLocation()
   const isActive = (href: string) => {
     return location.pathname === href
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <div className="lg:flex lg:w-fit lg:flex-col">
-        <div className="flex flex-col flex-grow border-r border-base-300 bg-primary pt-5 pb-4">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <img className="h-8 w-auto" src="/logo.png" alt="Sumak" />
+    <div className="border-base-300 bg-base-200 h-full border-r xl:w-64">
+      <div className="sticky top-0 z-10 flex h-fit flex-col items-center pt-4">
+        <div className="flex w-full gap-3 px-4">
+          <div className="max-w-11 min-w-11 cursor-pointer items-center rounded-lg bg-gradient-to-r from-[#59BAFF] to-purple-600 p-1.5">
+            <img src="/logo.png" alt="Sumak" />
           </div>
-          <nav className="mt-5 flex-1 flex flex-col divide-y divide-base-300">
-            <div className="px-2 space-y-1">
-              {navigation.map((item) => (
+
+          <div className="hidden w-full flex-col overflow-hidden xl:flex">
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
+              Sergio Loza Villarroel Lopez Marquez
+            </p>
+            <p className="text-base-content/60 text-sm">Estudiante</p>
+          </div>
+        </div>
+        <nav className="mt-6 w-full">
+          <div className="menu menu-vertical w-full items-center gap-3">
+            {navigation.map((item) => (
+              <li key={item.name} className="flex xl:w-full">
                 <Link
                   to={item.href}
-                  key={item.name}
                   data-tip={item.name}
-                  className={`group tooltip tooltip-right flex w-fit flex-col items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    isActive(item.href)
-                      ? 'bg-primary text-primary-content'
-                      : 'text-base-content hover:bg-base-300'
+                  className={`not-xl:tooltip not-xl:tooltip-right flex w-fit items-center justify-center transition-all before:z-50 xl:w-full xl:justify-start ${
+                    isActive(item.href) ? 'menu-active' : ''
                   }`}
                 >
-                  <item.icon size={32} />
+                  <item.icon size={24} />
+                  <p className="hidden xl:block">{item.name}</p>
                 </Link>
-              ))}
-            </div>
-          </nav>
-        </div>
-      </div>
-
-      <div className="flex flex-col flex-1">
-        {/* Main content */}
-        <main className="flex-1 py-6">
-          <div className="px-4 sm:px-6 lg:px-8">{children}</div>
-        </main>
+              </li>
+            ))}
+          </div>
+        </nav>
       </div>
     </div>
   )
