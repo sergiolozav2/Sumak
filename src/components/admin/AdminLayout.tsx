@@ -31,7 +31,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     },
     {
       name: 'AI Tutor',
-      href: '/admin-teacher/courses',
+      href: '/admin-teacher/chat',
       icon: Sparkles,
     },
     {

@@ -213,7 +213,7 @@ function RouteComponent() {
               <ChevronDown size={23} /> Show my notes
             </div>
             <div className="collapse-content text-sm md:pt-4">
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {notes.map((note) => (
                   <div
                     key={note.id}

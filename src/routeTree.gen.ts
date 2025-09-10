@@ -20,7 +20,7 @@ import { Route as AdminTeacherStudentsRouteImport } from './routes/admin-teacher
 import { Route as AdminTeacherSettingsRouteImport } from './routes/admin-teacher/settings'
 import { Route as AdminTeacherNotesRouteImport } from './routes/admin-teacher/notes'
 import { Route as AdminTeacherHomeRouteImport } from './routes/admin-teacher/home'
-import { Route as AdminTeacherCoursesRouteImport } from './routes/admin-teacher/courses'
+import { Route as AdminTeacherChatRouteImport } from './routes/admin-teacher/chat'
 import { Route as AdminTeacherAnalyticsRouteImport } from './routes/admin-teacher/analytics'
 import { Route as AdminStudentTopicTopicIdRouteImport } from './routes/admin-student/topic/$topicId'
 import { Route as AdminStudentClassClassIdRouteImport } from './routes/admin-student/class/$classId'
@@ -73,9 +73,9 @@ const AdminTeacherHomeRoute = AdminTeacherHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
-const AdminTeacherCoursesRoute = AdminTeacherCoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
+const AdminTeacherChatRoute = AdminTeacherChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminTeacherAnalyticsRoute = AdminTeacherAnalyticsRouteImport.update({
@@ -106,7 +106,7 @@ export interface FileRoutesByFullPath {
   '/admin-teacher': typeof AdminTeacherRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
-  '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
+  '/admin-teacher/chat': typeof AdminTeacherChatRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
   '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
@@ -120,7 +120,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
-  '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
+  '/admin-teacher/chat': typeof AdminTeacherChatRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
   '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
@@ -136,7 +136,7 @@ export interface FileRoutesById {
   '/admin-teacher': typeof AdminTeacherRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
-  '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
+  '/admin-teacher/chat': typeof AdminTeacherChatRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
   '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
@@ -153,7 +153,7 @@ export interface FileRouteTypes {
     | '/admin-teacher'
     | '/login'
     | '/admin-teacher/analytics'
-    | '/admin-teacher/courses'
+    | '/admin-teacher/chat'
     | '/admin-teacher/home'
     | '/admin-teacher/notes'
     | '/admin-teacher/settings'
@@ -167,7 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/admin-teacher/analytics'
-    | '/admin-teacher/courses'
+    | '/admin-teacher/chat'
     | '/admin-teacher/home'
     | '/admin-teacher/notes'
     | '/admin-teacher/settings'
@@ -182,7 +182,7 @@ export interface FileRouteTypes {
     | '/admin-teacher'
     | '/login'
     | '/admin-teacher/analytics'
-    | '/admin-teacher/courses'
+    | '/admin-teacher/chat'
     | '/admin-teacher/home'
     | '/admin-teacher/notes'
     | '/admin-teacher/settings'
@@ -288,11 +288,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTeacherHomeRouteImport
       parentRoute: typeof AdminTeacherRouteRoute
     }
-    '/admin-teacher/courses': {
-      id: '/admin-teacher/courses'
-      path: '/courses'
-      fullPath: '/admin-teacher/courses'
-      preLoaderRoute: typeof AdminTeacherCoursesRouteImport
+    '/admin-teacher/chat': {
+      id: '/admin-teacher/chat'
+      path: '/chat'
+      fullPath: '/admin-teacher/chat'
+      preLoaderRoute: typeof AdminTeacherChatRouteImport
       parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-teacher/analytics': {
@@ -332,7 +332,7 @@ declare module '@tanstack/react-start/server' {
 
 interface AdminTeacherRouteRouteChildren {
   AdminTeacherAnalyticsRoute: typeof AdminTeacherAnalyticsRoute
-  AdminTeacherCoursesRoute: typeof AdminTeacherCoursesRoute
+  AdminTeacherChatRoute: typeof AdminTeacherChatRoute
   AdminTeacherHomeRoute: typeof AdminTeacherHomeRoute
   AdminTeacherNotesRoute: typeof AdminTeacherNotesRoute
   AdminTeacherSettingsRoute: typeof AdminTeacherSettingsRoute
@@ -342,7 +342,7 @@ interface AdminTeacherRouteRouteChildren {
 
 const AdminTeacherRouteRouteChildren: AdminTeacherRouteRouteChildren = {
   AdminTeacherAnalyticsRoute: AdminTeacherAnalyticsRoute,
-  AdminTeacherCoursesRoute: AdminTeacherCoursesRoute,
+  AdminTeacherChatRoute: AdminTeacherChatRoute,
   AdminTeacherHomeRoute: AdminTeacherHomeRoute,
   AdminTeacherNotesRoute: AdminTeacherNotesRoute,
   AdminTeacherSettingsRoute: AdminTeacherSettingsRoute,
