@@ -247,7 +247,7 @@ function RouteComponent() {
         </div>
 
         {/* Editor area - centered with max width */}
-        <div className="flex h-full">
+        <div className="flex h-full flex-1">
           <div className="mx-auto max-w-3xl">
             <div className="border-base-200 flex h-full flex-col px-4 md:px-12 md:py-6">
               {/* Editor header with actions */}

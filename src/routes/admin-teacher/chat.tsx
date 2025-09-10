@@ -385,7 +385,7 @@ function RouteComponent() {
         </div>
 
         {/* Chat area */}
-        <div className="flex h-full w-full flex-col">
+        <div className="relative flex h-full w-full flex-col">
           {selectedChat ? (
             <>
               {/* Messages area */}
@@ -441,7 +441,7 @@ function RouteComponent() {
               </div>
 
               {/* Input area */}
-              <div className="border-base-300 bg-base-100 absolute right-0 bottom-[var(--dock-navbar-height)] left-0 border-t p-2">
+              <div className="border-base-300 bg-base-100 absolute right-0 bottom-0 left-0 border-t p-2">
                 <div className="mx-auto max-w-3xl">
                   <div className="flex items-center gap-2">
                     {/* Attachment button */}
