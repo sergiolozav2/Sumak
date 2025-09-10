@@ -341,17 +341,17 @@ function RouteComponent() {
       </div>
 
       {/* Desktop layout - side by side */}
-      <div className="flex h-[calc(100vh-127px)] min-h-[calc(100vh-127px)] flex-col overflow-clip md:max-h-full md:flex-row">
+      <div className="flex h-[calc(100vh-var(--combined-height))] min-h-[calc(100vh-var(--combined-height))] w-full flex-col overflow-clip md:max-h-full md:min-h-[calc(100vh-var(--navbar-height))] md:flex-row">
         {/* Chats sidebar - constant width */}
-        <div className="border-base-300 flex w-full flex-col md:w-80 md:border-r">
+        <div className="border-base-300 flex w-full flex-col md:w-80 md:min-w-80 md:border-r">
           {/* Chats list */}
           <div className="md:collapse-open collapse">
             <input type="checkbox" className="md:hidden" />
             <div className="collapse-title flex gap-1 font-medium md:hidden">
               <ChevronDown size={23} /> Show chat history
             </div>
-            <div className="collapse-content text-sm md:pt-4">
-              <div className="flex flex-col gap-3">
+            <div className="collapse-content w-full text-sm md:pt-4">
+              <div className="flex w-full flex-col gap-3">
                 {chats.map((chat) => (
                   <div
                     key={chat.id}
@@ -385,11 +385,11 @@ function RouteComponent() {
         </div>
 
         {/* Chat area */}
-        <div className="flex h-full flex-col">
+        <div className="flex h-full w-full flex-col">
           {selectedChat ? (
             <>
               {/* Messages area */}
-              <div className="h-full overflow-y-auto p-4">
+              <div className="h-full w-full overflow-y-auto p-4">
                 <div className="mx-auto h-full max-w-3xl space-y-4">
                   {selectedChat.messages.map((message) => (
                     <div

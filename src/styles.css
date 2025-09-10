@@ -37,4 +37,8 @@
   --border: 1px;
   --depth: 0;
   --noise: 0;
+
+  --navbar-height: 63px;
+  --dock-navbar-height: 64px;
+  --combined-height: calc(var(--navbar-height) + var(--dock-navbar-height));
 }
