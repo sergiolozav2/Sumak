@@ -6,7 +6,7 @@
     "dev": "vite dev --port 3000",
     "start": "node .output/server/index.mjs",
     "build": "vite build",
-    "prebuild": "pnpm run db-gen && pnpm run db-migrate",
+    "prebuild": "pnpm run db-gen",
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
