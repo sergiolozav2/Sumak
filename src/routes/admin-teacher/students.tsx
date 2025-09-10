@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import AdminLayout from '@/components/admin/AdminLayout'
+import AdminLayout from '@/components/admin/admin-layout'
 
 export const Route = createFileRoute('/admin-teacher/students')({
   component: RouteComponent,
@@ -56,17 +56,17 @@ function RouteComponent() {
         {/* Page header */}
         <div className="md:flex md:items-center md:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-2xl font-bold leading-7 text-base-content sm:truncate sm:text-3xl sm:tracking-tight">
+            <h2 className="text-base-content text-2xl leading-7 font-bold sm:truncate sm:text-3xl sm:tracking-tight">
               Gestión de Estudiantes
             </h2>
-            <p className="text-sm text-base-content/70">
+            <p className="text-base-content/70 text-sm">
               Administra estudiantes, revisa su progreso y recibe insights de IA
             </p>
           </div>
-          <div className="mt-4 flex md:ml-4 md:mt-0">
+          <div className="mt-4 flex md:mt-0 md:ml-4">
             <button className="btn btn-primary">
               <svg
-                className="w-5 h-5 mr-2"
+                className="mr-2 h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -118,7 +118,7 @@ function RouteComponent() {
         {/* Search and filters */}
         <div className="card bg-base-200 shadow">
           <div className="card-body">
-            <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex flex-col gap-4 lg:flex-row">
               <div className="flex-1">
                 <input
                   type="text"
@@ -171,7 +171,7 @@ function RouteComponent() {
                       <td>
                         <div className="flex items-center space-x-3">
                           <div className="avatar">
-                            <div className="mask mask-squircle w-12 h-12">
+                            <div className="mask mask-squircle h-12 w-12">
                               <img
                                 src={`https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=4f46e5&color=fff`}
                                 alt={student.name}
@@ -230,7 +230,7 @@ function RouteComponent() {
                         <div className="dropdown dropdown-end">
                           <label tabIndex={0} className="btn btn-ghost btn-xs">
                             <svg
-                              className="w-4 h-4"
+                              className="h-4 w-4"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -245,7 +245,7 @@ function RouteComponent() {
                           </label>
                           <ul
                             tabIndex={0}
-                            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
                           >
                             <li>
                               <a>Ver Perfil</a>
@@ -272,7 +272,7 @@ function RouteComponent() {
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-center mt-6">
+            <div className="mt-6 flex justify-center">
               <div className="join">
                 <button className="join-item btn">«</button>
                 <button className="join-item btn">Página 1</button>

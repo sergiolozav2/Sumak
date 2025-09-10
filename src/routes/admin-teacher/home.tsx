@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import AdminLayout from '@/components/admin/AdminLayout'
+import AdminLayout from '@/components/admin/admin-layout'
 
 export const Route = createFileRoute('/admin-teacher/home')({
   component: RouteComponent,
@@ -10,7 +10,7 @@ function RouteComponent() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Welcome Banner */}
-        <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg shadow-xl">
+        <div className="hero from-primary to-secondary text-primary-content rounded-lg bg-gradient-to-r shadow-xl">
           <div className="hero-content text-center">
             <div className="max-w-md">
               <h1 className="text-5xl font-bold">¡Bienvenido!</h1>
@@ -64,7 +64,7 @@ function RouteComponent() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button className="btn btn-primary btn-block">
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="mr-2 h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ function RouteComponent() {
                 </button>
                 <button className="btn btn-secondary btn-block">
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="mr-2 h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -96,7 +96,7 @@ function RouteComponent() {
                 </button>
                 <button className="btn btn-accent btn-block">
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="mr-2 h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -112,7 +112,7 @@ function RouteComponent() {
                 </button>
                 <button className="btn btn-info btn-block">
                   <svg
-                    className="w-5 h-5 mr-2"
+                    className="mr-2 h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -142,7 +142,7 @@ function RouteComponent() {
               <div className="space-y-3">
                 <div className="alert alert-info">
                   <svg
-                    className="stroke-current shrink-0 h-6 w-6"
+                    className="h-6 w-6 shrink-0 stroke-current"
                     fill="none"
                     viewBox="0 0 24 24"
                   >
@@ -159,7 +159,7 @@ function RouteComponent() {
                 </div>
                 <div className="alert alert-success">
                   <svg
-                    className="stroke-current shrink-0 h-6 w-6"
+                    className="h-6 w-6 shrink-0 stroke-current"
                     fill="none"
                     viewBox="0 0 24 24"
                   >
@@ -176,7 +176,7 @@ function RouteComponent() {
                 </div>
                 <div className="alert alert-warning">
                   <svg
-                    className="stroke-current shrink-0 h-6 w-6"
+                    className="h-6 w-6 shrink-0 stroke-current"
                     fill="none"
                     viewBox="0 0 24 24"
                   >
@@ -207,7 +207,7 @@ function RouteComponent() {
               <div className="step">Revisar Analytics</div>
             </div>
             <div className="mt-6">
-              <p className="text-sm text-base-content/70 mb-4">
+              <p className="text-base-content/70 mb-4 text-sm">
                 Sigue estos pasos para configurar completamente tu plataforma
                 Sumak IA y comenzar a brindar educación personalizada a tus
                 estudiantes.

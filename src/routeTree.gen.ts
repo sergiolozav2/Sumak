@@ -16,12 +16,12 @@ import { Route as AdminTeacherRouteRouteImport } from './routes/admin-teacher/ro
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminTeacherIndexRouteImport } from './routes/admin-teacher/index'
 import { Route as AdminStudentIndexRouteImport } from './routes/admin-student/index'
+import { Route as AdminTeacherStudyRouteImport } from './routes/admin-teacher/study'
 import { Route as AdminTeacherStudentsRouteImport } from './routes/admin-teacher/students'
 import { Route as AdminTeacherSettingsRouteImport } from './routes/admin-teacher/settings'
 import { Route as AdminTeacherNotesRouteImport } from './routes/admin-teacher/notes'
 import { Route as AdminTeacherHomeRouteImport } from './routes/admin-teacher/home'
 import { Route as AdminTeacherChatRouteImport } from './routes/admin-teacher/chat'
-import { Route as AdminTeacherAnalyticsRouteImport } from './routes/admin-teacher/analytics'
 import { Route as AdminStudentTopicTopicIdRouteImport } from './routes/admin-student/topic/$topicId'
 import { Route as AdminStudentClassClassIdRouteImport } from './routes/admin-student/class/$classId'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
@@ -53,6 +53,11 @@ const AdminStudentIndexRoute = AdminStudentIndexRouteImport.update({
   path: '/admin-student/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTeacherStudyRoute = AdminTeacherStudyRouteImport.update({
+  id: '/study',
+  path: '/study',
+  getParentRoute: () => AdminTeacherRouteRoute,
+} as any)
 const AdminTeacherStudentsRoute = AdminTeacherStudentsRouteImport.update({
   id: '/students',
   path: '/students',
@@ -78,11 +83,6 @@ const AdminTeacherChatRoute = AdminTeacherChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
-const AdminTeacherAnalyticsRoute = AdminTeacherAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => AdminTeacherRouteRoute,
-} as any)
 const AdminStudentTopicTopicIdRoute =
   AdminStudentTopicTopicIdRouteImport.update({
     id: '/admin-student/topic/$topicId',
@@ -105,12 +105,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-teacher': typeof AdminTeacherRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
   '/admin-teacher/chat': typeof AdminTeacherChatRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
   '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
   '/admin-teacher/students': typeof AdminTeacherStudentsRoute
+  '/admin-teacher/study': typeof AdminTeacherStudyRoute
   '/admin-student': typeof AdminStudentIndexRoute
   '/admin-teacher/': typeof AdminTeacherIndexRoute
   '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
@@ -119,12 +119,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
   '/admin-teacher/chat': typeof AdminTeacherChatRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
   '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
   '/admin-teacher/students': typeof AdminTeacherStudentsRoute
+  '/admin-teacher/study': typeof AdminTeacherStudyRoute
   '/admin-student': typeof AdminStudentIndexRoute
   '/admin-teacher': typeof AdminTeacherIndexRoute
   '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
@@ -135,12 +135,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin-teacher': typeof AdminTeacherRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
   '/admin-teacher/chat': typeof AdminTeacherChatRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
   '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
   '/admin-teacher/students': typeof AdminTeacherStudentsRoute
+  '/admin-teacher/study': typeof AdminTeacherStudyRoute
   '/admin-student/': typeof AdminStudentIndexRoute
   '/admin-teacher/': typeof AdminTeacherIndexRoute
   '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
@@ -152,12 +152,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-teacher'
     | '/login'
-    | '/admin-teacher/analytics'
     | '/admin-teacher/chat'
     | '/admin-teacher/home'
     | '/admin-teacher/notes'
     | '/admin-teacher/settings'
     | '/admin-teacher/students'
+    | '/admin-teacher/study'
     | '/admin-student'
     | '/admin-teacher/'
     | '/admin-student/class/$classId'
@@ -166,12 +166,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
-    | '/admin-teacher/analytics'
     | '/admin-teacher/chat'
     | '/admin-teacher/home'
     | '/admin-teacher/notes'
     | '/admin-teacher/settings'
     | '/admin-teacher/students'
+    | '/admin-teacher/study'
     | '/admin-student'
     | '/admin-teacher'
     | '/admin-student/class/$classId'
@@ -181,12 +181,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-teacher'
     | '/login'
-    | '/admin-teacher/analytics'
     | '/admin-teacher/chat'
     | '/admin-teacher/home'
     | '/admin-teacher/notes'
     | '/admin-teacher/settings'
     | '/admin-teacher/students'
+    | '/admin-teacher/study'
     | '/admin-student/'
     | '/admin-teacher/'
     | '/admin-student/class/$classId'
@@ -260,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStudentIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-teacher/study': {
+      id: '/admin-teacher/study'
+      path: '/study'
+      fullPath: '/admin-teacher/study'
+      preLoaderRoute: typeof AdminTeacherStudyRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
+    }
     '/admin-teacher/students': {
       id: '/admin-teacher/students'
       path: '/students'
@@ -295,13 +302,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTeacherChatRouteImport
       parentRoute: typeof AdminTeacherRouteRoute
     }
-    '/admin-teacher/analytics': {
-      id: '/admin-teacher/analytics'
-      path: '/analytics'
-      fullPath: '/admin-teacher/analytics'
-      preLoaderRoute: typeof AdminTeacherAnalyticsRouteImport
-      parentRoute: typeof AdminTeacherRouteRoute
-    }
     '/admin-student/topic/$topicId': {
       id: '/admin-student/topic/$topicId'
       path: '/admin-student/topic/$topicId'
@@ -331,22 +331,22 @@ declare module '@tanstack/react-start/server' {
 }
 
 interface AdminTeacherRouteRouteChildren {
-  AdminTeacherAnalyticsRoute: typeof AdminTeacherAnalyticsRoute
   AdminTeacherChatRoute: typeof AdminTeacherChatRoute
   AdminTeacherHomeRoute: typeof AdminTeacherHomeRoute
   AdminTeacherNotesRoute: typeof AdminTeacherNotesRoute
   AdminTeacherSettingsRoute: typeof AdminTeacherSettingsRoute
   AdminTeacherStudentsRoute: typeof AdminTeacherStudentsRoute
+  AdminTeacherStudyRoute: typeof AdminTeacherStudyRoute
   AdminTeacherIndexRoute: typeof AdminTeacherIndexRoute
 }
 
 const AdminTeacherRouteRouteChildren: AdminTeacherRouteRouteChildren = {
-  AdminTeacherAnalyticsRoute: AdminTeacherAnalyticsRoute,
   AdminTeacherChatRoute: AdminTeacherChatRoute,
   AdminTeacherHomeRoute: AdminTeacherHomeRoute,
   AdminTeacherNotesRoute: AdminTeacherNotesRoute,
   AdminTeacherSettingsRoute: AdminTeacherSettingsRoute,
   AdminTeacherStudentsRoute: AdminTeacherStudentsRoute,
+  AdminTeacherStudyRoute: AdminTeacherStudyRoute,
   AdminTeacherIndexRoute: AdminTeacherIndexRoute,
 }
 

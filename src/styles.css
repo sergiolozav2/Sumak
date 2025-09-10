@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+:root {
+  --navbar-height: 73px;
+  --dock-navbar-height: 64px;
+  --combined-height: calc(var(--navbar-height) + var(--dock-navbar-height));
+}
+
 @plugin "daisyui" {
   themes: all;
 }
@@ -32,15 +38,11 @@
   --radius-selector: 1rem;
   --radius-field: 0.5rem;
   --radius-box: 0.5rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.1875rem;
+
   --border: 1px;
   --depth: 0;
   --noise: 0;
 
-  --navbar-height: 63px;
-  --dock-navbar-height: 64px;
-  --combined-height: calc(var(--navbar-height) + var(--dock-navbar-height));
 }
 
 .responsive-app-container {}

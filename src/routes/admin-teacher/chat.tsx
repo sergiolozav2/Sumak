@@ -331,7 +331,7 @@ function RouteComponent() {
       <div className="border-base-300 w-full border-b px-4 py-4">
         <div className="flex w-full items-center justify-between">
           <h2 className="text-base-content overflow-hidden text-xl font-bold text-ellipsis whitespace-nowrap">
-            AI Chat {selectedChat ? `- ${selectedChat.title}` : ''}
+            AI Tutor {selectedChat ? `- ${selectedChat.title}` : ''}
           </h2>
           <button onClick={handleNewChat} className="btn btn-primary">
             <Plus size={20} />

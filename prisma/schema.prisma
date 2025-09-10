@@ -18,3 +18,16 @@ model Notes {
   title String  
   content String
 }  
+
+enum StudyCardType {
+  Card
+  TrueOrFalse
+}
+
+model StudyCards {
+  id    Int     @id @default(autoincrement())  
+  subject String
+  type StudyCardType
+  question String 
+  answer String
+}

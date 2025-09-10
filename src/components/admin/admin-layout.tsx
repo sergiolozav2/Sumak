@@ -6,6 +6,7 @@ import {
   Sparkles,
   SquarePen,
 } from 'lucide-react'
+import { ThemeSwitcher } from '../common/theme-switcher'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -36,7 +37,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     },
     {
       name: 'Study',
-      href: '/admin-teacher/analytics',
+      href: '/admin-teacher/study',
       icon: BookOpenCheck,
     },
     {
@@ -90,7 +91,7 @@ function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
   }
 
   return (
-    <div className="border-base-300 bg-base-200 h-full border-r xl:w-64">
+    <div className="border-base-300 bg-base-200 flex h-full flex-col justify-between border-r xl:w-64">
       <div className="sticky top-0 z-10 flex h-fit flex-col items-center pt-4">
         <div className="flex w-full gap-3 px-4">
           <Link to="/">
@@ -124,6 +125,9 @@ function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
             ))}
           </div>
         </nav>
+      </div>
+      <div className="flex w-full items-center justify-center px-2 py-2">
+        <ThemeSwitcher />
       </div>
     </div>
   )

@@ -270,7 +270,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body data-theme="my-light">
+      <body>
         {children}
         <Scripts />
       </body>

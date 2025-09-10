@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import AdminLayout from '@/components/admin/AdminLayout'
+import AdminLayout from '@/components/admin/admin-layout'
 
 export const Route = createFileRoute('/admin-teacher/settings')({
   component: RouteComponent,
@@ -12,18 +12,18 @@ function RouteComponent() {
         {/* Page header */}
         <div className="md:flex md:items-center md:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-2xl font-bold leading-7 text-base-content sm:truncate sm:text-3xl sm:tracking-tight">
+            <h2 className="text-base-content text-2xl leading-7 font-bold sm:truncate sm:text-3xl sm:tracking-tight">
               Configuración
             </h2>
-            <p className="text-sm text-base-content/70">
+            <p className="text-base-content/70 text-sm">
               Configuración general de la plataforma, IA y preferencias del
               sistema
             </p>
           </div>
-          <div className="mt-4 flex md:ml-4 md:mt-0">
+          <div className="mt-4 flex md:mt-0 md:ml-4">
             <button className="btn btn-primary">
               <svg
-                className="w-5 h-5 mr-2"
+                className="mr-2 h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -73,7 +73,7 @@ function RouteComponent() {
           </div>
 
           {/* Main Settings Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* General Settings */}
             <div className="card bg-base-200 shadow">
               <div className="card-body">
@@ -191,7 +191,7 @@ function RouteComponent() {
                       defaultValue="3"
                       className="range range-primary"
                     />
-                    <div className="w-full flex justify-between text-xs px-2">
+                    <div className="flex w-full justify-between px-2 text-xs">
                       <span>Conservador</span>
                       <span>Moderado</span>
                       <span>Agresivo</span>
@@ -408,7 +408,7 @@ function RouteComponent() {
             <div className="card bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-xl">
               <div className="card-body">
                 <h3 className="card-title text-white">Estado del Sistema</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <div className="text-sm opacity-75">
                       Última Actualización
@@ -428,7 +428,7 @@ function RouteComponent() {
                     <div className="text-lg font-bold">1,247</div>
                   </div>
                 </div>
-                <div className="card-actions justify-end mt-4">
+                <div className="card-actions mt-4 justify-end">
                   <button className="btn btn-neutral">Ver Logs</button>
                   <button className="btn btn-secondary">Backup Ahora</button>
                 </div>
