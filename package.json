@@ -12,7 +12,7 @@
     "lint": "eslint",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
-    "db-migrate": "pnpx prisma migrate dev",
+    "db-migrate": "pnpx prisma migrate dev && pnpx run db-gen",
     "db-gen": "pnpx prisma generate --no-hints"
   },
   "dependencies": {

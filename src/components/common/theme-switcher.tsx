@@ -1,5 +1,6 @@
 // src/components/ThemeSwitcher.jsx
 
+import { Palette } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 // A helper function to get the initial theme from localStorage or fallback to a default
@@ -20,7 +21,6 @@ export function ThemeSwitcher() {
 
   const handleThemeChange = (e: any) => {
     const value = e.target.value
-    console.log(value)
     setTheme(value)
     document.documentElement.setAttribute('data-theme', value)
     localStorage.setItem('theme', value)
@@ -28,7 +28,7 @@ export function ThemeSwitcher() {
 
   return (
     <div className="dropdown dropdown-top">
-      <div tabIndex={0} role="button" className="btn">
+      <button tabIndex={0} role="button" className="btn hidden xl:block">
         Theme
         <svg
           width="12px"
@@ -39,7 +39,16 @@ export function ThemeSwitcher() {
         >
           <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
         </svg>
-      </div>
+      </button>
+
+      <button
+        tabIndex={0}
+        role="button"
+        className="btn btn-rounded hidden sm:block xl:hidden"
+      >
+        <Palette />
+      </button>
+
       <ul
         tabIndex={0}
         className="dropdown-content bg-base-300 rounded-box z-50 mt-2 w-52 p-2 shadow-2xl"

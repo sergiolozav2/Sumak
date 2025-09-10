@@ -16,6 +16,18 @@ export const studyCardsRouter = {
             subject: 'Geography',
             type: 'Card',
           },
+          {
+            question: 'What is the capital of Italy?',
+            answer: 'Rome',
+            subject: 'Geography',
+            type: 'Card',
+          },
+          {
+            question: 'What is the capital of China?',
+            answer: 'Beijing',
+            subject: 'Geography',
+            type: 'Card',
+          },
         ],
       })
     }
