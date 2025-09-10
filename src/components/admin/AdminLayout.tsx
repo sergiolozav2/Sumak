@@ -93,9 +93,11 @@ function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
     <div className="border-base-300 bg-base-200 h-full border-r xl:w-64">
       <div className="sticky top-0 z-10 flex h-fit flex-col items-center pt-4">
         <div className="flex w-full gap-3 px-4">
-          <div className="max-w-11 min-w-11 cursor-pointer items-center rounded-lg bg-gradient-to-r from-[#59BAFF] to-purple-600 p-1.5">
-            <img src="/logo.png" alt="Sumak" />
-          </div>
+          <Link to="/">
+            <div className="max-w-11 min-w-11 cursor-pointer items-center rounded-lg bg-gradient-to-r from-[#59BAFF] to-purple-600 p-1.5">
+              <img src="/logo.png" alt="Sumak" />
+            </div>
+          </Link>
 
           <div className="hidden w-full flex-col overflow-hidden xl:flex">
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">

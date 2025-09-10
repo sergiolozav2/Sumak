@@ -63,12 +63,12 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center p-4">
-      <div className="card w-full max-w-md bg-base-100 shadow-xl">
+    <div className="from-primary/20 to-secondary/20 flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
+      <div className="card bg-base-100 w-full max-w-md shadow-xl">
         <div className="card-body">
           {/* Header */}
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-primary mb-2">Sumak AI</h1>
+          <div className="mb-6 text-center">
+            <h1 className="text-primary mb-2 text-3xl font-bold">Sumak AI</h1>
             <p className="text-base-content/70">
               Plataforma de educación personalizada para América Latina
             </p>
@@ -81,7 +81,7 @@ function RouteComponent() {
               onClick={() => setUserType('student')}
             >
               <svg
-                className="w-4 h-4 mr-2"
+                className="mr-2 h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -100,7 +100,7 @@ function RouteComponent() {
               onClick={() => setUserType('teacher')}
             >
               <svg
-                className="w-4 h-4 mr-2"
+                className="mr-2 h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -117,11 +117,11 @@ function RouteComponent() {
           </div>
 
           {/* Mode Toggle */}
-          <div className="text-center mb-3">
-            <h2 className="text-xl font-semibold mb-2">
+          <div className="mb-3 text-center">
+            <h2 className="mb-2 text-xl font-semibold">
               {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
             </h2>
-            <p className="text-sm text-base-content/70">
+            <p className="text-base-content/70 text-sm">
               {mode === 'login'
                 ? `Accede como ${userType === 'student' ? 'estudiante' : 'profesor'}`
                 : `Regístrate como ${userType === 'student' ? 'estudiante' : 'profesor'}`}
@@ -133,7 +133,7 @@ function RouteComponent() {
             {/* Registration fields */}
             {mode === 'register' && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <label className="form-control">
                     <div className="label">
                       <span className="label-text">Nombre</span>
@@ -189,7 +189,7 @@ function RouteComponent() {
                 </label>
 
                 {userType === 'student' ? (
-                  <label className="flex flex-col form-control">
+                  <label className="form-control flex flex-col">
                     <div className="label">
                       <span className="label-text">Grado/Nivel</span>
                     </div>
@@ -248,7 +248,7 @@ function RouteComponent() {
             )}
 
             {/* Email */}
-            <label className="flex flex-col form-control">
+            <label className="form-control flex flex-col">
               <div className="label">
                 <span className="label-text">Correo electrónico</span>
               </div>
@@ -264,7 +264,7 @@ function RouteComponent() {
             </label>
 
             {/* Password */}
-            <label className="flex flex-col form-control">
+            <label className="form-control flex flex-col">
               <div className="label">
                 <span className="label-text">Contraseña</span>
               </div>
@@ -287,7 +287,7 @@ function RouteComponent() {
 
             {/* Confirm Password (only for registration) */}
             {mode === 'register' && (
-              <label className="flex flex-col form-control">
+              <label className="form-control flex flex-col">
                 <div className="label">
                   <span className="label-text">Confirmar contraseña</span>
                 </div>
@@ -304,15 +304,15 @@ function RouteComponent() {
             )}
 
             {/* Submit Button */}
-            <button type="submit" className="btn btn-primary w-full">
+            <Link to="/admin-teacher/notes" className="btn btn-primary w-full">
               {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
-            </button>
+            </Link>
           </form>
 
           {/* Mode Toggle Link */}
           <div className="divider">O</div>
           <div className="text-center">
-            <p className="text-sm text-base-content/70">
+            <p className="text-base-content/70 text-sm">
               {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
             </p>
             <button
@@ -324,7 +324,7 @@ function RouteComponent() {
           </div>
 
           {/* Back to Home */}
-          <div className="text-center mt-6">
+          <div className="mt-6 text-center">
             <Link to="/" className="link link-neutral text-sm">
               ← Volver al inicio
             </Link>
