@@ -2,7 +2,16 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
-import { ChevronDown, Plus } from 'lucide-react'
+import {
+  ChevronDown,
+  Mic,
+  Paperclip,
+  Plus,
+  Languages,
+  HelpCircle,
+  BookOpen,
+  Eye,
+} from 'lucide-react'
 
 export const Route = createFileRoute('/admin-teacher/notes')({
   component: RouteComponent,
@@ -139,6 +148,43 @@ function RouteComponent() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [hasUnsavedChanges, handleSave])
 
+  // Action handlers
+  const handleTranslate = () => {
+    console.log('Translate action', {
+      noteId: selectedNoteId,
+      title,
+      content,
+      action: 'translate',
+    })
+  }
+
+  const handleExplain = () => {
+    console.log('Explain action', {
+      noteId: selectedNoteId,
+      title,
+      content,
+      action: 'explain',
+    })
+  }
+
+  const handleStudy = () => {
+    console.log('Study action', {
+      noteId: selectedNoteId,
+      title,
+      content,
+      action: 'study',
+    })
+  }
+
+  const handleVisualize = () => {
+    console.log('Visualize action', {
+      noteId: selectedNoteId,
+      title,
+      content,
+      action: 'visualize',
+    })
+  }
+
   const originalNote = notes.find((note) => note.id === selectedNoteId)
 
   return (
@@ -242,6 +288,26 @@ function RouteComponent() {
                 className="placeholder:text-base-content/40 text-base-content mb-6 w-full border-none bg-transparent text-3xl font-bold outline-none"
               />
 
+              {/* Botón de dictado por voz */}
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  title="Dictar por voz"
+                >
+                  <Mic size={20} />
+                  <span className="ml-1 hidden md:inline">Voice</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-primary"
+                  title="Subir archivo"
+                >
+                  <Paperclip size={20} />
+                  <span className="ml-1 hidden md:inline">Upload</span>
+                </button>
+              </div>
+
               {/* Content field */}
               <textarea
                 value={content}
@@ -251,9 +317,48 @@ function RouteComponent() {
                 style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
               />
 
-              {/* Helper text */}
-              <div className="text-base-content/70 border-base-200 mt-6 border-t pt-4 text-center text-sm">
-                Press Ctrl+S to save
+              {/* Action buttons */}
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleTranslate}
+                  className="btn btn-outline"
+                  disabled={!content.trim()}
+                  title="Translate content"
+                >
+                  <Languages size={20} />
+                  <span className="ml-1">Translate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExplain}
+                  className="btn btn-outline"
+                  disabled={!content.trim()}
+                  title="Explain content"
+                >
+                  <HelpCircle size={20} />
+                  <span className="ml-1">Explain</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStudy}
+                  className="btn btn-outline"
+                  disabled={!content.trim()}
+                  title="Create study materials"
+                >
+                  <BookOpen size={20} />
+                  <span className="ml-1">Study</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleVisualize}
+                  className="btn btn-outline"
+                  disabled={!content.trim()}
+                  title="Visualize content"
+                >
+                  <Eye size={20} />
+                  <span className="ml-1">Visualize</span>
+                </button>
               </div>
             </div>
           </div>
