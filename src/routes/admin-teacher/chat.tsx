@@ -9,6 +9,7 @@ import {
   StopCircle,
   ChevronDown,
 } from 'lucide-react'
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
 
 export const Route = createFileRoute('/admin-teacher/chat')({
   component: RouteComponent,
@@ -115,13 +116,34 @@ function RouteComponent() {
   const [chats, setChats] = useState<Chat[]>(mockChats)
   const [selectedChatId, setSelectedChatId] = useState<number | null>(1)
   const [messageInput, setMessageInput] = useState('')
-  const [isRecording, setIsRecording] = useState(false)
-  const [recordingTime, setRecordingTime] = useState(0)
   const [showAttachments, setShowAttachments] = useState(false)
+
+  // Speech recognition hook
+  const {
+    isListening,
+    isSupported: isSpeechSupported,
+    transcript,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition({
+    continuous: false,
+    interimResults: true,
+    language: 'en-US',
+    onResult: (result) => {
+      console.log(result)
+      if (result.isFinal) {
+        setMessageInput((prev) => prev + result.transcript + ' ')
+        resetTranscript()
+      }
+    },
+    onError: (error) => {
+      console.error('Speech recognition error:', error)
+    },
+  })
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
-  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const selectedChat = chats.find((chat) => chat.id === selectedChatId)
@@ -130,26 +152,6 @@ function RouteComponent() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [selectedChat?.messages])
-
-  // Handle recording timer
-  useEffect(() => {
-    if (isRecording) {
-      recordingIntervalRef.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1)
-      }, 1000)
-    } else {
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current)
-      }
-      setRecordingTime(0)
-    }
-
-    return () => {
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current)
-      }
-    }
-  }, [isRecording])
 
   // Handle new chat
   const handleNewChat = () => {
@@ -230,21 +232,16 @@ function RouteComponent() {
   }
 
   // Handle voice recording
-  const handleStartRecording = () => {
-    setIsRecording(true)
-    // Here you would implement actual voice recording logic
-    console.log('Starting voice recording...')
-  }
-
-  const handleStopRecording = () => {
-    setIsRecording(false)
-    // Here you would implement stopping recording and converting to text
-    console.log('Stopping voice recording...')
-
-    // Mock: Add the "transcribed" text to input
-    setMessageInput(
-      (prev) => prev + 'This is mock transcribed text from voice recording.',
-    )
+  const handleToggleSpeechRecognition = () => {
+    if (!isSpeechSupported) {
+      alert('Speech recognition is not supported in this browser')
+      return
+    }
+    if (isListening) {
+      stopListening()
+    } else {
+      startListening()
+    }
   }
 
   // Handle file upload
@@ -327,12 +324,6 @@ function RouteComponent() {
       e.preventDefault()
       handleSendMessage()
     }
-  }
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (
@@ -482,28 +473,49 @@ function RouteComponent() {
                     {/* Text input */}
                     <div className="flex-1">
                       <textarea
-                        value={messageInput}
+                        value={
+                          messageInput +
+                          (isListening && transcript ? ` ${transcript}` : '')
+                        }
                         onChange={(e) => setMessageInput(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Type your message..."
-                        className="textarea textarea-bordered w-full resize-none"
+                        placeholder={
+                          isListening
+                            ? 'Listening... Start speaking'
+                            : isSpeechSupported
+                              ? 'Type your message or use voice input...'
+                              : 'Type your message...'
+                        }
+                        className={`textarea textarea-bordered w-full resize-none ${
+                          isListening ? 'border-primary animate-pulse' : ''
+                        }`}
                         rows={1}
                         style={{ minHeight: '2.5rem', maxHeight: '10rem' }}
+                        readOnly={isListening}
                       />
                     </div>
 
                     {/* Voice button */}
                     <button
                       type="button"
-                      onClick={
-                        isRecording ? handleStopRecording : handleStartRecording
-                      }
-                      className={`btn btn-square ${isRecording ? 'btn-error' : 'btn-ghost'}`}
+                      onClick={handleToggleSpeechRecognition}
+                      disabled={!isSpeechSupported}
+                      className={`btn btn-square ${
+                        isListening
+                          ? 'btn-error animate-pulse'
+                          : isSpeechSupported
+                            ? 'btn-ghost'
+                            : 'btn-disabled'
+                      }`}
                       title={
-                        isRecording ? 'Stop recording' : 'Start voice recording'
+                        !isSpeechSupported
+                          ? 'Speech recognition not supported'
+                          : isListening
+                            ? 'Stop listening'
+                            : 'Start voice input'
                       }
                     >
-                      {isRecording ? (
+                      {isListening ? (
                         <StopCircle size={20} />
                       ) : (
                         <Mic size={20} />
