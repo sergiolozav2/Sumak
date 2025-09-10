@@ -328,9 +328,9 @@ function RouteComponent() {
 
   return (
     <div className="h-full w-full">
-      <div className="border-base-300 h-full border-b px-4 py-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base-content text-xl font-bold">
+      <div className="border-base-300 w-full border-b px-4 py-4">
+        <div className="flex w-full items-center justify-between">
+          <h2 className="text-base-content overflow-hidden text-xl font-bold text-ellipsis whitespace-nowrap">
             AI Chat {selectedChat ? `- ${selectedChat.title}` : ''}
           </h2>
           <button onClick={handleNewChat} className="btn btn-primary">
@@ -341,7 +341,7 @@ function RouteComponent() {
       </div>
 
       {/* Desktop layout - side by side */}
-      <div className="flex h-[calc(100vh-var(--combined-height))] min-h-[calc(100vh-var(--combined-height))] w-full flex-col overflow-clip md:max-h-full md:min-h-[calc(100vh-var(--navbar-height))] md:flex-row">
+      <div className="responsive-app-container-height flex h-full w-full flex-col overflow-clip md:max-h-full md:flex-row">
         {/* Chats sidebar - constant width */}
         <div className="border-base-300 flex w-full flex-col md:w-80 md:min-w-80 md:border-r">
           {/* Chats list */}
@@ -351,21 +351,21 @@ function RouteComponent() {
               <ChevronDown size={23} /> Show chat history
             </div>
             <div className="collapse-content w-full text-sm md:pt-4">
-              <div className="flex w-full flex-col gap-3">
+              <div className="flex w-full flex-col gap-2 md:gap-3">
                 {chats.map((chat) => (
                   <div
                     key={chat.id}
                     onClick={() => handleChatSelect(chat)}
-                    className={`relative cursor-pointer rounded-lg border p-4 transition-colors ${
+                    className={`relative cursor-pointer rounded-lg border p-2 transition-colors md:p-4 ${
                       selectedChatId === chat.id
                         ? 'bg-primary/10 border-primary/20'
                         : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
                     }`}
                   >
-                    <h4 className="text-base-content mb-1 truncate font-medium">
+                    <h4 className="text-base-content truncate font-medium">
                       {chat.title}
                     </h4>
-                    <p className="text-base-content/70 line-clamp-1 text-sm">
+                    <p className="text-base-content/70 line-clamp-1 hidden text-sm md:block">
                       {chat.lastMessage || 'No messages yet'}
                     </p>
                   </div>
@@ -389,12 +389,20 @@ function RouteComponent() {
           {selectedChat ? (
             <>
               {/* Messages area */}
-              <div className="h-full w-full overflow-y-auto p-4">
-                <div className="mx-auto h-full max-w-3xl space-y-4">
+              <div className="h-full w-full overflow-y-auto px-2 md:p-4">
+                <div className="mx-auto flex max-w-3xl flex-col text-sm md:text-base">
+                  {selectedChat.messages.length === 0 ? (
+                    <div className="flex flex-1 flex-col items-center justify-center">
+                      <p className="text-base-content/40">
+                        Start a new conversation
+                      </p>
+                    </div>
+                  ) : null}
+
                   {selectedChat.messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`chat ${message.isUser ? 'chat-end' : 'chat-start'}`}
+                      className={`chat mb-0 md:mb-2 ${message.isUser ? 'chat-end' : 'chat-start'}`}
                     >
                       <div className="chat-image avatar">
                         <div className="w-10 rounded-full">
@@ -433,7 +441,7 @@ function RouteComponent() {
               </div>
 
               {/* Input area */}
-              <div className="border-base-300 border-t p-4">
+              <div className="border-base-300 bg-base-100 absolute right-0 bottom-[var(--dock-navbar-height)] left-0 border-t p-2">
                 <div className="mx-auto max-w-3xl">
                   <div className="flex items-center gap-2">
                     {/* Attachment button */}
@@ -480,11 +488,7 @@ function RouteComponent() {
                         onChange={(e) => setMessageInput(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder={
-                          isListening
-                            ? 'Listening... Start speaking'
-                            : isSpeechSupported
-                              ? 'Type your message or use voice input...'
-                              : 'Type your message...'
+                          isListening ? 'Listening...' : 'Type your message'
                         }
                         className={`textarea textarea-bordered w-full resize-none ${
                           isListening ? 'border-primary animate-pulse' : ''

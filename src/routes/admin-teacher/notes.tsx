@@ -188,8 +188,8 @@ function RouteComponent() {
   const originalNote = notes.find((note) => note.id === selectedNoteId)
 
   return (
-    <div className="h-full w-full">
-      <div className="border-base-300 h-full border-b px-4 py-4">
+    <div className="flex h-full w-full flex-col">
+      <div className="border-base-300 border-b px-4 py-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base-content text-xl font-bold">
             Notes {originalNote ? `- ${originalNote.title}` : ''}
@@ -202,7 +202,7 @@ function RouteComponent() {
       </div>
 
       {/* Desktop layout - side by side */}
-      <div className="flex h-full flex-col md:flex-row">
+      <div className="responsive-app-container flex h-full flex-col md:flex-row">
         {/* Notes sidebar - constant width */}
         <div className="border-base-300 flex w-full flex-col md:w-80 md:border-r">
           {/* Sidebar header */}
@@ -213,21 +213,21 @@ function RouteComponent() {
               <ChevronDown size={23} /> Show my notes
             </div>
             <div className="collapse-content text-sm md:pt-4">
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2 md:gap-3">
                 {notes.map((note) => (
                   <div
                     key={note.id}
                     onClick={() => handleNoteSelect(note)}
-                    className={`relative cursor-pointer rounded-lg border p-4 transition-colors ${
+                    className={`relative cursor-pointer rounded-lg border p-2 transition-colors md:p-4 ${
                       selectedNoteId === note.id
                         ? 'bg-primary/10 border-primary/20'
                         : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
                     }`}
                   >
-                    <h4 className="text-base-content mb-1 truncate font-medium">
+                    <h4 className="text-base-content truncate font-medium">
                       {note.title || 'Untitled'}
                     </h4>
-                    <p className="text-base-content/70 line-clamp-1 text-sm">
+                    <p className="text-base-content/70 line-clamp-1 hidden text-sm md:block">
                       {note.content?.substring(0, 80)}
                     </p>
                   </div>
@@ -247,11 +247,11 @@ function RouteComponent() {
         </div>
 
         {/* Editor area - centered with max width */}
-        <div className="flex-1">
+        <div className="flex h-full">
           <div className="mx-auto max-w-3xl">
-            <div className="border-base-200 h-full min-h-96 px-4 md:px-12 md:py-6">
+            <div className="border-base-200 flex h-full flex-col px-4 md:px-12 md:py-6">
               {/* Editor header with actions */}
-              <div className="mb-6 flex items-center justify-between text-sm font-medium">
+              <div className="mb-1 flex items-center justify-between text-sm font-medium md:mb-6">
                 <div className="text-base-content/80">
                   {hasUnsavedChanges && (
                     <span className="text-warning">● Unsaved changes</span>
@@ -285,10 +285,10 @@ function RouteComponent() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Note title..."
-                className="placeholder:text-base-content/40 text-base-content mb-6 w-full border-none bg-transparent text-3xl font-bold outline-none"
+                className="placeholder:text-base-content/40 text-base-content mb-2 w-full border-none bg-transparent text-3xl font-bold outline-none md:mb-6"
               />
 
-              {/* Botón de dictado por voz */}
+              {/* Botón de dictado por voz y subir archivos */}
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
@@ -313,12 +313,12 @@ function RouteComponent() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Start writing your thoughts..."
-                className="placeholder:text-base-content/40 text-base-content h-96 w-full resize-none border-none bg-transparent text-lg leading-relaxed outline-none"
+                className="placeholder:text-base-content/40 text-base-content w-full flex-1 resize-none border-none bg-transparent text-lg leading-relaxed outline-none"
                 style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
               />
 
               {/* Action buttons */}
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="mt-6 mb-2 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={handleTranslate}

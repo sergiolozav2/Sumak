@@ -55,9 +55,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <MobileSidebar navigation={navigation} />
       </div>
 
-      <main className="flex-1">
-        <div className="">{children}</div>
-      </main>
+      <main className="min-h-svh w-full">{children}</main>
     </div>
   )
 }
