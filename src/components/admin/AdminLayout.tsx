@@ -103,7 +103,7 @@ function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">
               Sergio Loza Villarroel Lopez Marquez
             </p>
-            <p className="text-base-content/60 text-sm">Estudiante</p>
+            <p className="text-base-content/60 text-sm">Student</p>
           </div>
         </div>
         <nav className="mt-6 w-full">

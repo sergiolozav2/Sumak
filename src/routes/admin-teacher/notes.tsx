@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
-import { Plus } from 'lucide-react'
+import { ChevronDown, Plus } from 'lucide-react'
 
 export const Route = createFileRoute('/admin-teacher/notes')({
   component: RouteComponent,
@@ -139,11 +139,15 @@ function RouteComponent() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [hasUnsavedChanges, handleSave])
 
+  const originalNote = notes.find((note) => note.id === selectedNoteId)
+
   return (
     <div className="h-full w-full">
       <div className="border-base-300 h-full border-b px-4 py-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base-content text-xl font-bold">Notes</h2>
+          <h2 className="text-base-content text-xl font-bold">
+            Notes {originalNote ? `- ${originalNote.title}` : ''}
+          </h2>
           <button onClick={handleNewNote} className="btn btn-primary">
             <Plus size={20} />
             New
@@ -152,48 +156,54 @@ function RouteComponent() {
       </div>
 
       {/* Desktop layout - side by side */}
-      <div className="flex h-screen">
+      <div className="flex h-screen flex-col md:flex-row">
         {/* Notes sidebar - constant width */}
-        <div className="bg-base-100 border-base-300 flex w-80 flex-col border-r">
+        <div className="border-base-300 flex w-full flex-col md:w-80 md:border-r">
           {/* Sidebar header */}
           {/* Notes list */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="space-y-3 p-4">
-              {notes.map((note) => (
-                <div
-                  key={note.id}
-                  onClick={() => handleNoteSelect(note)}
-                  className={`relative cursor-pointer rounded-lg border p-4 transition-colors ${
-                    selectedNoteId === note.id
-                      ? 'bg-primary/10 border-primary/20'
-                      : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
-                  }`}
-                >
-                  <h4 className="text-base-content mb-1 truncate font-medium">
-                    {note.title || 'Untitled'}
-                  </h4>
-                  <p className="text-base-content/70 line-clamp-1 text-sm">
-                    {note.content?.substring(0, 80)}
-                  </p>
-                </div>
-              ))}
+          <div className="md:collapse-open collapse">
+            <input type="checkbox" className="md:hidden" />
+            <div className="collapse-title flex gap-1 font-medium md:hidden">
+              <ChevronDown size={23} /> Show my notes
+            </div>
+            <div className="collapse-content text-sm md:pt-4">
+              <div className="space-y-3">
+                {notes.map((note) => (
+                  <div
+                    key={note.id}
+                    onClick={() => handleNoteSelect(note)}
+                    className={`relative cursor-pointer rounded-lg border p-4 transition-colors ${
+                      selectedNoteId === note.id
+                        ? 'bg-primary/10 border-primary/20'
+                        : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
+                    }`}
+                  >
+                    <h4 className="text-base-content mb-1 truncate font-medium">
+                      {note.title || 'Untitled'}
+                    </h4>
+                    <p className="text-base-content/70 line-clamp-1 text-sm">
+                      {note.content?.substring(0, 80)}
+                    </p>
+                  </div>
+                ))}
 
-              {notes.length === 0 && (
-                <div className="py-8 text-center">
-                  <p className="text-base-content/60">No notes yet</p>
-                  <p className="text-base-content/40 text-sm">
-                    Create your first note to get started
-                  </p>
-                </div>
-              )}
+                {notes.length === 0 && (
+                  <div className="py-8 text-center">
+                    <p className="text-base-content/60">No notes yet</p>
+                    <p className="text-base-content/40 text-sm">
+                      Create your first note to get started
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Editor area - centered with max width */}
-        <div className="bg-base-50 flex-1">
+        <div className="flex-1">
           <div className="mx-auto max-w-3xl">
-            <div className="border-base-200 min-h-96 px-12 py-6">
+            <div className="border-base-200 min-h-96 px-4 md:px-12 md:py-6">
               {/* Editor header with actions */}
               <div className="mb-6 flex items-center justify-between text-sm font-medium">
                 <div className="text-base-content/80">
@@ -242,7 +252,7 @@ function RouteComponent() {
               />
 
               {/* Helper text */}
-              <div className="text-base-content/40 border-base-200 mt-6 border-t pt-4 text-center text-sm">
+              <div className="text-base-content/70 border-base-200 mt-6 border-t pt-4 text-center text-sm">
                 Press Ctrl+S to save
               </div>
             </div>
