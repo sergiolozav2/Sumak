@@ -156,7 +156,7 @@ function RouteComponent() {
       </div>
 
       {/* Desktop layout - side by side */}
-      <div className="flex h-screen flex-col md:flex-row">
+      <div className="flex h-full flex-col md:flex-row">
         {/* Notes sidebar - constant width */}
         <div className="border-base-300 flex w-full flex-col md:w-80 md:border-r">
           {/* Sidebar header */}
@@ -203,7 +203,7 @@ function RouteComponent() {
         {/* Editor area - centered with max width */}
         <div className="flex-1">
           <div className="mx-auto max-w-3xl">
-            <div className="border-base-200 min-h-96 px-4 md:px-12 md:py-6">
+            <div className="border-base-200 h-full min-h-96 px-4 md:px-12 md:py-6">
               {/* Editor header with actions */}
               <div className="mb-6 flex items-center justify-between text-sm font-medium">
                 <div className="text-base-content/80">
