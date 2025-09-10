@@ -21,7 +21,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const navigation: NavigationItem[] = [
     {
       name: 'Notes',
-      href: '/admin-teacher/dashboard',
+      href: '/admin-teacher/notes',
       icon: SquarePen,
     },
     {
@@ -55,8 +55,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <MobileSidebar navigation={navigation} />
       </div>
 
-      <main className="flex-1 py-6">
-        <div className="px-4 lg:px-6">{children}</div>
+      <main className="flex-1">
+        <div className="">{children}</div>
       </main>
     </div>
   )
@@ -113,7 +113,7 @@ function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
                 <Link
                   to={item.href}
                   data-tip={item.name}
-                  className={`not-xl:tooltip not-xl:tooltip-right flex w-fit items-center justify-center transition-all before:z-50 xl:w-full xl:justify-start ${
+                  className={`tooltip tooltip-right flex w-fit items-center justify-center transition-all before:z-50 xl:w-full xl:justify-start ${
                     isActive(item.href) ? 'menu-active' : ''
                   }`}
                 >

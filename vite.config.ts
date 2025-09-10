@@ -14,9 +14,6 @@ const config = defineConfig({
     tanstackStart({
       target: 'netlify',
       customViteReactPlugin: true,
-      spa: {
-        enabled: true,
-      },
     }),
     viteReact(),
   ],

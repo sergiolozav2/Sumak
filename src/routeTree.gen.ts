@@ -12,13 +12,14 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminTeacherRouteRouteImport } from './routes/admin-teacher/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminTeacherIndexRouteImport } from './routes/admin-teacher/index'
 import { Route as AdminStudentIndexRouteImport } from './routes/admin-student/index'
 import { Route as AdminTeacherStudentsRouteImport } from './routes/admin-teacher/students'
 import { Route as AdminTeacherSettingsRouteImport } from './routes/admin-teacher/settings'
+import { Route as AdminTeacherNotesRouteImport } from './routes/admin-teacher/notes'
 import { Route as AdminTeacherHomeRouteImport } from './routes/admin-teacher/home'
-import { Route as AdminTeacherDashboardRouteImport } from './routes/admin-teacher/dashboard'
 import { Route as AdminTeacherCoursesRouteImport } from './routes/admin-teacher/courses'
 import { Route as AdminTeacherAnalyticsRouteImport } from './routes/admin-teacher/analytics'
 import { Route as AdminStudentTopicTopicIdRouteImport } from './routes/admin-student/topic/$topicId'
@@ -32,15 +33,20 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTeacherRouteRoute = AdminTeacherRouteRouteImport.update({
+  id: '/admin-teacher',
+  path: '/admin-teacher',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminTeacherIndexRoute = AdminTeacherIndexRouteImport.update({
-  id: '/admin-teacher/',
-  path: '/admin-teacher/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminStudentIndexRoute = AdminStudentIndexRouteImport.update({
   id: '/admin-student/',
@@ -48,34 +54,34 @@ const AdminStudentIndexRoute = AdminStudentIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminTeacherStudentsRoute = AdminTeacherStudentsRouteImport.update({
-  id: '/admin-teacher/students',
-  path: '/admin-teacher/students',
-  getParentRoute: () => rootRouteImport,
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminTeacherSettingsRoute = AdminTeacherSettingsRouteImport.update({
-  id: '/admin-teacher/settings',
-  path: '/admin-teacher/settings',
-  getParentRoute: () => rootRouteImport,
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminTeacherRouteRoute,
+} as any)
+const AdminTeacherNotesRoute = AdminTeacherNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminTeacherHomeRoute = AdminTeacherHomeRouteImport.update({
-  id: '/admin-teacher/home',
-  path: '/admin-teacher/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminTeacherDashboardRoute = AdminTeacherDashboardRouteImport.update({
-  id: '/admin-teacher/dashboard',
-  path: '/admin-teacher/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminTeacherCoursesRoute = AdminTeacherCoursesRouteImport.update({
-  id: '/admin-teacher/courses',
-  path: '/admin-teacher/courses',
-  getParentRoute: () => rootRouteImport,
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminTeacherAnalyticsRoute = AdminTeacherAnalyticsRouteImport.update({
-  id: '/admin-teacher/analytics',
-  path: '/admin-teacher/analytics',
-  getParentRoute: () => rootRouteImport,
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminTeacherRouteRoute,
 } as any)
 const AdminStudentTopicTopicIdRoute =
   AdminStudentTopicTopicIdRouteImport.update({
@@ -97,15 +103,16 @@ const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-teacher': typeof AdminTeacherRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
   '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
-  '/admin-teacher/dashboard': typeof AdminTeacherDashboardRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
+  '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
   '/admin-teacher/students': typeof AdminTeacherStudentsRoute
   '/admin-student': typeof AdminStudentIndexRoute
-  '/admin-teacher': typeof AdminTeacherIndexRoute
+  '/admin-teacher/': typeof AdminTeacherIndexRoute
   '/admin-student/class/$classId': typeof AdminStudentClassClassIdRoute
   '/admin-student/topic/$topicId': typeof AdminStudentTopicTopicIdRoute
 }
@@ -114,8 +121,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
   '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
-  '/admin-teacher/dashboard': typeof AdminTeacherDashboardRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
+  '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
   '/admin-teacher/students': typeof AdminTeacherStudentsRoute
   '/admin-student': typeof AdminStudentIndexRoute
@@ -126,11 +133,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin-teacher': typeof AdminTeacherRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/admin-teacher/analytics': typeof AdminTeacherAnalyticsRoute
   '/admin-teacher/courses': typeof AdminTeacherCoursesRoute
-  '/admin-teacher/dashboard': typeof AdminTeacherDashboardRoute
   '/admin-teacher/home': typeof AdminTeacherHomeRoute
+  '/admin-teacher/notes': typeof AdminTeacherNotesRoute
   '/admin-teacher/settings': typeof AdminTeacherSettingsRoute
   '/admin-teacher/students': typeof AdminTeacherStudentsRoute
   '/admin-student/': typeof AdminStudentIndexRoute
@@ -142,15 +150,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin-teacher'
     | '/login'
     | '/admin-teacher/analytics'
     | '/admin-teacher/courses'
-    | '/admin-teacher/dashboard'
     | '/admin-teacher/home'
+    | '/admin-teacher/notes'
     | '/admin-teacher/settings'
     | '/admin-teacher/students'
     | '/admin-student'
-    | '/admin-teacher'
+    | '/admin-teacher/'
     | '/admin-student/class/$classId'
     | '/admin-student/topic/$topicId'
   fileRoutesByTo: FileRoutesByTo
@@ -159,8 +168,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin-teacher/analytics'
     | '/admin-teacher/courses'
-    | '/admin-teacher/dashboard'
     | '/admin-teacher/home'
+    | '/admin-teacher/notes'
     | '/admin-teacher/settings'
     | '/admin-teacher/students'
     | '/admin-student'
@@ -170,11 +179,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin-teacher'
     | '/login'
     | '/admin-teacher/analytics'
     | '/admin-teacher/courses'
-    | '/admin-teacher/dashboard'
     | '/admin-teacher/home'
+    | '/admin-teacher/notes'
     | '/admin-teacher/settings'
     | '/admin-teacher/students'
     | '/admin-student/'
@@ -185,15 +195,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminTeacherRouteRoute: typeof AdminTeacherRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
-  AdminTeacherAnalyticsRoute: typeof AdminTeacherAnalyticsRoute
-  AdminTeacherCoursesRoute: typeof AdminTeacherCoursesRoute
-  AdminTeacherDashboardRoute: typeof AdminTeacherDashboardRoute
-  AdminTeacherHomeRoute: typeof AdminTeacherHomeRoute
-  AdminTeacherSettingsRoute: typeof AdminTeacherSettingsRoute
-  AdminTeacherStudentsRoute: typeof AdminTeacherStudentsRoute
   AdminStudentIndexRoute: typeof AdminStudentIndexRoute
-  AdminTeacherIndexRoute: typeof AdminTeacherIndexRoute
   AdminStudentClassClassIdRoute: typeof AdminStudentClassClassIdRoute
   AdminStudentTopicTopicIdRoute: typeof AdminStudentTopicTopicIdRoute
 }
@@ -228,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-teacher': {
+      id: '/admin-teacher'
+      path: '/admin-teacher'
+      fullPath: '/admin-teacher'
+      preLoaderRoute: typeof AdminTeacherRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,10 +248,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin-teacher/': {
       id: '/admin-teacher/'
-      path: '/admin-teacher'
-      fullPath: '/admin-teacher'
+      path: '/'
+      fullPath: '/admin-teacher/'
       preLoaderRoute: typeof AdminTeacherIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-student/': {
       id: '/admin-student/'
@@ -251,45 +262,45 @@ declare module '@tanstack/react-router' {
     }
     '/admin-teacher/students': {
       id: '/admin-teacher/students'
-      path: '/admin-teacher/students'
+      path: '/students'
       fullPath: '/admin-teacher/students'
       preLoaderRoute: typeof AdminTeacherStudentsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-teacher/settings': {
       id: '/admin-teacher/settings'
-      path: '/admin-teacher/settings'
+      path: '/settings'
       fullPath: '/admin-teacher/settings'
       preLoaderRoute: typeof AdminTeacherSettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
+    }
+    '/admin-teacher/notes': {
+      id: '/admin-teacher/notes'
+      path: '/notes'
+      fullPath: '/admin-teacher/notes'
+      preLoaderRoute: typeof AdminTeacherNotesRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-teacher/home': {
       id: '/admin-teacher/home'
-      path: '/admin-teacher/home'
+      path: '/home'
       fullPath: '/admin-teacher/home'
       preLoaderRoute: typeof AdminTeacherHomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin-teacher/dashboard': {
-      id: '/admin-teacher/dashboard'
-      path: '/admin-teacher/dashboard'
-      fullPath: '/admin-teacher/dashboard'
-      preLoaderRoute: typeof AdminTeacherDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-teacher/courses': {
       id: '/admin-teacher/courses'
-      path: '/admin-teacher/courses'
+      path: '/courses'
       fullPath: '/admin-teacher/courses'
       preLoaderRoute: typeof AdminTeacherCoursesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-teacher/analytics': {
       id: '/admin-teacher/analytics'
-      path: '/admin-teacher/analytics'
+      path: '/analytics'
       fullPath: '/admin-teacher/analytics'
       preLoaderRoute: typeof AdminTeacherAnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminTeacherRouteRoute
     }
     '/admin-student/topic/$topicId': {
       id: '/admin-student/topic/$topicId'
@@ -319,17 +330,34 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  LoginRoute: LoginRoute,
+interface AdminTeacherRouteRouteChildren {
+  AdminTeacherAnalyticsRoute: typeof AdminTeacherAnalyticsRoute
+  AdminTeacherCoursesRoute: typeof AdminTeacherCoursesRoute
+  AdminTeacherHomeRoute: typeof AdminTeacherHomeRoute
+  AdminTeacherNotesRoute: typeof AdminTeacherNotesRoute
+  AdminTeacherSettingsRoute: typeof AdminTeacherSettingsRoute
+  AdminTeacherStudentsRoute: typeof AdminTeacherStudentsRoute
+  AdminTeacherIndexRoute: typeof AdminTeacherIndexRoute
+}
+
+const AdminTeacherRouteRouteChildren: AdminTeacherRouteRouteChildren = {
   AdminTeacherAnalyticsRoute: AdminTeacherAnalyticsRoute,
   AdminTeacherCoursesRoute: AdminTeacherCoursesRoute,
-  AdminTeacherDashboardRoute: AdminTeacherDashboardRoute,
   AdminTeacherHomeRoute: AdminTeacherHomeRoute,
+  AdminTeacherNotesRoute: AdminTeacherNotesRoute,
   AdminTeacherSettingsRoute: AdminTeacherSettingsRoute,
   AdminTeacherStudentsRoute: AdminTeacherStudentsRoute,
-  AdminStudentIndexRoute: AdminStudentIndexRoute,
   AdminTeacherIndexRoute: AdminTeacherIndexRoute,
+}
+
+const AdminTeacherRouteRouteWithChildren =
+  AdminTeacherRouteRoute._addFileChildren(AdminTeacherRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AdminTeacherRouteRoute: AdminTeacherRouteRouteWithChildren,
+  LoginRoute: LoginRoute,
+  AdminStudentIndexRoute: AdminStudentIndexRoute,
   AdminStudentClassClassIdRoute: AdminStudentClassClassIdRoute,
   AdminStudentTopicTopicIdRoute: AdminStudentTopicTopicIdRoute,
 }

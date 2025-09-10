@@ -1,0 +1,254 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { useTRPC } from '@/integrations/trpc/react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { Plus } from 'lucide-react'
+
+export const Route = createFileRoute('/admin-teacher/notes')({
+  component: RouteComponent,
+})
+
+function RouteComponent() {
+  const trpc = useTRPC()
+  const fetchNotes = useQuery(trpc.notes.getAll.queryOptions())
+
+  const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null)
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  const notes = fetchNotes.data || []
+
+  // Mutations
+  const createNoteMutation = useMutation(
+    trpc.notes.create.mutationOptions({
+      onSuccess: (newNote) => {
+        setSelectedNoteId(newNote.id)
+        setHasUnsavedChanges(false)
+        fetchNotes.refetch()
+      },
+      onSettled: () => {
+        setIsSaving(false)
+      },
+    }),
+  )
+
+  const updateNoteMutation = useMutation(
+    trpc.notes.update.mutationOptions({
+      onSuccess: () => {
+        setHasUnsavedChanges(false)
+        fetchNotes.refetch()
+      },
+      onSettled: () => {
+        setIsSaving(false)
+      },
+    }),
+  )
+
+  const deleteNoteMutation = useMutation(
+    trpc.notes.delete.mutationOptions({
+      onSuccess: () => {
+        fetchNotes.refetch()
+        handleNewNote()
+      },
+    }),
+  )
+
+  // Track changes
+  useEffect(() => {
+    if (selectedNoteId) {
+      const originalNote = notes.find((note) => note.id === selectedNoteId)
+      if (originalNote) {
+        const hasChanges =
+          title !== originalNote.title || content !== originalNote.content
+        setHasUnsavedChanges(hasChanges)
+      }
+    } else {
+      setHasUnsavedChanges(title.trim() !== '' || content.trim() !== '')
+    }
+  }, [title, content, selectedNoteId, notes])
+
+  // Handle note selection
+  const handleNoteSelect = (note: any) => {
+    setSelectedNoteId(note.id)
+    setTitle(note.title)
+    setContent(note.content)
+    setHasUnsavedChanges(false)
+  }
+
+  // Handle new note
+  const handleNewNote = () => {
+    setSelectedNoteId(null)
+    setTitle('')
+    setContent('')
+    setHasUnsavedChanges(false)
+  }
+
+  // Save note
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      if (selectedNoteId) {
+        // Update existing note
+        updateNoteMutation.mutate({
+          id: selectedNoteId,
+          title: title.trim() || 'Untitled',
+          content: content,
+        })
+      } else {
+        // Create new note
+        createNoteMutation.mutate({
+          title: title.trim() || 'Untitled',
+          content: content,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to save note:', error)
+      setIsSaving(false)
+    }
+  }
+
+  // Delete note
+  const handleDelete = async () => {
+    if (
+      !selectedNoteId ||
+      !confirm('Are you sure you want to delete this note?')
+    )
+      return
+
+    try {
+      deleteNoteMutation.mutate({ id: selectedNoteId })
+    } catch (error) {
+      console.error('Failed to delete note:', error)
+    }
+  }
+
+  // Auto-save on Ctrl+S
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault()
+        if (hasUnsavedChanges) {
+          handleSave()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [hasUnsavedChanges, handleSave])
+
+  return (
+    <div className="h-full w-full">
+      <div className="border-base-300 h-full border-b px-4 py-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base-content text-xl font-bold">Notes</h2>
+          <button onClick={handleNewNote} className="btn btn-primary">
+            <Plus size={20} />
+            New
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop layout - side by side */}
+      <div className="flex h-screen">
+        {/* Notes sidebar - constant width */}
+        <div className="bg-base-100 border-base-300 flex w-80 flex-col border-r">
+          {/* Sidebar header */}
+          {/* Notes list */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-3 p-4">
+              {notes.map((note) => (
+                <div
+                  key={note.id}
+                  onClick={() => handleNoteSelect(note)}
+                  className={`relative cursor-pointer rounded-lg border p-4 transition-colors ${
+                    selectedNoteId === note.id
+                      ? 'bg-primary/10 border-primary/20'
+                      : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
+                  }`}
+                >
+                  <h4 className="text-base-content mb-1 truncate font-medium">
+                    {note.title || 'Untitled'}
+                  </h4>
+                  <p className="text-base-content/70 line-clamp-1 text-sm">
+                    {note.content?.substring(0, 80)}
+                  </p>
+                </div>
+              ))}
+
+              {notes.length === 0 && (
+                <div className="py-8 text-center">
+                  <p className="text-base-content/60">No notes yet</p>
+                  <p className="text-base-content/40 text-sm">
+                    Create your first note to get started
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Editor area - centered with max width */}
+        <div className="bg-base-50 flex-1">
+          <div className="mx-auto max-w-3xl">
+            <div className="border-base-200 min-h-96 px-12 py-6">
+              {/* Editor header with actions */}
+              <div className="mb-6 flex items-center justify-between text-sm font-medium">
+                <div className="text-base-content/80">
+                  {hasUnsavedChanges && (
+                    <span className="text-warning">● Unsaved changes</span>
+                  )}
+                  {!hasUnsavedChanges && selectedNoteId && (
+                    <span className="text-success">✓ Saved</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {selectedNoteId && (
+                    <button
+                      onClick={handleDelete}
+                      className="btn btn-sm btn-error btn-outline"
+                    >
+                      Delete
+                    </button>
+                  )}
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving || !hasUnsavedChanges}
+                    className="btn btn-sm btn-primary"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+
+              {/* Title field */}
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Note title..."
+                className="placeholder:text-base-content/40 text-base-content mb-6 w-full border-none bg-transparent text-3xl font-bold outline-none"
+              />
+
+              {/* Content field */}
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Start writing your thoughts..."
+                className="placeholder:text-base-content/40 text-base-content h-96 w-full resize-none border-none bg-transparent text-lg leading-relaxed outline-none"
+                style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+              />
+
+              {/* Helper text */}
+              <div className="text-base-content/40 border-base-200 mt-6 border-t pt-4 text-center text-sm">
+                Press Ctrl+S to save
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
