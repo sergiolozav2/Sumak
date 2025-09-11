@@ -45,7 +45,9 @@
 
 }
 
-.responsive-app-container {}
+.responsive-padding-dock {
+  padding-bottom: var(--dock-navbar-height);
+}
 
 .responsive-app-container-height {
   min-height: calc(100svh - var(--combined-height));
@@ -53,6 +55,10 @@
 }
 
 @media screen and (min-width: 768px) {
+  .responsive-padding-dock {
+    padding-bottom: unset;
+  }
+
   .responsive-app-container-height {
     min-height: calc(100vh - var(--navbar-height));
     max-height: calc(100vh - var(--navbar-height));

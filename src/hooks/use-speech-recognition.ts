@@ -33,7 +33,7 @@ export function useSpeechRecognizer({ onResult }: Props = {}) {
   }, [isListening, listeningStarted, onResult])
 
   return {
-    transcript: finalTranscript + transcript,
+    transcript: finalTranscript,
     isMicrophoneAvailable,
     interimTranscript,
     isListening,

@@ -173,7 +173,7 @@ function RouteComponent() {
   return (
     <div className="flex h-full w-full flex-col">
       {/* Top progress bar */}
-      <div className="border-base-300 bg-base-100 w-full border-b px-4 py-3">
+      <div className="border-base-300 bg-base-100 hidden w-full border-b px-4 py-3 md:block">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h2 className="text-base-content text-xl font-bold">Study Mode</h2>
@@ -205,7 +205,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="responsive-app-container flex h-full flex-col overflow-hidden md:flex-row">
+      <div className="responsive-padding-dock flex h-full flex-col overflow-hidden md:flex-row">
         {/* Subjects sidebar - collapsible on mobile */}
         <div className="border-base-300 flex w-full flex-col md:w-80 md:min-w-80 md:border-r">
           <div className="md:collapse-open collapse">
@@ -254,6 +254,15 @@ function RouteComponent() {
         {/* Main study area - TikTok style */}
         <div className="relative flex h-full flex-1 overflow-hidden">
           {/* Study cards container */}
+
+          <div className="absolute top-4 z-10 flex w-full px-8">
+            <progress
+              className="progress progress-primary w-full"
+              value={studyStats.studied}
+              max={cards.length}
+            />
+          </div>
+
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
@@ -400,7 +409,7 @@ function RouteComponent() {
           {/* Completion state */}
           {studyStats.studied === cards.length && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-base-100/95 rounded-xl p-8 text-center shadow-xl backdrop-blur-sm">
+              <div className="bg-base-100 rounded-xl p-8 text-center shadow-lg">
                 <div className="text-success mb-4">
                   <Check size={64} className="mx-auto" />
                 </div>

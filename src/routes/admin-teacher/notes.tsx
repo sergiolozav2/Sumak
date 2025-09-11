@@ -30,7 +30,6 @@ function RouteComponent() {
 
   const onSpeechResult = useCallback(
     (result: string) => {
-      console.log(result)
       setContent((old) => old + ' ' + result)
     },
     [setContent],
@@ -212,7 +211,7 @@ function RouteComponent() {
       </div>
 
       {/* Desktop layout - side by side */}
-      <div className="responsive-app-container flex h-full flex-col md:flex-row">
+      <div className="responsive-app-container-height flex h-full flex-col md:flex-row">
         {/* Notes sidebar - constant width */}
         <div className="border-base-300 flex w-full flex-col md:w-80 md:border-r">
           {/* Sidebar header */}
