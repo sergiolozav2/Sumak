@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   ChevronDown,
   Mic,
@@ -12,6 +12,7 @@ import {
   BookOpen,
   Eye,
 } from 'lucide-react'
+import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
 
 export const Route = createFileRoute('/admin-teacher/notes')({
   component: RouteComponent,
@@ -27,7 +28,16 @@ function RouteComponent() {
   const [isSaving, setIsSaving] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
-  const notes = fetchNotes.data || []
+  const onSpeechResult = useCallback(
+    (result: string) => {
+      console.log(result)
+      setContent((old) => old + ' ' + result)
+    },
+    [setContent],
+  )
+  const speechRecognition = useSpeechRecognizer({ onResult: onSpeechResult })
+
+  const notes = fetchNotes.data
 
   // Mutations
   const createNoteMutation = useMutation(
@@ -67,7 +77,7 @@ function RouteComponent() {
   // Track changes
   useEffect(() => {
     if (selectedNoteId) {
-      const originalNote = notes.find((note) => note.id === selectedNoteId)
+      const originalNote = notes?.find((note) => note.id === selectedNoteId)
       if (originalNote) {
         const hasChanges =
           title !== originalNote.title || content !== originalNote.content
@@ -185,7 +195,7 @@ function RouteComponent() {
     })
   }
 
-  const originalNote = notes.find((note) => note.id === selectedNoteId)
+  const originalNote = notes?.find((note) => note.id === selectedNoteId)
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -214,7 +224,10 @@ function RouteComponent() {
             </div>
             <div className="collapse-content text-sm md:pt-4">
               <div className="flex flex-col gap-2 md:gap-3">
-                {notes.map((note) => (
+                {fetchNotes.isLoading && (
+                  <span className="loading loading-spinner loading-md mx-auto"></span>
+                )}
+                {notes?.map((note) => (
                   <div
                     key={note.id}
                     onClick={() => handleNoteSelect(note)}
@@ -233,7 +246,7 @@ function RouteComponent() {
                   </div>
                 ))}
 
-                {notes.length === 0 && (
+                {notes?.length === 0 && (
                   <div className="py-8 text-center">
                     <p className="text-base-content/60">No notes yet</p>
                     <p className="text-base-content/40 text-sm">
@@ -285,15 +298,16 @@ function RouteComponent() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Note title..."
-                className="placeholder:text-base-content/40 text-base-content mb-2 w-full border-none bg-transparent text-3xl font-bold outline-none md:mb-6"
+                className="placeholder:text-base-content/40 text-base-content mb-2 w-full border-none bg-transparent text-3xl font-semibold outline-none md:mb-6"
               />
 
               {/* Botón de dictado por voz y subir archivos */}
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className={`btn btn-primary ${speechRecognition.isListening ? 'border-primary animate-pulse' : ''}`}
                   title="Dictar por voz"
+                  onClick={() => speechRecognition.start()}
                 >
                   <Mic size={20} />
                   <span className="ml-1 hidden md:inline">Voice</span>
@@ -310,10 +324,15 @@ function RouteComponent() {
 
               {/* Content field */}
               <textarea
-                value={content}
+                value={
+                  content +
+                  (speechRecognition.isListening
+                    ? ' ' + speechRecognition.interimTranscript
+                    : '')
+                }
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Start writing your thoughts..."
-                className="placeholder:text-base-content/40 text-base-content w-full flex-1 resize-none border-none bg-transparent text-lg leading-relaxed outline-none"
+                className="placeholder:text-base-content/50 text-base-content w-full flex-1 resize-none border-none bg-transparent text-lg leading-relaxed outline-none"
                 style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
               />
 

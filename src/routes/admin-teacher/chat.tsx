@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   Send,
   Mic,
@@ -9,7 +9,7 @@ import {
   StopCircle,
   ChevronDown,
 } from 'lucide-react'
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition'
+import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
 
 export const Route = createFileRoute('/admin-teacher/chat')({
   component: RouteComponent,
@@ -119,28 +119,13 @@ function RouteComponent() {
   const [showAttachments, setShowAttachments] = useState(false)
 
   // Speech recognition hook
-  const {
-    isListening,
-    isSupported: isSpeechSupported,
-    transcript,
-    startListening,
-    stopListening,
-    resetTranscript,
-  } = useSpeechRecognition({
-    continuous: false,
-    interimResults: true,
-    language: 'en-US',
-    onResult: (result) => {
-      console.log(result)
-      if (result.isFinal) {
-        setMessageInput((prev) => prev + result.transcript + ' ')
-        resetTranscript()
-      }
+  const onSpeechResult = useCallback(
+    (result: string) => {
+      setMessageInput((old) => old + ' ' + result)
     },
-    onError: (error) => {
-      console.error('Speech recognition error:', error)
-    },
-  })
+    [setMessageInput],
+  )
+  const speechRecognition = useSpeechRecognizer({ onResult: onSpeechResult })
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
@@ -233,15 +218,15 @@ function RouteComponent() {
 
   // Handle voice recording
   const handleToggleSpeechRecognition = () => {
-    if (!isSpeechSupported) {
+    if (!speechRecognition.isSupported) {
       alert('Speech recognition is not supported in this browser')
       return
     }
-    if (isListening) {
-      stopListening()
-    } else {
-      startListening()
+    if (speechRecognition.isListening) {
+      speechRecognition.stop()
+      return
     }
+    speechRecognition.start()
   }
 
   // Handle file upload
@@ -389,7 +374,7 @@ function RouteComponent() {
           {selectedChat ? (
             <>
               {/* Messages area */}
-              <div className="h-full w-full overflow-y-auto px-2 md:p-4">
+              <div className="mb-14 h-full w-full overflow-y-auto px-2 md:p-4">
                 <div className="mx-auto flex max-w-3xl flex-col text-sm md:text-base">
                   {selectedChat.messages.length === 0 ? (
                     <div className="flex flex-1 flex-col items-center justify-center">
@@ -483,19 +468,22 @@ function RouteComponent() {
                       <textarea
                         value={
                           messageInput +
-                          (isListening && transcript ? ` ${transcript}` : '')
+                          (speechRecognition.isListening
+                            ? ' ' + speechRecognition.interimTranscript
+                            : '')
                         }
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder={
-                          isListening ? 'Listening...' : 'Type your message'
-                        }
+                        onChange={(e) => {
+                          setMessageInput(e.target.value)
+                        }}
+                        onKeyDown={handleKeyPress}
+                        placeholder={'Type your message'}
                         className={`textarea textarea-bordered w-full resize-none ${
-                          isListening ? 'border-primary animate-pulse' : ''
+                          speechRecognition.isListening
+                            ? 'border-primary animate-pulse'
+                            : ''
                         }`}
                         rows={1}
                         style={{ minHeight: '2.5rem', maxHeight: '10rem' }}
-                        readOnly={isListening}
                       />
                     </div>
 
@@ -503,23 +491,23 @@ function RouteComponent() {
                     <button
                       type="button"
                       onClick={handleToggleSpeechRecognition}
-                      disabled={!isSpeechSupported}
+                      disabled={!speechRecognition.isSupported}
                       className={`btn btn-square ${
-                        isListening
+                        speechRecognition.isListening
                           ? 'btn-error animate-pulse'
-                          : isSpeechSupported
+                          : speechRecognition.isSupported
                             ? 'btn-ghost'
                             : 'btn-disabled'
                       }`}
                       title={
-                        !isSpeechSupported
+                        !speechRecognition.isSupported
                           ? 'Speech recognition not supported'
-                          : isListening
+                          : speechRecognition.isListening
                             ? 'Stop listening'
                             : 'Start voice input'
                       }
                     >
-                      {isListening ? (
+                      {speechRecognition.isListening ? (
                         <StopCircle size={20} />
                       ) : (
                         <Mic size={20} />

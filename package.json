@@ -38,6 +38,7 @@
     "lucide-react": "^0.476.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-speech-recognition": "^4.0.1",
     "sqlite3": "^5.1.7",
     "superjson": "^2.2.2",
     "tailwind-merge": "^3.0.2",
