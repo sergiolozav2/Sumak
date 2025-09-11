@@ -13,3 +13,4 @@ todos.json
 .netlify
 /generated/prisma
 dev.db
+.pyc
