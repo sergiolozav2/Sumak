@@ -40,11 +40,14 @@ function RouteComponent() {
 
   // tRPC queries and mutations
   const chatsQuery = useQuery(trpc.chat.getAll.queryOptions())
-  const createChatMutation = useMutation(
-    trpc.chat.create.mutationOptions({
+  const createChatWithMessageMutation = useMutation(
+    trpc.chat.createWithMessage.mutationOptions({
       onSuccess: (newChat) => {
-        setSelectedChatId(newChat.id)
+        if (newChat) {
+          setSelectedChatId(newChat.id)
+        }
         chatsQuery.refetch()
+        setMessageInput('')
       },
     }),
   )
@@ -100,18 +103,9 @@ function RouteComponent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [selectedChat?.messages])
 
-  // Auto-select first chat if none selected and chats exist
-  useEffect(() => {
-    if (!selectedChatId && chats.length > 0) {
-      setSelectedChatId(chats[0].id)
-    }
-  }, [selectedChatId, chats])
-
-  // Handle new chat
+  // Handle new chat - now just unselects current chat
   const handleNewChat = () => {
-    createChatMutation.mutate({
-      title: 'New Chat',
-    })
+    setSelectedChatId(null)
   }
 
   // Handle chat selection
@@ -136,12 +130,20 @@ function RouteComponent() {
 
   // Handle send message
   const handleSendMessage = () => {
-    if (
-      !messageInput.trim() ||
-      !selectedChatId ||
-      sendMessageMutation.isPending
-    )
+    if (!messageInput.trim()) return
+
+    // If no chat is selected, create a new chat with the message
+    if (!selectedChatId) {
+      if (createChatWithMessageMutation.isPending) return
+
+      createChatWithMessageMutation.mutate({
+        message: messageInput.trim(),
+      })
       return
+    }
+
+    // If chat is selected, send message to existing chat
+    if (sendMessageMutation.isPending) return
 
     sendMessageMutation.mutate({
       chatId: selectedChatId,
@@ -224,16 +226,8 @@ function RouteComponent() {
           <h2 className="text-base-content overflow-hidden text-xl font-bold text-ellipsis whitespace-nowrap">
             AI Tutor {selectedChat ? `- ${selectedChat.title}` : ''}
           </h2>
-          <button
-            onClick={handleNewChat}
-            disabled={createChatMutation.isPending}
-            className="btn btn-primary"
-          >
-            {createChatMutation.isPending ? (
-              <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-              <Plus size={20} />
-            )}
+          <button onClick={handleNewChat} className="btn btn-primary">
+            <Plus size={20} />
             New Chat
           </button>
         </div>
@@ -255,7 +249,7 @@ function RouteComponent() {
                   <div
                     key={chat.id}
                     onClick={() => handleChatSelect(chat)}
-                    className={`group relative cursor-pointer rounded-lg border p-2 transition-colors md:p-4 ${
+                    className={`group relative cursor-pointer rounded-lg border p-2 transition-colors md:max-w-72 md:p-4 ${
                       selectedChatId === chat.id
                         ? 'bg-primary/10 border-primary/20'
                         : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
@@ -301,178 +295,181 @@ function RouteComponent() {
         {/* Chat area */}
         <div className="relative flex h-full w-full flex-col">
           {selectedChat ? (
-            <>
-              {/* Messages area */}
-              <div className="mb-14 h-full w-full overflow-y-auto px-2 md:p-4">
-                <div className="mx-auto flex max-w-3xl flex-col text-sm md:text-base">
-                  {selectedChat.messages.length === 0 ? (
-                    <div className="flex flex-1 flex-col items-center justify-center">
-                      <p className="text-base-content/40">
-                        Start a new conversation
-                      </p>
-                    </div>
-                  ) : null}
+            <div className="mb-14 h-full w-full overflow-y-auto px-2 md:p-4">
+              {/* Comments area */}
+              <div className="mx-auto flex max-w-3xl flex-col text-sm md:text-base">
+                {selectedChat.messages.length === 0 ? (
+                  <div className="flex flex-1 flex-col items-center justify-center">
+                    <p className="text-base-content/40">
+                      Start a new conversation
+                    </p>
+                  </div>
+                ) : null}
 
-                  {selectedChat.messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`chat mb-0 md:mb-2 ${!message.fromSystem ? 'chat-end' : 'chat-start'}`}
-                    >
-                      <div className="chat-image avatar">
-                        {message.fromSystem ? (
-                          <Logo className="rounded-full" />
-                        ) : (
-                          <div className="w-10 rounded-full">
-                            <img
-                              alt="Avatar"
-                              src={
-                                'https://img.daisyui.com/images/profile/demo/kenobee@192.webp'
-                              }
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <div className="chat-bubble group relative">
-                        <Markdown>{message.message}</Markdown>
-                        {/* Delete message button */}
-                        {message.fromSystem ? null : (
-                          <button
-                            onClick={() => handleDeleteMessage(message.id)}
-                            className="btn btn-xs btn-circle btn-error absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
-                            title="Delete message"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-              </div>
-
-              {/* Input area */}
-              <div className="border-base-300 bg-base-100 absolute right-0 bottom-0 left-0 border-t p-2">
-                <div className="mx-auto max-w-3xl">
-                  <div className="flex items-center gap-2">
-                    {/* Attachment button */}
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowAttachments(!showAttachments)}
-                        className="btn btn-ghost btn-sm btn-square"
-                        title="Attach files"
-                      >
-                        <Plus size={20} />
-                      </button>
-
-                      {/* Attachment dropdown */}
-                      {showAttachments && (
-                        <div className="bg-base-100 border-base-300 absolute bottom-full left-0 mb-2 flex flex-col gap-1 rounded-lg border p-2 shadow-lg">
-                          <button
-                            type="button"
-                            onClick={() => imageInputRef.current?.click()}
-                            className="btn btn-ghost btn-sm flex items-center gap-2"
-                          >
-                            <Image size={16} />
-                            Image
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="btn btn-ghost btn-sm flex items-center gap-2"
-                          >
-                            <Paperclip size={16} />
-                            File
-                          </button>
+                {selectedChat.messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`chat mb-0 md:mb-2 ${!message.fromSystem ? 'chat-end' : 'chat-start'}`}
+                  >
+                    <div className="chat-image avatar">
+                      {message.fromSystem ? (
+                        <Logo className="rounded-full" />
+                      ) : (
+                        <div className="w-10 rounded-full">
+                          <img
+                            alt="Avatar"
+                            src={
+                              'https://img.daisyui.com/images/profile/demo/kenobee@192.webp'
+                            }
+                          />
                         </div>
                       )}
                     </div>
-
-                    {/* Text input */}
-                    <div className="flex-1">
-                      <textarea
-                        value={
-                          messageInput +
-                          (speechRecognition.isListening
-                            ? ' ' + speechRecognition.interimTranscript
-                            : '')
-                        }
-                        onChange={(e) => {
-                          setMessageInput(e.target.value)
-                        }}
-                        onKeyDown={handleKeyPress}
-                        placeholder={'Type your message'}
-                        className={`textarea textarea-bordered w-full resize-none ${
-                          speechRecognition.isListening
-                            ? 'border-primary animate-pulse'
-                            : ''
-                        }`}
-                        rows={1}
-                        style={{ minHeight: '2.5rem', maxHeight: '10rem' }}
-                      />
+                    <div className="chat-bubble group relative">
+                      <Markdown>{message.message}</Markdown>
+                      {/* Delete message button */}
+                      {message.fromSystem ? null : (
+                        <button
+                          onClick={() => handleDeleteMessage(message.id)}
+                          className="btn btn-xs btn-circle btn-error absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
+                          title="Delete message"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
                     </div>
-
-                    {/* Voice button */}
-                    <button
-                      type="button"
-                      onClick={handleToggleSpeechRecognition}
-                      disabled={!speechRecognition.isSupported}
-                      className={`btn btn-square ${
-                        speechRecognition.isListening
-                          ? 'btn-error animate-pulse'
-                          : speechRecognition.isSupported
-                            ? 'btn-ghost'
-                            : 'btn-disabled'
-                      }`}
-                      title={
-                        !speechRecognition.isSupported
-                          ? 'Speech recognition not supported'
-                          : speechRecognition.isListening
-                            ? 'Stop listening'
-                            : 'Start voice input'
-                      }
-                    >
-                      {speechRecognition.isListening ? (
-                        <StopCircle size={20} />
-                      ) : (
-                        <Mic size={20} />
-                      )}
-                    </button>
-
-                    {/* Send button */}
-                    <button
-                      type="button"
-                      onClick={handleSendMessage}
-                      disabled={
-                        !messageInput.trim() || sendMessageMutation.isPending
-                      }
-                      className="btn btn-primary btn-square"
-                      title="Send message"
-                    >
-                      {sendMessageMutation.isPending ? (
-                        <span className="loading loading-spinner loading-sm"></span>
-                      ) : (
-                        <Send size={20} />
-                      )}
-                    </button>
                   </div>
-                </div>
+                ))}
+                <div ref={messagesEndRef} />
               </div>
-            </>
+            </div>
           ) : (
-            // No chat selected state
             <div className="flex flex-1 items-center justify-center">
               <div className="text-center">
                 <h3 className="text-base-content/60 text-lg font-medium">
-                  Select a chat to start messaging
+                  Start a new conversation
                 </h3>
                 <p className="text-base-content/40 mt-2 text-sm">
-                  Choose from your chat history or create a new chat
+                  Type a message below to begin a new chat
                 </p>
               </div>
             </div>
           )}
+          {/* Input area */}
+          <div className="border-base-300 bg-base-100 absolute right-0 bottom-0 left-0 border-t p-2">
+            <div className="mx-auto max-w-3xl">
+              <div className="flex items-center gap-2">
+                {/* Attachment button */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowAttachments(!showAttachments)}
+                    className="btn btn-ghost btn-sm btn-square"
+                    title="Attach files"
+                  >
+                    <Plus size={20} />
+                  </button>
+
+                  {/* Attachment dropdown */}
+                  {showAttachments && (
+                    <div className="bg-base-100 border-base-300 absolute bottom-full left-0 mb-2 flex flex-col gap-1 rounded-lg border p-2 shadow-lg">
+                      <button
+                        type="button"
+                        onClick={() => imageInputRef.current?.click()}
+                        className="btn btn-ghost btn-sm flex items-center gap-2"
+                      >
+                        <Image size={16} />
+                        Image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="btn btn-ghost btn-sm flex items-center gap-2"
+                      >
+                        <Paperclip size={16} />
+                        File
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Text input */}
+                <div className="flex-1">
+                  <textarea
+                    value={
+                      messageInput +
+                      (speechRecognition.isListening
+                        ? ' ' + speechRecognition.interimTranscript
+                        : '')
+                    }
+                    onChange={(e) => {
+                      setMessageInput(e.target.value)
+                    }}
+                    onKeyDown={handleKeyPress}
+                    placeholder={
+                      selectedChatId
+                        ? 'Type your message'
+                        : 'Start a new conversation...'
+                    }
+                    className={`textarea textarea-bordered w-full resize-none ${
+                      speechRecognition.isListening
+                        ? 'border-primary animate-pulse'
+                        : ''
+                    }`}
+                    rows={1}
+                    style={{ minHeight: '2.5rem', maxHeight: '10rem' }}
+                  />
+                </div>
+
+                {/* Voice button */}
+                <button
+                  type="button"
+                  onClick={handleToggleSpeechRecognition}
+                  disabled={!speechRecognition.isSupported}
+                  className={`btn btn-square ${
+                    speechRecognition.isListening
+                      ? 'btn-error animate-pulse'
+                      : speechRecognition.isSupported
+                        ? 'btn-ghost'
+                        : 'btn-disabled'
+                  }`}
+                  title={
+                    !speechRecognition.isSupported
+                      ? 'Speech recognition not supported'
+                      : speechRecognition.isListening
+                        ? 'Stop listening'
+                        : 'Start voice input'
+                  }
+                >
+                  {speechRecognition.isListening ? (
+                    <StopCircle size={20} />
+                  ) : (
+                    <Mic size={20} />
+                  )}
+                </button>
+
+                {/* Send button */}
+                <button
+                  type="button"
+                  onClick={handleSendMessage}
+                  disabled={
+                    !messageInput.trim() ||
+                    sendMessageMutation.isPending ||
+                    createChatWithMessageMutation.isPending
+                  }
+                  className="btn btn-primary btn-square"
+                  title={selectedChatId ? 'Send message' : 'Start new chat'}
+                >
+                  {sendMessageMutation.isPending ||
+                  createChatWithMessageMutation.isPending ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    <Send size={20} />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

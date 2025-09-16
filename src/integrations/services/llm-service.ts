@@ -145,6 +145,39 @@ Instructions:
     return response.content
   }
 
+  // Helper method to generate a chat title based on the first message
+  async generateChatTitle(message: string): Promise<string> {
+    const systemPrompt = `You are a helpful assistant that generates short, descriptive titles for chat conversations based on the first message. The title should be:
+- 3-6 words maximum
+- Descriptive of the topic
+- In the same language as the user's message
+- No quotes or special formatting
+
+Generate only the title, nothing else.
+
+First message is given below:`
+
+    const messages: ChatMessage[] = [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: message,
+      },
+    ]
+
+    try {
+      const response = await this.createChatCompletion(messages, {
+        temperature: 0.3, // Lower temperature for more consistent output
+        maxTokens: 20, // Short response
+      })
+
+      return response.content.trim() || 'New Chat'
+    } catch (error) {
+      console.error('Error generating chat title:', error)
+      return 'New Chat' // Fallback title
+    }
+  }
+
   // Helper method to generate quiz questions based on content
   async generateQuizQuestions(
     content: string,
