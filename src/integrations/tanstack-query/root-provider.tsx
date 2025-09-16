@@ -5,6 +5,10 @@ import { createTRPCClient, httpBatchStreamLink } from '@trpc/client'
 import type { TRPCRouter } from '@/integrations/trpc/router'
 
 import { TRPCProvider } from '@/integrations/trpc/react'
+import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
+
+export type RouterInput = inferRouterInputs<TRPCRouter>
+export type RouterOutput = inferRouterOutputs<TRPCRouter>
 
 function getUrl() {
   const base = (() => {

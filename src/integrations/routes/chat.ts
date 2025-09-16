@@ -268,7 +268,7 @@ export const chatRouter = {
       return await prisma.chatMessage.deleteMany({
         where: {
           createdAt: {
-            lte: message?.createdAt,
+            gte: message?.createdAt,
           },
         },
       })

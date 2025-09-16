@@ -11,10 +11,15 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
-import { useTRPC } from '@/integrations/trpc/react'
+import { useTRPC, TRPCProvider } from '@/integrations/trpc/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import Markdown from '@/components/common/markdown'
 import Logo from '@/components/common/logo'
+import { inferRouterInputs } from '@trpc/server'
+import {
+  RouterInput,
+  RouterOutput,
+} from '@/integrations/tanstack-query/root-provider'
 
 export const Route = createFileRoute('/admin-teacher/chat')({
   component: RouteComponent,
