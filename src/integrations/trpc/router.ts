@@ -3,9 +3,9 @@ import { z } from 'zod'
 import { createTRPCRouter, publicProcedure } from './init'
 
 import type { TRPCRouterRecord } from '@trpc/server'
-import { prisma } from '../prisma/prisma'
 import { notesRouter } from '../routes/notes'
 import { studyCardsRouter } from '../routes/study-cards'
+import { chatRouter } from '../routes/chat'
 
 const todos = [
   { id: 1, name: 'Get groceries' },
@@ -405,5 +405,6 @@ export const trpcRouter = createTRPCRouter({
   student: studentRouter,
   notes: notesRouter,
   cards: studyCardsRouter,
+  chat: chatRouter,
 })
 export type TRPCRouter = typeof trpcRouter

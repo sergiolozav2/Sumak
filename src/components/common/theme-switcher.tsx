@@ -1,29 +1,98 @@
 // src/components/ThemeSwitcher.jsx
 
 import { Palette } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react'
 
-// A helper function to get the initial theme from localStorage or fallback to a default
-const getInitialTheme = () => {
-  // Check if we are in a browser environment
-  if (typeof window !== 'undefined' && window.localStorage) {
-    const storedPrefs = window.localStorage.getItem('theme')
-    if (typeof storedPrefs === 'string') {
-      return storedPrefs
+// Theme type definition
+interface Theme {
+  label: string
+  name: string
+  isDark: boolean
+}
+
+// Themes array
+export const themes: Theme[] = [
+  { label: 'Sumak Light', name: 'my-light', isDark: false },
+  { label: 'Sumak Dark', name: 'dark', isDark: true },
+  { label: 'Nord', name: 'nord', isDark: true },
+  { label: 'Caramellatte', name: 'caramellatte', isDark: false },
+  { label: 'Retro', name: 'retro', isDark: false },
+  { label: 'Cyberpunk', name: 'cyberpunk', isDark: true },
+  { label: 'Valentine', name: 'valentine', isDark: false },
+  { label: 'Aqua', name: 'aqua', isDark: false },
+]
+
+// Theme context type
+interface ThemeContextType {
+  currentTheme: Theme
+  setTheme: (theme: Theme) => void
+  themes: Theme[]
+}
+
+// Create the theme context
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+
+// Theme provider component
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  // A helper function to get the initial theme from localStorage or fallback to a default
+  const getInitialTheme = (): Theme => {
+    // Check if we are in a browser environment
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedPrefs = window.localStorage.getItem('theme')
+      if (typeof storedPrefs === 'string') {
+        const foundTheme = themes.find((theme) => theme.name === storedPrefs)
+        if (foundTheme) {
+          return foundTheme
+        }
+      }
     }
+    return themes[0] // Default to first theme (Sumak Light)
   }
 
-  return 'my-light' // Default light theme
+  const [currentTheme, setCurrentTheme] = useState<Theme>(getInitialTheme)
+
+  const setTheme = (theme: Theme) => {
+    setCurrentTheme(theme)
+    document.documentElement.setAttribute('data-theme', theme.name)
+    localStorage.setItem('theme', theme.name)
+  }
+
+  // Set initial theme on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', currentTheme.name)
+  }, [currentTheme.name])
+
+  return (
+    <ThemeContext.Provider value={{ currentTheme, setTheme, themes }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+// Hook to use the theme context
+export function useTheme() {
+  const context = useContext(ThemeContext)
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider')
+  }
+  return context
 }
 
 export function ThemeSwitcher() {
-  const [theme, setTheme] = useState(getInitialTheme)
+  const { currentTheme, setTheme, themes } = useTheme()
 
   const handleThemeChange = (e: any) => {
     const value = e.target.value
-    setTheme(value)
-    document.documentElement.setAttribute('data-theme', value)
-    localStorage.setItem('theme', value)
+    const selectedTheme = themes.find((theme) => theme.name === value)
+    if (selectedTheme) {
+      setTheme(selectedTheme)
+    }
   }
 
   return (
@@ -53,92 +122,20 @@ export function ThemeSwitcher() {
         tabIndex={0}
         className="dropdown-content bg-base-300 rounded-box z-50 mt-2 w-52 p-2 shadow-2xl"
       >
-        {/* We add onChange and checked properties to the inputs */}
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Sumak Light"
-            value="my-light"
-            onChange={handleThemeChange}
-            checked={theme === 'my-light'}
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Sumak Dark"
-            onChange={handleThemeChange}
-            value="dark"
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Nort"
-            onChange={handleThemeChange}
-            value="nort"
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Caramellate"
-            onChange={handleThemeChange}
-            value="caramellatte"
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Retro"
-            value="retro"
-            onChange={handleThemeChange}
-            checked={theme === 'retro'}
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Cyberpunk"
-            value="cyberpunk"
-            onChange={handleThemeChange}
-            checked={theme === 'cyberpunk'}
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Valentine"
-            value="valentine"
-            onChange={handleThemeChange}
-            checked={theme === 'valentine'}
-          />
-        </li>
-        <li>
-          <input
-            type="radio"
-            name="theme-dropdown"
-            className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-            aria-label="Aqua"
-            value="aqua"
-            onChange={handleThemeChange}
-            checked={theme === 'aqua'}
-          />
-        </li>
+        {/* Dynamically render themes from array */}
+        {themes.map((theme) => (
+          <li key={theme.name}>
+            <input
+              type="radio"
+              name="theme-dropdown"
+              className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+              aria-label={theme.label}
+              value={theme.name}
+              onChange={handleThemeChange}
+              checked={currentTheme.name === theme.name}
+            />
+          </li>
+        ))}
       </ul>
     </div>
   )

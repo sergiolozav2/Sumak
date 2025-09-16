@@ -7,6 +7,7 @@ import {
   SquarePen,
 } from 'lucide-react'
 import { ThemeSwitcher } from '../common/theme-switcher'
+import { Logo } from '../common/logo'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -95,9 +96,7 @@ function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
       <div className="sticky top-0 z-10 flex h-fit flex-col items-center pt-4">
         <div className="flex w-full gap-3 px-4">
           <Link to="/">
-            <div className="max-w-11 min-w-11 cursor-pointer items-center rounded-lg bg-gradient-to-r from-[#59BAFF] to-purple-600 p-1.5">
-              <img src="/logo.png" alt="Sumak" />
-            </div>
+            <Logo />
           </Link>
 
           <div className="hidden w-full flex-col overflow-hidden xl:flex">

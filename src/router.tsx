@@ -1,6 +1,7 @@
 import { createRouter as createTanstackRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import * as TanstackQuery from './integrations/tanstack-query/root-provider'
+import { ThemeProvider } from './components/common/theme-switcher'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
@@ -16,7 +17,7 @@ export const createRouter = () => {
     Wrap: (props: { children: React.ReactNode }) => {
       return (
         <TanstackQuery.Provider {...rqContext}>
-          {props.children}
+          <ThemeProvider>{props.children}</ThemeProvider>
         </TanstackQuery.Provider>
       )
     },

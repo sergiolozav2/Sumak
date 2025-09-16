@@ -8,113 +8,74 @@ import {
   Plus,
   StopCircle,
   ChevronDown,
+  Trash2,
 } from 'lucide-react'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
+import { useTRPC } from '@/integrations/trpc/react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import Markdown from '@/components/common/markdown'
+import Logo from '@/components/common/logo'
 
 export const Route = createFileRoute('/admin-teacher/chat')({
   component: RouteComponent,
 })
 
+// Updated interfaces to match database schema
 interface ChatMessage {
   id: number
-  content: string
-  isUser: boolean
-  timestamp: Date
-  type: 'text' | 'image' | 'file'
-  fileUrl?: string
-  fileName?: string
+  message: string
+  fromSystem: boolean
+  createdAt: Date
+  chatId: number
 }
 
 interface Chat {
   id: number
   title: string
   messages: ChatMessage[]
-  lastMessage: string
-  updatedAt: Date
 }
 
-// Mock data for chats
-const mockChats: Chat[] = [
-  {
-    id: 1,
-    title: 'Help with Calculus',
-    lastMessage: 'Can you explain derivatives?',
-    updatedAt: new Date('2025-09-10T14:30:00'),
-    messages: [
-      {
-        id: 1,
-        content: 'Hello! I need help understanding derivatives in calculus.',
-        isUser: true,
-        timestamp: new Date('2025-09-10T14:25:00'),
-        type: 'text',
-      },
-      {
-        id: 2,
-        content:
-          "I'd be happy to help you with derivatives! A derivative represents the rate of change of a function. Think of it as the slope of a curve at any given point. Would you like me to explain the basic concept or do you have a specific problem you're working on?",
-        isUser: false,
-        timestamp: new Date('2025-09-10T14:26:00'),
-        type: 'text',
-      },
-      {
-        id: 3,
-        content: 'Can you explain the power rule?',
-        isUser: true,
-        timestamp: new Date('2025-09-10T14:30:00'),
-        type: 'text',
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: 'Spanish Grammar',
-    lastMessage: 'Explain subjunctive mood',
-    updatedAt: new Date('2025-09-10T13:15:00'),
-    messages: [
-      {
-        id: 4,
-        content: 'I need help with Spanish subjunctive mood.',
-        isUser: true,
-        timestamp: new Date('2025-09-10T13:10:00'),
-        type: 'text',
-      },
-      {
-        id: 5,
-        content:
-          'The subjunctive mood in Spanish is used to express doubt, emotion, desire, or hypothetical situations. For example: "Espero que tengas un buen día" (I hope you have a good day). The key is recognizing trigger phrases that require subjunctive.',
-        isUser: false,
-        timestamp: new Date('2025-09-10T13:12:00'),
-        type: 'text',
-      },
-      {
-        id: 6,
-        content: 'Can you give me more examples with emotions?',
-        isUser: true,
-        timestamp: new Date('2025-09-10T13:15:00'),
-        type: 'text',
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: 'Biology Questions',
-    lastMessage: 'How does photosynthesis work?',
-    updatedAt: new Date('2025-09-10T12:45:00'),
-    messages: [
-      {
-        id: 7,
-        content: 'How does photosynthesis work?',
-        isUser: true,
-        timestamp: new Date('2025-09-10T12:45:00'),
-        type: 'text',
-      },
-    ],
-  },
-]
-
 function RouteComponent() {
-  const [chats, setChats] = useState<Chat[]>(mockChats)
-  const [selectedChatId, setSelectedChatId] = useState<number | null>(1)
+  const trpc = useTRPC()
+
+  // tRPC queries and mutations
+  const chatsQuery = useQuery(trpc.chat.getAll.queryOptions())
+  const createChatMutation = useMutation(
+    trpc.chat.create.mutationOptions({
+      onSuccess: (newChat) => {
+        setSelectedChatId(newChat.id)
+        chatsQuery.refetch()
+      },
+    }),
+  )
+
+  const sendMessageMutation = useMutation(
+    trpc.chat.sendMessage.mutationOptions({
+      onSuccess: () => {
+        chatsQuery.refetch()
+        setMessageInput('')
+      },
+    }),
+  )
+
+  const deleteChatMutation = useMutation(
+    trpc.chat.delete.mutationOptions({
+      onSuccess: () => {
+        chatsQuery.refetch()
+        setSelectedChatId(null)
+      },
+    }),
+  )
+
+  const deleteMessageMutation = useMutation(
+    trpc.chat.deleteMessage.mutationOptions({
+      onSuccess: () => {
+        chatsQuery.refetch()
+      },
+    }),
+  )
+
+  const [selectedChatId, setSelectedChatId] = useState<number | null>(null)
   const [messageInput, setMessageInput] = useState('')
   const [showAttachments, setShowAttachments] = useState(false)
 
@@ -131,6 +92,7 @@ function RouteComponent() {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const chats = chatsQuery.data || []
   const selectedChat = chats.find((chat) => chat.id === selectedChatId)
 
   // Auto-scroll to bottom of messages
@@ -138,17 +100,18 @@ function RouteComponent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [selectedChat?.messages])
 
+  // Auto-select first chat if none selected and chats exist
+  useEffect(() => {
+    if (!selectedChatId && chats.length > 0) {
+      setSelectedChatId(chats[0].id)
+    }
+  }, [selectedChatId, chats])
+
   // Handle new chat
   const handleNewChat = () => {
-    const newChat: Chat = {
-      id: Date.now(),
+    createChatMutation.mutate({
       title: 'New Chat',
-      messages: [],
-      lastMessage: '',
-      updatedAt: new Date(),
-    }
-    setChats((prev) => [newChat, ...prev])
-    setSelectedChatId(newChat.id)
+    })
   }
 
   // Handle chat selection
@@ -156,64 +119,34 @@ function RouteComponent() {
     setSelectedChatId(chat.id)
   }
 
+  // Handle delete chat
+  const handleDeleteChat = (chatId: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (confirm('Are you sure you want to delete this chat?')) {
+      deleteChatMutation.mutate({ id: chatId })
+    }
+  }
+
+  // Handle delete message
+  const handleDeleteMessage = (messageId: number) => {
+    if (confirm('Are you sure you want to delete this message?')) {
+      deleteMessageMutation.mutate({ messageId })
+    }
+  }
+
   // Handle send message
   const handleSendMessage = () => {
-    if (!messageInput.trim() || !selectedChatId) return
-
-    const newMessage: ChatMessage = {
-      id: Date.now(),
-      content: messageInput.trim(),
-      isUser: true,
-      timestamp: new Date(),
-      type: 'text',
-    }
-
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id === selectedChatId) {
-          const updatedMessages = [...chat.messages, newMessage]
-          return {
-            ...chat,
-            messages: updatedMessages,
-            lastMessage: messageInput.trim(),
-            updatedAt: new Date(),
-            title:
-              chat.title === 'New Chat'
-                ? messageInput.trim().substring(0, 30) + '...'
-                : chat.title,
-          }
-        }
-        return chat
-      }),
+    if (
+      !messageInput.trim() ||
+      !selectedChatId ||
+      sendMessageMutation.isPending
     )
+      return
 
-    setMessageInput('')
-
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
-        id: Date.now() + 1,
-        content:
-          'I understand your question. Let me help you with that. This is a mock response for demonstration purposes.',
-        isUser: false,
-        timestamp: new Date(),
-        type: 'text',
-      }
-
-      setChats((prev) =>
-        prev.map((chat) => {
-          if (chat.id === selectedChatId) {
-            return {
-              ...chat,
-              messages: [...chat.messages, aiResponse],
-              lastMessage: aiResponse.content,
-              updatedAt: new Date(),
-            }
-          }
-          return chat
-        }),
-      )
-    }, 1000)
+    sendMessageMutation.mutate({
+      chatId: selectedChatId,
+      message: messageInput.trim(),
+    })
   }
 
   // Handle voice recording
@@ -229,77 +162,41 @@ function RouteComponent() {
     speechRecognition.start()
   }
 
-  // Handle file upload
+  // Handle file upload (simplified for now - could be extended to handle actual file uploads)
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file || !selectedChatId) return
 
-    const newMessage: ChatMessage = {
-      id: Date.now(),
-      content: `Uploaded file: ${file.name}`,
-      isUser: true,
-      timestamp: new Date(),
-      type: 'file',
-      fileName: file.name,
-      fileUrl: URL.createObjectURL(file),
-    }
-
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id === selectedChatId) {
-          return {
-            ...chat,
-            messages: [...chat.messages, newMessage],
-            lastMessage: `File: ${file.name}`,
-            updatedAt: new Date(),
-          }
-        }
-        return chat
-      }),
-    )
+    // For now, just send a text message about the file
+    // In a real implementation, you'd upload the file first
+    sendMessageMutation.mutate({
+      chatId: selectedChatId,
+      message: `📎 Uploaded file: ${file.name}`,
+    })
 
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-
     setShowAttachments(false)
   }
 
-  // Handle image upload
+  // Handle image upload (simplified for now)
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file || !selectedChatId) return
 
-    const newMessage: ChatMessage = {
-      id: Date.now(),
-      content: `Uploaded image: ${file.name}`,
-      isUser: true,
-      timestamp: new Date(),
-      type: 'image',
-      fileName: file.name,
-      fileUrl: URL.createObjectURL(file),
-    }
-
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id === selectedChatId) {
-          return {
-            ...chat,
-            messages: [...chat.messages, newMessage],
-            lastMessage: `Image: ${file.name}`,
-            updatedAt: new Date(),
-          }
-        }
-        return chat
-      }),
-    )
+    // For now, just send a text message about the image
+    // In a real implementation, you'd upload the image first
+    sendMessageMutation.mutate({
+      chatId: selectedChatId,
+      message: `🖼️ Uploaded image: ${file.name}`,
+    })
 
     // Reset image input
     if (imageInputRef.current) {
       imageInputRef.current.value = ''
     }
-
     setShowAttachments(false)
   }
 
@@ -311,6 +208,15 @@ function RouteComponent() {
     }
   }
 
+  // Get last message for display
+  const getLastMessage = (chat: Chat) => {
+    if (chat.messages.length === 0) return 'No messages yet'
+    const lastMessage = chat.messages[chat.messages.length - 1]
+    return lastMessage.message.length > 50
+      ? lastMessage.message.substring(0, 50) + '...'
+      : lastMessage.message
+  }
+
   return (
     <div className="h-full w-full">
       <div className="border-base-300 w-full border-b px-4 py-4">
@@ -318,8 +224,16 @@ function RouteComponent() {
           <h2 className="text-base-content overflow-hidden text-xl font-bold text-ellipsis whitespace-nowrap">
             AI Tutor {selectedChat ? `- ${selectedChat.title}` : ''}
           </h2>
-          <button onClick={handleNewChat} className="btn btn-primary">
-            <Plus size={20} />
+          <button
+            onClick={handleNewChat}
+            disabled={createChatMutation.isPending}
+            className="btn btn-primary"
+          >
+            {createChatMutation.isPending ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              <Plus size={20} />
+            )}
             New Chat
           </button>
         </div>
@@ -341,22 +255,37 @@ function RouteComponent() {
                   <div
                     key={chat.id}
                     onClick={() => handleChatSelect(chat)}
-                    className={`relative cursor-pointer rounded-lg border p-2 transition-colors md:p-4 ${
+                    className={`group relative cursor-pointer rounded-lg border p-2 transition-colors md:p-4 ${
                       selectedChatId === chat.id
                         ? 'bg-primary/10 border-primary/20'
                         : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
                     }`}
                   >
-                    <h4 className="text-base-content truncate font-medium">
-                      {chat.title}
-                    </h4>
-                    <p className="text-base-content/70 line-clamp-1 hidden text-sm md:block">
-                      {chat.lastMessage || 'No messages yet'}
-                    </p>
+                    <div className="flex items-start justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-base-content truncate font-medium">
+                          {chat.title}
+                        </h4>
+                        <p className="text-base-content/70 line-clamp-1 hidden text-sm md:block">
+                          {getLastMessage(chat)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteChat(chat.id, e)}
+                        className="btn btn-xs btn-ghost btn-circle ml-2 opacity-0 transition-opacity group-hover:opacity-100"
+                        title="Delete chat"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))}
 
-                {chats.length === 0 && (
+                {chatsQuery.isLoading && (
+                  <span className="loading loading-spinner loading-md mx-auto"></span>
+                )}
+
+                {!chatsQuery.isLoading && chats.length === 0 && (
                   <div className="py-8 text-center">
                     <p className="text-base-content/60">No chats yet</p>
                     <p className="text-base-content/40 text-sm">
@@ -387,37 +316,34 @@ function RouteComponent() {
                   {selectedChat.messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`chat mb-0 md:mb-2 ${message.isUser ? 'chat-end' : 'chat-start'}`}
+                      className={`chat mb-0 md:mb-2 ${!message.fromSystem ? 'chat-end' : 'chat-start'}`}
                     >
                       <div className="chat-image avatar">
-                        <div className="w-10 rounded-full">
-                          <img
-                            alt="Avatar"
-                            src={
-                              message.isUser
-                                ? 'https://img.daisyui.com/images/profile/demo/anakeen@192.webp'
-                                : 'https://img.daisyui.com/images/profile/demo/kenobee@192.webp'
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="chat-bubble">
-                        {message.type === 'image' && message.fileUrl && (
-                          <div className="mb-2">
+                        {message.fromSystem ? (
+                          <Logo className="rounded-full" />
+                        ) : (
+                          <div className="w-10 rounded-full">
                             <img
-                              src={message.fileUrl}
-                              alt={message.fileName}
-                              className="max-w-xs rounded-lg"
+                              alt="Avatar"
+                              src={
+                                'https://img.daisyui.com/images/profile/demo/kenobee@192.webp'
+                              }
                             />
                           </div>
                         )}
-                        {message.type === 'file' && (
-                          <div className="mb-2 flex items-center gap-2">
-                            <Paperclip size={16} />
-                            <span className="text-sm">{message.fileName}</span>
-                          </div>
+                      </div>
+                      <div className="chat-bubble group relative">
+                        <Markdown>{message.message}</Markdown>
+                        {/* Delete message button */}
+                        {message.fromSystem ? null : (
+                          <button
+                            onClick={() => handleDeleteMessage(message.id)}
+                            className="btn btn-xs btn-circle btn-error absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
+                            title="Delete message"
+                          >
+                            <Trash2 size={12} />
+                          </button>
                         )}
-                        {message.content}
                       </div>
                     </div>
                   ))}
@@ -518,11 +444,17 @@ function RouteComponent() {
                     <button
                       type="button"
                       onClick={handleSendMessage}
-                      disabled={!messageInput.trim()}
+                      disabled={
+                        !messageInput.trim() || sendMessageMutation.isPending
+                      }
                       className="btn btn-primary btn-square"
                       title="Send message"
                     >
-                      <Send size={20} />
+                      {sendMessageMutation.isPending ? (
+                        <span className="loading loading-spinner loading-sm"></span>
+                      ) : (
+                        <Send size={20} />
+                      )}
                     </button>
                   </div>
                 </div>
