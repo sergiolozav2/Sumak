@@ -254,15 +254,15 @@ function RouteComponent() {
                   <div
                     key={chat.id}
                     onClick={() => handleChatSelect(chat)}
-                    className={`group relative cursor-pointer rounded-lg border p-2 transition-colors md:max-w-72 md:p-4 ${
+                    className={`group relative w-full cursor-pointer rounded-lg border p-2 transition-colors md:max-w-72 md:p-4 ${
                       selectedChatId === chat.id
                         ? 'bg-primary/10 border-primary/20'
                         : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
                     }`}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-base-content truncate font-medium">
+                    <div className="relative flex w-full">
+                      <div className="w-full min-w-0 flex-1">
+                        <h4 className="text-base-content w-full truncate font-medium">
                           {chat.title}
                         </h4>
                         <p className="text-base-content/70 line-clamp-1 hidden text-sm md:block">
@@ -271,7 +271,7 @@ function RouteComponent() {
                       </div>
                       <button
                         onClick={(e) => handleDeleteChat(chat.id, e)}
-                        className="btn btn-xs btn-ghost btn-circle ml-2 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="btn btn-xs btn-ghost btn-circle absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
                         title="Delete chat"
                       >
                         <Trash2 size={14} />
@@ -303,14 +303,6 @@ function RouteComponent() {
             <div className="mb-14 h-full w-full overflow-y-auto px-2 md:p-4">
               {/* Comments area */}
               <div className="mx-auto flex max-w-3xl flex-col text-sm md:text-base">
-                {selectedChat.messages.length === 0 ? (
-                  <div className="flex flex-1 flex-col items-center justify-center">
-                    <p className="text-base-content/40">
-                      Start a new conversation
-                    </p>
-                  </div>
-                ) : null}
-
                 {selectedChat.messages.map((message) => (
                   <div
                     key={message.id}
