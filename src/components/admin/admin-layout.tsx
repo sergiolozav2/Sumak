@@ -27,8 +27,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       icon: SquarePen,
     },
     {
-      name: 'Tasks',
-      href: '/admin-teacher/students',
+      name: 'Documents',
+      href: '/admin-teacher/documents',
       icon: ClipboardList,
     },
     {

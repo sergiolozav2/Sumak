@@ -6,6 +6,7 @@ import type { TRPCRouterRecord } from '@trpc/server'
 import { notesRouter } from '../routes/notes'
 import { studyCardsRouter } from '../routes/study-cards'
 import { chatRouter } from '../routes/chat'
+import { filesRouter } from '../routes/files'
 
 const todos = [
   { id: 1, name: 'Get groceries' },
@@ -406,5 +407,6 @@ export const trpcRouter = createTRPCRouter({
   notes: notesRouter,
   cards: studyCardsRouter,
   chat: chatRouter,
+  files: filesRouter,
 })
 export type TRPCRouter = typeof trpcRouter

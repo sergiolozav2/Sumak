@@ -1,6 +1,12 @@
 import { QueryClient } from '@tanstack/react-query'
 import superjson from 'superjson'
-import { createTRPCClient, httpBatchStreamLink } from '@trpc/client'
+import {
+  createTRPCClient,
+  httpBatchStreamLink,
+  httpLink,
+  splitLink,
+  isNonJsonSerializable,
+} from '@trpc/client'
 
 import type { TRPCRouter } from '@/integrations/trpc/router'
 
@@ -20,9 +26,21 @@ function getUrl() {
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
   links: [
-    httpBatchStreamLink({
-      transformer: superjson,
-      url: getUrl(),
+    splitLink({
+      condition: (op) => isNonJsonSerializable(op.input),
+      true: httpLink({
+        url: getUrl(),
+        transformer: {
+          // request - convert data before sending to the tRPC server
+          serialize: (data) => data,
+          // response - convert the tRPC response before using it in client
+          deserialize: superjson.deserialize,
+        },
+      }),
+      false: httpBatchStreamLink({
+        transformer: superjson,
+        url: getUrl(),
+      }),
     }),
   ],
 })

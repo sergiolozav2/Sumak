@@ -46,3 +46,12 @@ model ChatMessage {
   chatId Int
   chat   Chat @relation(fields: [chatId], references: [id])
 }
+
+model Files {
+  id         Int      @id @default(autoincrement())
+  title    String
+  url String
+  mimeType String
+  createdAt  DateTime @default(now())
+  ocrDescription String?
+}

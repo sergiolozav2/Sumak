@@ -16,6 +16,8 @@
     "db-gen": "pnpx prisma generate --no-hints"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.890.0",
+    "@aws-sdk/s3-request-presigner": "^3.890.0",
     "@faker-js/faker": "^9.6.0",
     "@prisma/client": "6.15.0",
     "@tailwindcss/vite": "^4.1.13",
