@@ -26,7 +26,7 @@ jobs:
         run: docker save sumak-app:latest -o sumak-app.tar
 
       - name: Copy image to ECS
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
@@ -39,7 +39,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          key: ${{ secrets.ECS_SSH_KEY }}
+          password: +1password
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
