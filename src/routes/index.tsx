@@ -1,23 +1,23 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
+  Award,
   BookOpen,
   Brain,
-  Users,
   CheckCircle,
-  Play,
-  Lightbulb,
-  Target,
-  Globe,
-  Award,
-  TrendingUp,
-  Heart,
-  Shield,
-  Zap,
-  MessageCircle,
-  Phone,
-  Mail,
   ChevronDown,
   ChevronUp,
+  Globe,
+  Heart,
+  Lightbulb,
+  Mail,
+  MessageCircle,
+  Phone,
+  Play,
+  Shield,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -138,7 +138,7 @@ function App() {
 
               <div className="flex items-center space-x-8 pt-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-indigo-600">15%</div>
+                  <div className="text-3xl font-bold text-indigo-600">13%</div>
                   <div className="text-sm text-gray-500">
                     Crecimiento anual EdTech
                   </div>
@@ -167,7 +167,7 @@ function App() {
                         <BookOpen className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <div className="font-semibold">María, 12 años</div>
+                        <div className="font-semibold">María, 11 años</div>
                         <div className="text-sm text-gray-500">
                           Matemáticas Nivel 6
                         </div>
