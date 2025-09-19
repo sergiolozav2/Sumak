@@ -18,13 +18,16 @@ jobs:
 
       - name: Build Docker image for amd64
         run: |
+          IMAGE_TAG=${GITHUB_SHA::7}
           docker buildx build \
             --platform linux/amd64 \
+            -t sumak-app:${IMAGE_TAG} \
             -t sumak-app:latest \
             --output type=docker .
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Save Docker image to tar
-        run: docker save sumak-app:latest -o sumak-app.tar
+        run: docker save sumak-app:${IMAGE_TAG} -o sumak-app-${IMAGE_TAG}.tar
 
       - name: Copy image to ECS
         uses: appleboy/scp-action@v1
@@ -32,7 +35,7 @@ jobs:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
           password: +1password
-          source: 'sumak-app.tar'
+          source: "sumak-app-${IMAGE_TAG}.tar"
           target: '/root/'
 
       - name: Deploy on ECS
@@ -44,7 +47,7 @@ jobs:
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
-            docker load -i /root/sumak-app.tar
+             docker load -i /root/sumak-app-${IMAGE_TAG}.tar
             docker run -d \
               --name sumak-app \
               -p 3000:3000 \
@@ -60,4 +63,4 @@ jobs:
               -e STORAGE_REGION=${{ secrets.STORAGE_REGION }} \
               -e STORAGE_ACCESS_KEY_ID=${{ secrets.STORAGE_ACCESS_KEY_ID }} \
               -e STORAGE_SECRET_ACCESS_KEY=${{ secrets.STORAGE_SECRET_ACCESS_KEY }} \
-              sumak-app:latest
+              sumak-app:${IMAGE_TAG}
