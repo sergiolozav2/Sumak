@@ -117,7 +117,7 @@ function App() {
                     {' '}
                     educación{' '}
                   </span>
-                  está aquí
+                  está aquí PRUEBA
                 </h1>
                 <p className="text-xl leading-relaxed text-gray-600">
                   Plataforma de aprendizaje con IA que personaliza la educación
