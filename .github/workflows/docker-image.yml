@@ -49,11 +49,6 @@ jobs:
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
-
-            # limpiar imágenes antiguas y .tar previos
-            docker image prune -af || true
-            rm -f /root/sumak-app-*.tar || true
-            
             docker load -i /root/sumak-app-${{ env.IMAGE_TAG }}.tar
             docker run -d \
               --name sumak-app \
@@ -71,3 +66,5 @@ jobs:
               -e STORAGE_ACCESS_KEY_ID=${{ secrets.STORAGE_ACCESS_KEY_ID }} \
               -e STORAGE_SECRET_ACCESS_KEY=${{ secrets.STORAGE_SECRET_ACCESS_KEY }} \
               sumak-app:${{ env.IMAGE_TAG }}
+            docker image prune -af || true
+            rm -f /root/sumak-app-*.tar || true
