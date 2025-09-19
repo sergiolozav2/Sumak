@@ -1,0 +1,62 @@
+name: Build and Deploy to ECS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image for amd64
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -t sumak-app:latest \
+            --output type=docker .
+
+      - name: Save Docker image to tar
+        run: docker save sumak-app:latest -o sumak-app.tar
+
+      - name: Copy image to ECS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_KEY }}
+          source: "sumak-app.tar"
+          target: "/root/"
+
+      - name: Deploy on ECS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_KEY }}
+          script: |
+            docker stop sumak-app || true
+            docker rm sumak-app || true
+            docker load -i /root/sumak-app.tar
+            docker run -d \
+              --name sumak-app \
+              -p 3000:3000 \
+              --restart=always \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e LLM_BASE_URL=${{ secrets.LLM_BASE_URL }} \
+              -e LLM_API_KEY=${{ secrets.LLM_API_KEY }} \
+              -e LLM_MODEL=${{ secrets.LLM_MODEL }} \
+              -e OCR_BASE_URL=${{ secrets.OCR_BASE_URL }} \
+              -e OCR_API_KEY=${{ secrets.OCR_API_KEY }} \
+              -e OCR_MODEL=${{ secrets.OCR_MODEL }} \
+              -e STORAGE_ENDPOINT=${{ secrets.STORAGE_ENDPOINT }} \
+              -e STORAGE_REGION=${{ secrets.STORAGE_REGION }} \
+              -e STORAGE_ACCESS_KEY_ID=${{ secrets.STORAGE_ACCESS_KEY_ID }} \
+              -e STORAGE_SECRET_ACCESS_KEY=${{ secrets.STORAGE_SECRET_ACCESS_KEY }} \
+              sumak-app:latest
