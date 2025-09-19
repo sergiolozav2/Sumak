@@ -9,6 +9,9 @@
     COPY . .
     
     RUN rm -f pnpm-workspace.yaml
+
+    # ARG DEPLOY_TARGET=ecs
+    # ENV DEPLOY_TARGET=$DEPLOY_TARGET
     
     RUN pnpm run build
     
