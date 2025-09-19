@@ -49,7 +49,7 @@ jobs:
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
-             docker load -i /root/sumak-app-${IMAGE_TAG}.tar
+            docker load -i /root/sumak-app-${{ env.IMAGE_TAG }}.tar
             docker run -d \
               --name sumak-app \
               -p 3000:3000 \
@@ -65,4 +65,4 @@ jobs:
               -e STORAGE_REGION=${{ secrets.STORAGE_REGION }} \
               -e STORAGE_ACCESS_KEY_ID=${{ secrets.STORAGE_ACCESS_KEY_ID }} \
               -e STORAGE_SECRET_ACCESS_KEY=${{ secrets.STORAGE_SECRET_ACCESS_KEY }} \
-              sumak-app:${IMAGE_TAG}
+              sumak-app:${{ env.IMAGE_TAG }}
