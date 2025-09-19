@@ -49,6 +49,11 @@ jobs:
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
+
+            # limpiar imágenes antiguas y .tar previos
+            docker image prune -af || true
+            rm -f /root/sumak-app-*.tar || true
+            
             docker load -i /root/sumak-app-${{ env.IMAGE_TAG }}.tar
             docker run -d \
               --name sumak-app \
