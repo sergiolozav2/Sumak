@@ -6,6 +6,7 @@ on:
 
 jobs:
   deploy:
+    environment: HuaweiEnv
     runs-on: ubuntu-latest
     environment: HuaweiEnv
 
