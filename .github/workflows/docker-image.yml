@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: HuaweiEnv
 
     steps:
       - name: Checkout code
@@ -30,7 +31,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          password: +1password
+          key: ${{ secrets.ECS_SSH_KEY }}
           source: "sumak-app.tar"
           target: "/root/"
 
@@ -39,7 +40,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          password: +1password
+          key: ${{ secrets.ECS_SSH_KEY }}
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
