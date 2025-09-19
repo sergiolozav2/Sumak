@@ -27,7 +27,7 @@ jobs:
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Save Docker image to tar
-        run: docker save sumak-app:${IMAGE_TAG} -o sumak-app-${IMAGE_TAG}.tar
+        run: docker save sumak-app:${IMAGE_TAG} -o ${{ github.workspace }}/sumak-app-${IMAGE_TAG}.tar
 
       - name: Copy image to ECS
         uses: appleboy/scp-action@v1
@@ -35,7 +35,7 @@ jobs:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
           password: +1password
-          source: "sumak-app-${IMAGE_TAG}.tar"
+          source: "${{ github.workspace }}/sumak-app-${IMAGE_TAG}.tar"
           target: '/root/'
 
       - name: Deploy on ECS
