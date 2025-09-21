@@ -93,13 +93,23 @@ export const chatRouter = {
           { role: 'user' as const, content: input.message },
         ]
 
-        const response = await llmService.createChatCompletion(messages)
+        // Use streaming completion to get full response with thinking
+        let fullResponse = ''
+        const streamingResponse = llmService.createStreamingCompletion(messages)
+        for await (const chunk of streamingResponse) {
+          fullResponse += chunk
+        }
+
+        // Extract thinking process and final message
+        const { thinkingProcess, finalMessage } =
+          llmService.extractThinkingAndMessage(fullResponse)
 
         // Create AI response message
         await prisma.chatMessage.create({
           data: {
             chatId: chat.id,
-            message: response.content,
+            message: finalMessage,
+            thinkingProcess: thinkingProcess,
             fromSystem: true,
           },
         })
@@ -115,6 +125,129 @@ export const chatRouter = {
         })
       } catch (error) {
         console.error('Error creating chat with message:', error)
+        throw new Error('Failed to create chat. Please try again.')
+      }
+    }),
+
+  // Create a new chat with streaming response - instant creation with parallelized title generation
+  createWithMessageStream: publicProcedure
+    .input(
+      z.object({
+        message: z.string().min(1, 'Message cannot be empty'),
+      }),
+    )
+    .mutation(async function* ({ input }) {
+      try {
+        // Create LLM service instance
+        const llmService = ServiceFactories.createLLMService()
+
+        // Create the chat instantly with message as temporary title
+        const tempTitle =
+          input.message.length > 50
+            ? input.message.substring(0, 50) + '...'
+            : input.message
+
+        const chat = await prisma.chat.create({
+          data: {
+            title: tempTitle,
+          },
+        })
+
+        // Create user message
+        const userMessage = await prisma.chatMessage.create({
+          data: {
+            chatId: chat.id,
+            message: input.message,
+            fromSystem: false,
+          },
+        })
+
+        // Parallelize title generation and AI response
+        const titlePromise = llmService
+          .generateChatTitle(input.message)
+          .then(async (generatedTitle) => {
+            await prisma.chat.update({
+              where: { id: chat.id },
+              data: { title: generatedTitle },
+            })
+            return generatedTitle
+          })
+          .catch((error) => {
+            console.error('Error generating title:', error)
+            return tempTitle // Keep temp title if generation fails
+          })
+
+        const messages: Array<ChatMessage> = [
+          {
+            role: 'system' as const,
+            content:
+              'You are a helpful AI assistant. Provide clear, concise, and helpful responses.',
+          },
+          { role: 'user' as const, content: input.message },
+        ]
+
+        const readableResponse = llmService.createStreamingCompletion(messages)
+        let aiResponse = ''
+        let chunkBuffer = ''
+        let chunkCount = 0
+
+        for await (const chunk of readableResponse) {
+          aiResponse += chunk
+          chunkBuffer += chunk
+          chunkCount++
+
+          // Yield every 10 chunks
+          if (chunkCount >= 10) {
+            yield {
+              type: 'chunk' as const,
+              chunk: chunkBuffer,
+            }
+            chunkBuffer = ''
+            chunkCount = 0
+          }
+        }
+
+        // Yield any remaining chunks in the buffer
+        if (chunkBuffer) {
+          yield {
+            type: 'chunk' as const,
+            chunk: chunkBuffer,
+          }
+        }
+
+        // Extract thinking process and final message
+        const { thinkingProcess, finalMessage } =
+          llmService.extractThinkingAndMessage(aiResponse)
+
+        const aiMessage = await prisma.chatMessage.create({
+          data: {
+            chatId: chat.id,
+            message: finalMessage,
+            thinkingProcess: thinkingProcess,
+            fromSystem: true,
+          },
+        })
+
+        // Wait for title generation to complete (if not already done)
+        const finalTitle = await titlePromise
+
+        // Yield completion with final messages and updated title
+        yield {
+          type: 'complete' as const,
+          userMessage,
+          aiMessage,
+          chatId: chat.id,
+          finalTitle,
+        }
+
+        return {
+          userMessage,
+          aiMessage,
+          chatId: chat.id,
+          finalTitle,
+        }
+      } catch (error) {
+        console.error('Error creating chat with streaming message:', error)
         throw new Error('Failed to create chat. Please try again.')
       }
     }),
@@ -203,18 +336,42 @@ export const chatRouter = {
         { role: 'user' as const, content: input.message },
       ]
 
-      const readableResponse = llmService.fakeStreamingCompletion()
+      const readableResponse = llmService.createStreamingCompletion(messages)
       let aiResponse = ''
+      let chunkBuffer = ''
+      let chunkCount = 0
+
       for await (const chunk of readableResponse) {
         aiResponse += chunk
-        yield {
-          chunk: chunk,
+        chunkBuffer += chunk
+        chunkCount++
+
+        // Yield every 10 chunks
+        if (chunkCount >= 10) {
+          yield {
+            chunk: chunkBuffer,
+          }
+          chunkBuffer = ''
+          chunkCount = 0
         }
       }
+
+      // Yield any remaining chunks in the buffer
+      if (chunkBuffer) {
+        yield {
+          chunk: chunkBuffer,
+        }
+      }
+
+      // Extract thinking process and final message
+      const { thinkingProcess, finalMessage } =
+        llmService.extractThinkingAndMessage(aiResponse)
+
       const aiMessage = await prisma.chatMessage.create({
         data: {
           chatId: input.chatId,
-          message: aiResponse,
+          message: finalMessage,
+          thinkingProcess: thinkingProcess,
           fromSystem: true,
         },
       })

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Markdown from '@/components/common/markdown'
 import Logo from '@/components/common/logo'
 
@@ -11,39 +11,45 @@ export function StreamingMessage({
   chunks,
   onComplete,
 }: StreamingMessageProps) {
-  const [displayText, setDisplayText] = useState('')
+  const [thinkingContent, setThinkingContent] = useState('')
+
+  const response = useRef<string>('')
+
+  const [finalContent, setFinalContent] = useState('')
   const [isThinking, setIsThinking] = useState(true)
   const [isComplete, setIsComplete] = useState(false)
-  console.log(chunks)
   useEffect(() => {
     if (!chunks) return
 
-    let fullText = ''
     let hasFoundEndThink = false
 
     const processStream = async () => {
       try {
         for await (const { chunk } of chunks) {
-          fullText += chunk
-          console.log(chunk)
+          response.current += chunk
           // Check if we've found the </think> tag
-          if (!hasFoundEndThink && fullText.includes('</think>')) {
+          if (!hasFoundEndThink && response.current?.includes('</think>')) {
             hasFoundEndThink = true
             setIsThinking(false)
 
             // Extract thinking content and actual content
-            const thinkEndIndex = fullText.indexOf('</think>')
-            const actual = fullText.substring(thinkEndIndex + 8).trim()
+            const thinkEndIndex = response.current.indexOf('</think>')
+            const thinking = response.current.substring(0, thinkEndIndex + 8)
+            const actual = response.current.substring(thinkEndIndex + 8).trim()
 
-            setDisplayText(actual)
-          } else if (hasFoundEndThink) {
+            setThinkingContent(thinking)
+            console.log(thinking)
+            setFinalContent(actual)
+          } else if (hasFoundEndThink && response.current) {
             // We're past the thinking phase, update the actual content
-            const thinkEndIndex = fullText.indexOf('</think>')
-            const actual = fullText.substring(thinkEndIndex + 8).trim()
-            setDisplayText(actual)
+            const thinkEndIndex = response.current.indexOf('</think>')
+            const thinking = response.current?.substring(0, thinkEndIndex + 8)
+            const actual = response.current?.substring(thinkEndIndex + 8).trim()
+            setThinkingContent(thinking)
+            setFinalContent(actual)
           } else {
             // Still in thinking mode
-            setDisplayText(fullText)
+            setThinkingContent(response.current || '')
           }
         }
 
@@ -71,37 +77,46 @@ export function StreamingMessage({
         <Logo className="rounded-full" />
       </div>
       <div className="chat-bubble relative min-w-0">
-        {isThinking && !isComplete && (
-          <div className="mb-2 text-sm opacity-60">
-            <div className="flex items-center gap-2">
-              <span className="loading loading-dots loading-sm"></span>
-              <span className="font-medium">AI is thinking...</span>
+        {/* Always show thinking process if it exists */}
+        {thinkingContent && (
+          <details className="mb-3" open={isThinking && !isComplete}>
+            <summary className="text-primary flex cursor-pointer items-center gap-2 text-sm font-medium">
+              {isThinking && !isComplete && (
+                <span className="loading loading-dots loading-xs"></span>
+              )}
+              Thinking Process
+            </summary>
+            <div className="bg-base-200 border-primary/30 mt-2 rounded border-l-2 p-3 font-mono text-xs whitespace-pre-wrap opacity-90">
+              <Markdown>{thinkingContent}</Markdown>
+              {isThinking && !isComplete && (
+                <span className="bg-primary ml-1 inline-block h-3 w-1 animate-pulse rounded-sm"></span>
+              )}
             </div>
-            {displayText && (
-              <details className="mt-2">
-                <summary className="cursor-pointer text-xs underline">
-                  View thinking process
-                </summary>
-                <div className="bg-base-200 border-primary/30 mt-1 flex w-full rounded border-l-2 p-2 font-mono text-xs whitespace-pre-wrap opacity-80">
-                  <Markdown>{displayText}</Markdown>
-                </div>
-              </details>
-            )}
-          </div>
+          </details>
         )}
 
-        {(!isThinking || isComplete) && (
+        {/* Show final content */}
+        {finalContent && (
           <div>
-            <Markdown>{displayText}</Markdown>
-            {!isComplete && (
+            <Markdown>{finalContent}</Markdown>
+            {!isComplete && !isThinking && (
               <span className="bg-primary ml-1 inline-block h-4 w-2 animate-pulse rounded-sm"></span>
             )}
           </div>
         )}
 
-        {isComplete && isThinking && !displayText && (
+        {/* Show loading state when no content yet */}
+        {!thinkingContent && !finalContent && !isComplete && (
+          <div className="flex items-center gap-2 text-sm opacity-60">
+            <span className="loading loading-dots loading-sm"></span>
+            <span className="font-medium">AI is starting to think...</span>
+          </div>
+        )}
+
+        {/* Show error state */}
+        {isComplete && !thinkingContent && !finalContent && (
           <div className="text-sm opacity-60">
-            <span>Thinking complete, but no response generated.</span>
+            <span>No response generated.</span>
           </div>
         )}
       </div>
@@ -113,6 +128,7 @@ interface ChatMessageProps {
   message: {
     id: number
     message: string
+    thinkingProcess?: string | null
     fromSystem: boolean
     createdAt: Date
     chatId: number
@@ -138,7 +154,21 @@ export function ChatMessage({ message, onDelete }: ChatMessageProps) {
         )}
       </div>
       <div className="chat-bubble group relative min-w-0">
+        {/* Show thinking process if it exists for system messages */}
+        {message.fromSystem && message.thinkingProcess && (
+          <details className="mb-3">
+            <summary className="text-primary flex cursor-pointer items-center gap-2 text-sm font-medium">
+              Thinking Process
+            </summary>
+            <div className="bg-base-200 border-primary/30 mt-2 rounded border-l-2 p-3 font-mono text-xs whitespace-pre-wrap opacity-90">
+              <Markdown>{message.thinkingProcess}</Markdown>
+            </div>
+          </details>
+        )}
+
+        {/* Show final message content */}
         <Markdown>{message.message}</Markdown>
+
         {/* Delete message button */}
         {!message.fromSystem && onDelete && (
           <button

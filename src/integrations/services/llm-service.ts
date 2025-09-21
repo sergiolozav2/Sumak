@@ -44,7 +44,6 @@ export class LLMService implements ILLMService {
         })),
         stream: options?.stream ?? false,
         temperature: options?.temperature ?? 0.7,
-        max_tokens: options?.maxTokens ?? 1000,
       })
 
       if ('choices' in response && response.choices.length > 0) {
@@ -98,7 +97,6 @@ export class LLMService implements ILLMService {
         })),
         stream: true,
         temperature: options?.temperature ?? 0.7,
-        max_tokens: options?.maxTokens ?? 1000,
       })
 
       for await (const chunk of stream) {
@@ -112,6 +110,30 @@ export class LLMService implements ILLMService {
       throw new Error(
         `Failed to create streaming completion: ${error instanceof Error ? error.message : 'Unknown error'}`,
       )
+    }
+  }
+
+  // Method to extract thinking process and final message from streamed content
+  extractThinkingAndMessage(fullContent: string): {
+    thinkingProcess: string | null
+    finalMessage: string
+  } {
+    const thinkEndIndex = fullContent.indexOf('</think>')
+
+    if (thinkEndIndex === -1) {
+      // No thinking process found
+      return {
+        thinkingProcess: null,
+        finalMessage: fullContent.trim(),
+      }
+    }
+
+    const thinkingProcess = fullContent.substring(0, thinkEndIndex + 8)
+    const finalMessage = fullContent.substring(thinkEndIndex + 8).trim()
+
+    return {
+      thinkingProcess,
+      finalMessage,
     }
   }
 

@@ -10,7 +10,7 @@ import {
   StopCircle,
   Trash2,
 } from 'lucide-react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
 import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
@@ -27,6 +27,7 @@ export const Route = createFileRoute('/admin-teacher/chat')({
 interface DatabaseChatMessage {
   id: number
   message: string
+  thinkingProcess?: string | null
   fromSystem: boolean
   createdAt: Date
   chatId: number
@@ -42,7 +43,9 @@ function RouteComponent() {
   const trpc = useTRPC()
 
   // tRPC queries and mutations
-  const chatsQuery = useQuery(trpc.chat.getAll.queryOptions())
+  const chatsQuery = useQuery({
+    ...trpc.chat.getAll.queryOptions(),
+  })
   const createChatWithMessageMutation = useMutation(
     trpc.chat.createWithMessage.mutationOptions({
       onSuccess: (newChat) => {
@@ -84,6 +87,8 @@ function RouteComponent() {
   > | null>(null)
   const [isStreaming, setIsStreaming] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [optimisticChat, setOptimisticChat] = useState<Chat | null>(null)
+  const [isCreatingChat, setIsCreatingChat] = useState(false)
 
   // Speech recognition hook
   const onSpeechResult = useCallback(
@@ -99,7 +104,8 @@ function RouteComponent() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const chats = chatsQuery.data || []
-  const selectedChat = chats.find((chat) => chat.id === selectedChatId)
+  const allChats = optimisticChat ? [optimisticChat, ...chats] : chats
+  const selectedChat = allChats.find((chat) => chat.id === selectedChatId)
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -109,11 +115,18 @@ function RouteComponent() {
   // Handle new chat - now just unselects current chat
   const handleNewChat = () => {
     setSelectedChatId(null)
+    setOptimisticChat(null)
+    setIsStreaming(false)
+    setStreamingMessage(null)
   }
 
   // Handle chat selection
   const handleChatSelect = (chat: Chat) => {
     setSelectedChatId(chat.id)
+    // Clear optimistic chat when selecting a real chat
+    if (optimisticChat && chat.id !== optimisticChat.id) {
+      setOptimisticChat(null)
+    }
   }
 
   // Handle delete chat
@@ -133,22 +146,93 @@ function RouteComponent() {
 
   // Handle streaming message completion
   const handleStreamingComplete = () => {
-    setIsStreaming(false)
-    setStreamingMessage(null)
-    chatsQuery.refetch()
+    const currentSelectedId = selectedChatId
+
+    // Refresh chats and maintain selection
+    chatsQuery.refetch().then(() => {
+      // If we had a selected chat, try to keep it selected
+      setIsStreaming(false)
+      setStreamingMessage(null)
+      setOptimisticChat(null)
+
+      if (currentSelectedId && currentSelectedId > 0) {
+        setSelectedChatId(currentSelectedId)
+      }
+    })
   }
 
   // Handle send message
   const handleSendMessage = async () => {
     if (!messageInput.trim()) return
 
-    // If no chat is selected, create a new chat with the message
+    // If no chat is selected, create a new chat with the message using streaming
     if (!selectedChatId) {
-      if (createChatWithMessageMutation.isPending) return
+      if (isCreatingChat || isStreaming) return
 
-      createChatWithMessageMutation.mutate({
-        message: messageInput.trim(),
-      })
+      const message = messageInput.trim()
+      setMessageInput('')
+      setIsCreatingChat(true)
+      setIsStreaming(true)
+
+      // Create instant optimistic chat
+      const tempTitle =
+        message.length > 50 ? message.substring(0, 50) + '...' : message
+      const optimisticChatData: Chat = {
+        id: -Date.now(), // Use negative timestamp as temporary ID
+        title: tempTitle,
+        messages: [
+          {
+            id: -1,
+            message: message,
+            thinkingProcess: null,
+            fromSystem: false,
+            createdAt: new Date(),
+            chatId: -Date.now(),
+          },
+        ],
+      }
+
+      // Set optimistic chat immediately
+      setOptimisticChat(optimisticChatData)
+      setSelectedChatId(optimisticChatData.id)
+
+      try {
+        // Call the streaming chat creation mutation
+        const streamingResponse =
+          await trpcClient.chat.createWithMessageStream.mutate({
+            message: message,
+          })
+
+        // Process the streaming response
+        if (
+          streamingResponse &&
+          typeof streamingResponse[Symbol.asyncIterator] === 'function'
+        ) {
+          // Create a generator that processes the different message types
+          const processedStream = (async function* () {
+            for await (const item of streamingResponse) {
+              if (item.type === 'chunk') {
+                yield { chunk: item.chunk }
+              } else if (item.type === 'complete') {
+                chatsQuery.refetch().then(() => {
+                  setIsCreatingChat(false)
+                  setOptimisticChat(null)
+                  setSelectedChatId(item.chatId)
+                })
+              }
+            }
+          })()
+
+          setStreamingMessage(processedStream)
+        }
+      } catch (error) {
+        console.error('Error creating chat:', error)
+        setIsStreaming(false)
+        setStreamingMessage(null)
+        setOptimisticChat(null)
+        setMessageInput(message) // Restore message input on error
+        setIsCreatingChat(false)
+      }
       return
     }
 
@@ -294,7 +378,7 @@ function RouteComponent() {
             </div>
             <div className="collapse-content w-full text-sm md:pt-4">
               <div className="flex w-full flex-col gap-2 md:gap-3">
-                {chats.map((chat) => (
+                {allChats.map((chat) => (
                   <div
                     key={chat.id}
                     onClick={() => handleChatSelect(chat)}
@@ -302,24 +386,30 @@ function RouteComponent() {
                       selectedChatId === chat.id
                         ? 'bg-primary/10 border-primary/20'
                         : 'bg-base-200 hover:border-neutral/45 border-neutral/20'
-                    }`}
+                    } ${chat === optimisticChat ? 'opacity-75' : ''}`}
                   >
                     <div className="relative flex w-full">
                       <div className="w-full min-w-0 flex-1">
-                        <h4 className="text-base-content w-full truncate font-medium">
+                        <h4 className="text-base-content flex w-full items-center gap-2 truncate font-medium">
                           {chat.title}
+                          {chat === optimisticChat && (
+                            <span className="loading loading-dots loading-xs"></span>
+                          )}
                         </h4>
                         <p className="text-base-content/70 line-clamp-1 hidden text-sm md:block">
                           {getLastMessage(chat)}
                         </p>
                       </div>
-                      <button
-                        onClick={(e) => handleDeleteChat(chat.id, e)}
-                        className="btn btn-xs btn-ghost btn-circle absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
-                        title="Delete chat"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {/* Only show delete button for real chats (positive IDs) */}
+                      {chat.id > 0 && (
+                        <button
+                          onClick={(e) => handleDeleteChat(chat.id, e)}
+                          className="btn btn-xs btn-ghost btn-circle absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
+                          title="Delete chat"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -328,7 +418,7 @@ function RouteComponent() {
                   <span className="loading loading-spinner loading-md mx-auto"></span>
                 )}
 
-                {!chatsQuery.isLoading && chats.length === 0 && (
+                {!chatsQuery.isLoading && allChats.length === 0 && (
                   <div className="py-8 text-center">
                     <p className="text-base-content/60">No chats yet</p>
                     <p className="text-base-content/40 text-sm">
@@ -479,14 +569,16 @@ function RouteComponent() {
                     !messageInput.trim() ||
                     isSending ||
                     createChatWithMessageMutation.isPending ||
-                    isStreaming
+                    isStreaming ||
+                    isCreatingChat
                   }
                   className="btn btn-primary btn-square"
                   title={selectedChatId ? 'Send message' : 'Start new chat'}
                 >
                   {isSending ||
                   createChatWithMessageMutation.isPending ||
-                  isStreaming ? (
+                  isStreaming ||
+                  isCreatingChat ? (
                     <span className="loading loading-spinner loading-sm"></span>
                   ) : (
                     <Send size={20} />
