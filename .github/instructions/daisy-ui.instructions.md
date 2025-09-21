@@ -258,7 +258,7 @@ Accordion is used for showing and hiding content but only one item can stay open
 #### Syntax
 
 ```html
-<div class="collapse {MODIFIER}">{CONTENT}</div>
+<div class="{MODIFIER} collapse">{CONTENT}</div>
 ```
 
 where content is:
@@ -571,7 +571,7 @@ Collapse is used for showing and hiding content
 #### Syntax
 
 ```html
-<div tabindex="0" class="collapse {MODIFIER}">
+<div tabindex="0" class="{MODIFIER} collapse">
   <div class="collapse-title">{title}</div>
   <div class="collapse-content">{CONTENT}</div>
 </div>
@@ -717,7 +717,7 @@ where {CONTENT} can be navbar, site content, footer, etc
 and {SIDEBAR} can be a menu like:
 
 ```html
-<ul class="menu p-4 w-80 min-h-full bg-base-100 text-base-content">
+<ul class="menu bg-base-100 text-base-content min-h-full w-80 p-4">
   <li><a>Item 1</a></li>
   <li><a>Item 2</a></li>
 </ul>
@@ -1914,7 +1914,7 @@ Table can be used to show a list of data in a table format
 
 ```html
 <div class="overflow-x-auto">
-  <table class="table {MODIFIER}">
+  <table class="{MODIFIER} table">
     <thead>
       <tr>
         <th></th>
