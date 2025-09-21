@@ -4,14 +4,14 @@ import {
   createTRPCClient,
   httpBatchStreamLink,
   httpLink,
-  splitLink,
   isNonJsonSerializable,
+  splitLink,
 } from '@trpc/client'
 
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import type { TRPCRouter } from '@/integrations/trpc/router'
 
 import { TRPCProvider } from '@/integrations/trpc/react'
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 
 export type RouterInput = inferRouterInputs<TRPCRouter>
 export type RouterOutput = inferRouterOutputs<TRPCRouter>

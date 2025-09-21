@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --navbar-height: 73px;
@@ -11,10 +11,10 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "my-light";
+  name: 'my-light';
   default: false;
   prefersdark: false;
-  color-scheme: "light";
+  color-scheme: 'light';
   --color-base-100: oklch(100% 0 0);
   --color-base-200: oklch(97% 0 0);
   --color-base-300: oklch(92% 0 0);
@@ -42,7 +42,6 @@
   --border: 1px;
   --depth: 0;
   --noise: 0;
-
 }
 
 .responsive-padding-dock {
@@ -50,8 +49,8 @@
 }
 
 .responsive-app-container-height {
-  min-height: calc(100svh - var(--combined-height));
-  max-height: calc(100svh - var(--combined-height));
+  min-height: calc(dvh - var(--combined-height));
+  max-height: calc(dvh - var(--combined-height));
 }
 
 @media screen and (min-width: 768px) {

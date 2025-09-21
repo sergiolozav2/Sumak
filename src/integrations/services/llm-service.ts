@@ -1,27 +1,14 @@
 import { OpenAI } from 'openai'
+import type {
+  ChatCompletionResponse,
+  ChatMessage,
+  ILLMService,
+  LLMConfig,
+  QuizQuestion,
+} from './llm-service-interface'
 
-interface LLMConfig {
-  apiKey: string
-  baseURL: string
-  model: string
-}
-
-interface ChatMessage {
-  role: 'user' | 'assistant' | 'system'
-  content: string
-}
-
-interface ChatCompletionResponse {
-  content: string
-  usage?: {
-    promptTokens: number
-    completionTokens: number
-    totalTokens: number
-  }
-}
-
-class LLMService {
-  private client: OpenAI
+export class LLMService implements ILLMService {
+  public client: OpenAI
   private config: LLMConfig
 
   constructor(config: LLMConfig) {
@@ -32,16 +19,16 @@ class LLMService {
   private createClient(): OpenAI {
     return new OpenAI({
       apiKey: this.config.apiKey,
-      baseURL: this.config.baseURL,
+      baseURL: this.config.baseUrl,
     })
   }
 
   private getModel(): string {
-    return this.config.model
+    return 'distill-llama-8b_46e6iu'
   }
 
   async createChatCompletion(
-    messages: ChatMessage[],
+    messages: Array<ChatMessage>,
     options?: {
       stream?: boolean
       temperature?: number
@@ -62,8 +49,12 @@ class LLMService {
 
       if ('choices' in response && response.choices.length > 0) {
         const choice = response.choices[0]
+        const content =
+          (choice.message?.content?.includes('</think>')
+            ? choice.message?.content?.split('</think>\n\n')[1].trim()
+            : choice.message?.content) || ''
         return {
-          content: choice.message?.content || '',
+          content,
           usage: response.usage
             ? {
                 promptTokens: response.usage.prompt_tokens,
@@ -83,14 +74,21 @@ class LLMService {
     }
   }
 
-  async createStreamingCompletion(
-    messages: ChatMessage[],
-    onChunk: (chunk: string) => void,
+  async *fakeStreamingCompletion() {
+    let maxMessages = 3000
+    while (maxMessages-- > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 200))
+      yield Math.random()?.toString().slice(2, 3) + ' '
+    }
+  }
+
+  async *createStreamingCompletion(
+    messages: Array<ChatMessage>,
     options?: {
       temperature?: number
       maxTokens?: number
     },
-  ): Promise<void> {
+  ) {
     try {
       const stream = await this.client.chat.completions.create({
         model: this.getModel(),
@@ -106,7 +104,7 @@ class LLMService {
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content
         if (content) {
-          onChunk(content)
+          yield content
         }
       }
     } catch (error) {
@@ -121,7 +119,7 @@ class LLMService {
   async createTutoringResponse(
     question: string,
     context: string,
-    conversationHistory?: ChatMessage[],
+    conversationHistory?: Array<ChatMessage>,
   ): Promise<string> {
     const systemPrompt = `You are a helpful AI tutor. You should only answer questions based on the provided context material. If a question is not related to the context or requires information outside of it, politely redirect the student to ask questions about the current topic.
 
@@ -135,7 +133,7 @@ Instructions:
 - If the question is outside the context scope, explain that you can only help with the current topic material
 - Keep responses concise but thorough`
 
-    const messages: ChatMessage[] = [
+    const messages: Array<ChatMessage> = [
       { role: 'system', content: systemPrompt },
       ...(conversationHistory || []),
       { role: 'user', content: question },
@@ -157,7 +155,7 @@ Generate only the title, nothing else.
 
 First message is given below:`
 
-    const messages: ChatMessage[] = [
+    const messages: Array<ChatMessage> = [
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
@@ -167,8 +165,7 @@ First message is given below:`
 
     try {
       const response = await this.createChatCompletion(messages, {
-        temperature: 0.3, // Lower temperature for more consistent output
-        maxTokens: 20, // Short response
+        temperature: 0.3,
       })
 
       return response.content.trim() || 'New Chat'
@@ -182,14 +179,7 @@ First message is given below:`
   async generateQuizQuestions(
     content: string,
     numberOfQuestions: number = 3,
-  ): Promise<
-    Array<{
-      question: string
-      options: string[]
-      correctAnswer: number
-      explanation: string
-    }>
-  > {
+  ): Promise<Array<QuizQuestion>> {
     const systemPrompt = `You are an educational content generator. Based on the provided content, create ${numberOfQuestions} multiple-choice questions that test understanding of the key concepts.
 
 For each question, provide:
@@ -213,7 +203,9 @@ Format your response as JSON with this structure:
 Content to analyze:
 ${content}`
 
-    const messages: ChatMessage[] = [{ role: 'system', content: systemPrompt }]
+    const messages: Array<ChatMessage> = [
+      { role: 'system', content: systemPrompt },
+    ]
 
     try {
       const response = await this.createChatCompletion(messages, {
@@ -230,31 +222,11 @@ ${content}`
   }
 }
 
-// Factory function to create LLM service instance
-export function createLLMService(): LLMService {
-  const apiKey = process.env.LLM_API_KEY
-  const baseURL = process.env.LLM_BASE_URL
-  const model = process.env.LLM_MODEL
-
-  if (!apiKey) {
-    throw new Error('LLM_API_KEY environment variable is required')
-  }
-
-  if (!baseURL) {
-    throw new Error('LLM_BASE_URL environment variable is required')
-  }
-
-  if (!model) {
-    throw new Error('LLM_MODEL environment variable is required')
-  }
-
-  return new LLMService({
-    apiKey,
-    baseURL,
-    model,
-  })
-}
-
 // Export types for use in other modules
-export type { ChatMessage, ChatCompletionResponse, LLMConfig }
-export { LLMService }
+export type {
+  ChatMessage,
+  ChatCompletionResponse,
+  LLMConfig,
+  QuizQuestion,
+  ILLMService,
+} from './llm-service-interface'

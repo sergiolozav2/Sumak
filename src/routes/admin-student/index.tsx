@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
-import { useQuery, useMutation } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/admin-student/')({
   component: RouteComponent,
@@ -54,14 +54,14 @@ function RouteComponent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+      <div className="bg-base-100 flex min-h-screen items-center justify-center">
         <div className="loading loading-spinner loading-lg text-primary"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="bg-base-100 min-h-screen">
       {/* Header */}
       <div className="navbar bg-primary text-primary-content shadow-lg">
         <div className="flex-1">
@@ -78,7 +78,7 @@ function RouteComponent() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-5 h-5"
+              className="h-5 w-5"
             >
               <path
                 strokeLinecap="round"
@@ -94,10 +94,10 @@ function RouteComponent() {
       {/* Main Content */}
       <div className="container mx-auto p-6">
         {/* Welcome Section */}
-        <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg mb-8">
-          <div className="hero-content text-center py-12">
+        <div className="hero from-primary to-secondary text-primary-content mb-8 rounded-lg bg-gradient-to-r">
+          <div className="hero-content py-12 text-center">
             <div className="max-w-md">
-              <h1 className="text-4xl font-bold mb-4">¡Bienvenido!</h1>
+              <h1 className="mb-4 text-4xl font-bold">¡Bienvenido!</h1>
               <p className="text-lg opacity-90">
                 Explora tus clases, estudia con la IA y mejora tu aprendizaje
               </p>
@@ -107,22 +107,22 @@ function RouteComponent() {
 
         {/* Classes Grid */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-base-content">Mis Clases</h2>
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-base-content text-2xl font-bold">Mis Clases</h2>
             <div className="badge badge-primary badge-lg">
               {classes?.length || 0} clases
             </div>
           </div>
 
           {classes && classes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {classes.map((classItem: any) => (
                 <div
                   key={classItem.id}
-                  className="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow"
+                  className="card bg-base-200 shadow-lg transition-shadow hover:shadow-xl"
                 >
                   <div className="card-body">
-                    <div className="flex justify-between items-start mb-3">
+                    <div className="mb-3 flex items-start justify-between">
                       <h3 className="card-title text-lg">{classItem.name}</h3>
                       <div className="badge badge-success">Activa</div>
                     </div>
@@ -131,7 +131,7 @@ function RouteComponent() {
                       {classItem.description}
                     </p>
 
-                    <div className="space-y-2 mb-4">
+                    <div className="mb-4 space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +139,7 @@ function RouteComponent() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-4 h-4"
+                          className="h-4 w-4"
                         >
                           <path
                             strokeLinecap="round"
@@ -156,7 +156,7 @@ function RouteComponent() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-4 h-4"
+                          className="h-4 w-4"
                         >
                           <path
                             strokeLinecap="round"
@@ -189,7 +189,7 @@ function RouteComponent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="py-12 text-center">
               <div className="mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +197,7 @@ function RouteComponent() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-16 h-16 mx-auto text-base-content/50"
+                  className="text-base-content/50 mx-auto h-16 w-16"
                 >
                   <path
                     strokeLinecap="round"
@@ -206,7 +206,7 @@ function RouteComponent() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="mb-2 text-xl font-semibold">
                 No tienes clases aún
               </h3>
               <p className="text-base-content/70 mb-4">
@@ -228,7 +228,7 @@ function RouteComponent() {
       {showJoinModal && (
         <div className="modal modal-open">
           <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">Unirse a una Clase</h3>
+            <h3 className="mb-4 text-lg font-bold">Unirse a una Clase</h3>
 
             {joinResult ? (
               <div
@@ -238,7 +238,7 @@ function RouteComponent() {
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  className="stroke-current shrink-0 w-6 h-6"
+                  className="h-6 w-6 shrink-0 stroke-current"
                 >
                   <path
                     strokeLinecap="round"
@@ -255,7 +255,7 @@ function RouteComponent() {
               </div>
             ) : (
               <>
-                <div className="form-control w-full mb-4">
+                <div className="form-control mb-4 w-full">
                   <label className="label">
                     <span className="label-text">Código de la clase</span>
                   </label>

@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useTRPC } from '@/integrations/trpc/react'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { useTRPC } from '@/integrations/trpc/react'
 
 export const Route = createFileRoute('/admin-student/class/$classId')({
   component: ClassView,
@@ -28,14 +28,14 @@ function ClassView() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+      <div className="bg-base-100 flex min-h-screen items-center justify-center">
         <div className="loading loading-spinner loading-lg text-primary"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="bg-base-100 min-h-screen">
       {/* Header */}
       <div className="navbar bg-primary text-primary-content shadow-lg">
         <div className="flex-1">
@@ -46,7 +46,7 @@ function ClassView() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-5 h-5"
+              className="h-5 w-5"
             >
               <path
                 strokeLinecap="round"
@@ -56,7 +56,7 @@ function ClassView() {
             </svg>
             Volver
           </Link>
-          <h1 className="text-xl font-bold ml-4">{classInfo?.name}</h1>
+          <h1 className="ml-4 text-xl font-bold">{classInfo?.name}</h1>
         </div>
         <div className="flex-none">
           <div className="text-sm opacity-90">{classInfo?.teacher}</div>
@@ -66,7 +66,7 @@ function ClassView() {
       {/* Main Content */}
       <div className="container mx-auto p-6">
         {/* Class Header */}
-        <div className="card bg-gradient-to-r from-secondary to-accent text-secondary-content mb-8">
+        <div className="card from-secondary to-accent text-secondary-content mb-8 bg-gradient-to-r">
           <div className="card-body">
             <h2 className="card-title text-2xl">{classInfo?.name}</h2>
             <p className="opacity-90">
@@ -77,8 +77,8 @@ function ClassView() {
 
         {/* Topics Grid */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-base-content">
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-base-content text-2xl font-bold">
               Temas de la Clase
             </h3>
             <div className="badge badge-primary badge-lg">
@@ -87,26 +87,26 @@ function ClassView() {
           </div>
 
           {topics && topics.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {topics.map((topic: any, index: number) => (
                 <div
                   key={topic.id}
-                  className="card bg-base-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="card bg-base-200 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
                   <div className="card-body">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="mb-3 flex items-start justify-between">
                       <div className="badge badge-primary">
                         Tema {index + 1}
                       </div>
                       <div className="badge badge-success">Publicado</div>
                     </div>
 
-                    <h4 className="card-title text-lg mb-2">{topic.title}</h4>
-                    <p className="text-base-content/70 text-sm mb-4">
+                    <h4 className="card-title mb-2 text-lg">{topic.title}</h4>
+                    <p className="text-base-content/70 mb-4 text-sm">
                       {topic.description}
                     </p>
 
-                    <div className="text-xs text-base-content/50 mb-4">
+                    <div className="text-base-content/50 mb-4 text-xs">
                       Creado:{' '}
                       {new Date(topic.createdAt).toLocaleDateString('es-ES')}
                     </div>
@@ -125,7 +125,7 @@ function ClassView() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-4 h-4"
+                          className="h-4 w-4"
                         >
                           <path
                             strokeLinecap="round"
@@ -141,7 +141,7 @@ function ClassView() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="py-12 text-center">
               <div className="mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -149,7 +149,7 @@ function ClassView() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-16 h-16 mx-auto text-base-content/50"
+                  className="text-base-content/50 mx-auto h-16 w-16"
                 >
                   <path
                     strokeLinecap="round"
@@ -158,7 +158,7 @@ function ClassView() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="mb-2 text-xl font-semibold">
                 No hay temas disponibles
               </h3>
               <p className="text-base-content/70">

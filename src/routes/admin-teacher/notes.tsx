@@ -1,17 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useTRPC } from '@/integrations/trpc/react'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { useState, useEffect, useCallback } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useState } from 'react'
 import {
+  BookOpen,
   ChevronDown,
+  Eye,
+  HelpCircle,
+  Languages,
   Mic,
   Paperclip,
   Plus,
-  Languages,
-  HelpCircle,
-  BookOpen,
-  Eye,
 } from 'lucide-react'
+import { useTRPC } from '@/integrations/trpc/react'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
 
 export const Route = createFileRoute('/admin-teacher/notes')({

@@ -1,7 +1,7 @@
-import { TRPCRouterRecord } from '@trpc/server'
+import z from 'zod'
 import { prisma } from '../prisma/prisma'
 import { publicProcedure } from '../trpc/init'
-import z from 'zod'
+import type { TRPCRouterRecord } from '@trpc/server'
 
 export const studyCardsRouter = {
   getAll: publicProcedure.query(async () => {

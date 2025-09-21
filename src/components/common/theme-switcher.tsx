@@ -4,10 +4,11 @@ import { Palette } from 'lucide-react'
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
-  ReactNode,
+  useState
 } from 'react'
+import type {
+  ReactNode} from 'react';
 
 // Theme type definition
 interface Theme {
@@ -17,7 +18,7 @@ interface Theme {
 }
 
 // Themes array
-export const themes: Theme[] = [
+export const themes: Array<Theme> = [
   { label: 'Sumak Light', name: 'my-light', isDark: false },
   { label: 'Sumak Dark', name: 'dark', isDark: true },
   { label: 'Nord', name: 'nord', isDark: true },
@@ -32,7 +33,7 @@ export const themes: Theme[] = [
 interface ThemeContextType {
   currentTheme: Theme
   setTheme: (theme: Theme) => void
-  themes: Theme[]
+  themes: Array<Theme>
 }
 
 // Create the theme context

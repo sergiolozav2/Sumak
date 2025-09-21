@@ -1,4 +1,4 @@
-import { Link, LinkOptions, useLocation } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import {
   BookOpenCheck,
   ClipboardList,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { ThemeSwitcher } from '../common/theme-switcher'
 import { Logo } from '../common/logo'
+import type { LinkOptions } from '@tanstack/react-router'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -20,7 +21,7 @@ type NavigationItem = {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const navigation: NavigationItem[] = [
+  const navigation: Array<NavigationItem> = [
     {
       name: 'Notes',
       href: '/admin-teacher/notes',
@@ -49,20 +50,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   ]
 
   return (
-    <div className="flex min-h-screen">
-      <div className="hidden min-h-screen w-fit flex-col md:block">
+    <div className="flex min-h-screen w-full">
+      <div className="hidden min-h-screen w-fit flex-col md:flex">
         <DesktopSidebar navigation={navigation} />
       </div>
       <div className="block md:hidden">
         <MobileSidebar navigation={navigation} />
       </div>
 
-      <main className="min-h-svh w-full">{children}</main>
+      <main className="flex min-h-svh flex-1">{children}</main>
     </div>
   )
 }
 
-function MobileSidebar({ navigation }: { navigation: NavigationItem[] }) {
+function MobileSidebar({ navigation }: { navigation: Array<NavigationItem> }) {
   const location = useLocation()
   const isActive = (href: string) => {
     return location.pathname === href
@@ -85,7 +86,7 @@ function MobileSidebar({ navigation }: { navigation: NavigationItem[] }) {
   )
 }
 
-function DesktopSidebar({ navigation }: { navigation: NavigationItem[] }) {
+function DesktopSidebar({ navigation }: { navigation: Array<NavigationItem> }) {
   const location = useLocation()
   const isActive = (href: string) => {
     return location.pathname === href

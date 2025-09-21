@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
-import { createTRPCRouter, publicProcedure } from './init'
 
-import type { TRPCRouterRecord } from '@trpc/server'
 import { notesRouter } from '../routes/notes'
 import { studyCardsRouter } from '../routes/study-cards'
 import { chatRouter } from '../routes/chat'
 import { filesRouter } from '../routes/files'
+import { createTRPCRouter, publicProcedure } from './init'
+import type { TRPCRouterRecord } from '@trpc/server'
 
 const todos = [
   { id: 1, name: 'Get groceries' },

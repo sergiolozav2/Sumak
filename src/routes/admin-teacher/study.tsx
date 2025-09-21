@@ -1,18 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useTRPC } from '@/integrations/trpc/react'
 import { useQuery } from '@tanstack/react-query'
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
-  RotateCcw,
-  Check,
-  X,
-  Zap,
-  Brain,
-  ChevronDown,
   BookOpen,
+  Brain,
+  Check,
+  ChevronDown,
+  RotateCcw,
   Target,
   TrendingUp,
+  X,
+  Zap,
 } from 'lucide-react'
+import { useTRPC } from '@/integrations/trpc/react'
 
 export const Route = createFileRoute('/admin-teacher/study')({
   component: RouteComponent,
@@ -36,7 +36,7 @@ interface CardState {
 function RouteComponent() {
   const trpc = useTRPC()
   const fetchCards = useQuery(trpc.cards.getAll.queryOptions())
-  const cards = (fetchCards.data || []) as StudyCard[]
+  const cards = (fetchCards.data || []) as Array<StudyCard>
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [cardStates, setCardStates] = useState<Record<number, CardState>>({})

@@ -1,15 +1,16 @@
-import { TRPCRouterRecord } from '@trpc/server'
-import { prisma } from '../prisma/prisma'
-import { publicProcedure } from '../trpc/init'
 import { z } from 'zod'
-import { storageClient } from '../storage/storage-client'
 import {
-  PutObjectCommand,
-  GetObjectCommand,
   DeleteObjectCommand,
-  GetObjectCommandOutput,
+  GetObjectCommand,
+  PutObjectCommand,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { prisma } from '../prisma/prisma'
+import { publicProcedure } from '../trpc/init'
+import { storageClient } from '../storage/storage-client'
+import type { GetObjectCommandOutput } from '@aws-sdk/client-s3'
+import type { TRPCRouterRecord } from '@trpc/server'
+import { ServiceFactories } from '../services/service-factories'
 
 const BUCKET_NAME = 'uploads'
 const EXPIRATION_TIME = 3600 // 1 hour in seconds
@@ -85,7 +86,6 @@ export const filesRouter = {
     .mutation(async ({ input }) => {
       const file = input.get('file') as File
       const title = input.get('title') as string
-      const performOcr = input.get('performOcr') === 'true'
 
       if (!file) {
         throw new Error('No file provided')
@@ -120,16 +120,12 @@ export const filesRouter = {
 
         // Process OCR if requested and file is an image or PDF
         let ocrDescription: string | null = null
-        if (
-          performOcr &&
-          (file.type.startsWith('image/') || file.type === 'application/pdf')
-        ) {
-          try {
-            ocrDescription = await processOCR(buffer, file.type)
-          } catch (ocrError) {
-            console.warn('OCR processing failed:', ocrError)
-            // Continue without OCR if it fails
-          }
+        const ocrService = ServiceFactories.createOCRService()
+        if (file.type.startsWith('image/')) {
+          ocrDescription = await ocrService.extractTextFromImage(fileKey)
+        }
+        if (file.type === 'application/pdf') {
+          ocrDescription = await ocrService.extractContentFromDocument(fileKey)
         }
 
         // Save file metadata to database
@@ -300,71 +296,6 @@ export const filesRouter = {
       }
     }),
 
-  // Process OCR on existing file
-  processOcr: publicProcedure
-    .input(
-      z.object({
-        fileId: z.number(),
-        fileKey: z.string(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const file = await prisma.files.findUnique({
-        where: { id: input.fileId },
-      })
-
-      if (!file) {
-        throw new Error('File not found')
-      }
-
-      // Check if file type supports OCR
-      if (
-        !file.mimeType.startsWith('image/') &&
-        file.mimeType !== 'application/pdf'
-      ) {
-        throw new Error('OCR is only supported for images and PDF files')
-      }
-
-      try {
-        // Get file content from S3
-        const client = await storageClient
-        const command = new GetObjectCommand({
-          Bucket: BUCKET_NAME,
-          Key: input.fileKey,
-        })
-
-        const response = await client.send(command)
-
-        if (!response.Body) {
-          throw new Error('File content not found')
-        }
-
-        // Convert stream to buffer
-        const buffer = await streamToBuffer(response.Body)
-
-        // Process OCR
-        const ocrDescription = await processOCR(
-          buffer.buffer as ArrayBuffer,
-          file.mimeType,
-        )
-
-        // Update database with OCR results
-        const updatedFile = await prisma.files.update({
-          where: { id: input.fileId },
-          data: { ocrDescription },
-        })
-
-        return {
-          success: true,
-          file: updatedFile,
-          ocrDescription,
-        }
-      } catch (error) {
-        console.error('OCR processing error:', error)
-        throw new Error('Failed to process OCR')
-      }
-    }),
-
   // Search files by OCR content
   searchByContent: publicProcedure
     .input(
@@ -445,7 +376,7 @@ async function streamToBuffer(stream: any): Promise<Uint8Array> {
   // Handle different stream types (ReadableStream, Node.js streams, etc.)
   if (typeof stream?.getReader === 'function') {
     // Web ReadableStream
-    const chunks: Uint8Array[] = []
+    const chunks: Array<Uint8Array> = []
     const reader = stream.getReader()
 
     while (true) {
@@ -466,7 +397,7 @@ async function streamToBuffer(stream: any): Promise<Uint8Array> {
   } else if (stream?.pipe) {
     // Node.js stream
     return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
+      const chunks: Array<Buffer> = []
       stream.on('data', (chunk: Buffer) => chunks.push(chunk))
       stream.on('end', () => resolve(new Uint8Array(Buffer.concat(chunks))))
       stream.on('error', reject)
@@ -476,27 +407,4 @@ async function streamToBuffer(stream: any): Promise<Uint8Array> {
   } else {
     throw new Error('Unsupported stream type')
   }
-}
-
-// Mock OCR processing function - replace with actual OCR service
-async function processOCR(
-  buffer: ArrayBuffer,
-  mimeType: string,
-): Promise<string> {
-  // This is a mock implementation
-  // In a real application, you would integrate with an OCR service like:
-  // - AWS Textract
-  // - Google Vision API
-  // - Azure Computer Vision
-  // - Tesseract.js for client-side OCR
-
-  if (mimeType.startsWith('image/')) {
-    return `OCR processed image content - detected text from image file (${Math.floor(buffer.byteLength / 1024)}KB). This would contain the actual extracted text from the image.`
-  }
-
-  if (mimeType === 'application/pdf') {
-    return `OCR processed PDF content - extracted text from PDF document (${Math.floor(buffer.byteLength / 1024)}KB). This would contain the actual text content from the PDF file.`
-  }
-
-  return 'No text content detected'
 }

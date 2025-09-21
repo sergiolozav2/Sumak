@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useTRPC } from '@/integrations/trpc/react'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
 
 export const Route = createFileRoute('/admin-student/topic/$topicId')({
   component: TopicView,
@@ -82,14 +82,14 @@ function TopicView() {
 
   if (notesLoading) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+      <div className="bg-base-100 flex min-h-screen items-center justify-center">
         <div className="loading loading-spinner loading-lg text-primary"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="bg-base-100 min-h-screen">
       {/* Header */}
       <div className="navbar bg-primary text-primary-content shadow-lg">
         <div className="flex-1">
@@ -105,7 +105,7 @@ function TopicView() {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-5 h-5"
+              className="h-5 w-5"
             >
               <path
                 strokeLinecap="round"
@@ -115,7 +115,7 @@ function TopicView() {
             </svg>
             Volver a la Clase
           </button>
-          <h1 className="text-xl font-bold ml-4">{topicInfo?.title}</h1>
+          <h1 className="ml-4 text-xl font-bold">{topicInfo?.title}</h1>
         </div>
         <div className="flex-none gap-2">
           <button
@@ -134,7 +134,7 @@ function TopicView() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-4 h-4"
+                className="h-4 w-4"
               >
                 <path
                   strokeLinecap="round"
@@ -149,21 +149,21 @@ function TopicView() {
       </div>
 
       <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Notes Section */}
           <div className="lg:col-span-2">
             <div className="card bg-base-200 shadow-lg">
               <div className="card-body">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="mb-6 flex items-center gap-3">
                   <div className="avatar placeholder">
-                    <div className="bg-primary text-primary-content rounded-full w-12">
+                    <div className="bg-primary text-primary-content w-12 rounded-full">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-6 h-6"
+                        className="h-6 w-6"
                       >
                         <path
                           strokeLinecap="round"
@@ -184,19 +184,19 @@ function TopicView() {
                 {notes && notes.content ? (
                   <div className="prose prose-lg max-w-none">
                     <div
-                      className="bg-base-100 p-6 rounded-lg border-l-4 border-primary"
+                      className="bg-base-100 border-primary rounded-lg border-l-4 p-6"
                       dangerouslySetInnerHTML={{ __html: notes.content }}
                     />
                   </div>
                 ) : (
-                  <div className="text-center py-12">
+                  <div className="py-12 text-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
                       stroke="currentColor"
-                      className="w-16 h-16 mx-auto text-base-content/50 mb-4"
+                      className="text-base-content/50 mx-auto mb-4 h-16 w-16"
                     >
                       <path
                         strokeLinecap="round"
@@ -204,7 +204,7 @@ function TopicView() {
                         d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
                       />
                     </svg>
-                    <h3 className="text-xl font-semibold mb-2">
+                    <h3 className="mb-2 text-xl font-semibold">
                       No hay notas disponibles
                     </h3>
                     <p className="text-base-content/70">
@@ -218,18 +218,18 @@ function TopicView() {
 
           {/* AI Tutor Chat */}
           <div className="lg:col-span-1">
-            <div className="card bg-base-200 shadow-lg h-full">
+            <div className="card bg-base-200 h-full shadow-lg">
               <div className="card-body flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="mb-4 flex items-center gap-3">
                   <div className="avatar">
-                    <div className="w-10 rounded-full bg-accent text-accent-content">
+                    <div className="bg-accent text-accent-content w-10 rounded-full">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-6 h-6 mx-auto my-2"
+                        className="mx-auto my-2 h-6 w-6"
                       >
                         <path
                           strokeLinecap="round"
@@ -243,9 +243,9 @@ function TopicView() {
                 </div>
 
                 {/* Chat History */}
-                <div className="flex-1 overflow-y-auto space-y-4 mb-4 min-h-0">
+                <div className="mb-4 min-h-0 flex-1 space-y-4 overflow-y-auto">
                   {chatHistory.length === 0 ? (
-                    <div className="text-center text-base-content/60 py-8">
+                    <div className="text-base-content/60 py-8 text-center">
                       <p className="mb-2">¡Hola! Soy tu tutor de IA.</p>
                       <p className="text-sm">
                         Hazme cualquier pregunta sobre este tema y te ayudaré a
@@ -298,7 +298,7 @@ function TopicView() {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-4 h-4"
+                        className="h-4 w-4"
                       >
                         <path
                           strokeLinecap="round"
@@ -405,9 +405,9 @@ function QuizModal({
     return (
       <div className="modal modal-open">
         <div className="modal-box">
-          <h3 className="font-bold text-lg mb-4">¡Quiz Completado!</h3>
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">🎉</div>
+          <h3 className="mb-4 text-lg font-bold">¡Quiz Completado!</h3>
+          <div className="py-8 text-center">
+            <div className="mb-4 text-6xl">🎉</div>
             <p className="text-lg">Has completado el quiz exitosamente.</p>
             <p className="text-base-content/70 mt-2">
               ¡Excelente trabajo! Sigue practicando para mejorar tu comprensión.
@@ -427,7 +427,7 @@ function QuizModal({
     return (
       <div className="modal modal-open">
         <div className="modal-box">
-          <h3 className="font-bold text-lg mb-4">Error</h3>
+          <h3 className="mb-4 text-lg font-bold">Error</h3>
           <p>No se pudieron generar preguntas para este tema.</p>
           <div className="modal-action">
             <button className="btn" onClick={onClose}>
@@ -444,15 +444,15 @@ function QuizModal({
   return (
     <div className="modal modal-open">
       <div className="modal-box max-w-2xl">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-bold text-lg">Quiz de Práctica</h3>
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="text-lg font-bold">Quiz de Práctica</h3>
           <div className="badge badge-primary">
             {currentQuestion + 1} de {quiz.questions.length}
           </div>
         </div>
 
         <div className="mb-6">
-          <h4 className="text-lg font-semibold mb-4">{question.question}</h4>
+          <h4 className="mb-4 text-lg font-semibold">{question.question}</h4>
 
           <div className="space-y-3">
             {question.options.map((option: string, index: number) => (

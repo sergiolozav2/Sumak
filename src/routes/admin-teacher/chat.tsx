@@ -1,32 +1,30 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  Send,
+  ChevronDown,
+  Image,
   Mic,
   Paperclip,
-  Image,
   Plus,
+  Send,
   StopCircle,
-  ChevronDown,
   Trash2,
 } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
-import { useTRPC, TRPCProvider } from '@/integrations/trpc/react'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import Markdown from '@/components/common/markdown'
-import Logo from '@/components/common/logo'
-import { inferRouterInputs } from '@trpc/server'
+import { useTRPC } from '@/integrations/trpc/react'
+import { trpcClient } from '@/integrations/tanstack-query/root-provider'
 import {
-  RouterInput,
-  RouterOutput,
-} from '@/integrations/tanstack-query/root-provider'
+  StreamingMessage,
+  ChatMessage,
+} from '@/components/chat/streaming-message'
 
 export const Route = createFileRoute('/admin-teacher/chat')({
   component: RouteComponent,
 })
 
 // Updated interfaces to match database schema
-interface ChatMessage {
+interface DatabaseChatMessage {
   id: number
   message: string
   fromSystem: boolean
@@ -37,7 +35,7 @@ interface ChatMessage {
 interface Chat {
   id: number
   title: string
-  messages: ChatMessage[]
+  messages: Array<DatabaseChatMessage>
 }
 
 function RouteComponent() {
@@ -57,14 +55,7 @@ function RouteComponent() {
     }),
   )
 
-  const sendMessageMutation = useMutation(
-    trpc.chat.sendMessage.mutationOptions({
-      onSuccess: () => {
-        chatsQuery.refetch()
-        setMessageInput('')
-      },
-    }),
-  )
+  // We'll handle streaming manually instead of using useMutation
 
   const deleteChatMutation = useMutation(
     trpc.chat.delete.mutationOptions({
@@ -86,6 +77,13 @@ function RouteComponent() {
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null)
   const [messageInput, setMessageInput] = useState('')
   const [showAttachments, setShowAttachments] = useState(false)
+  const [streamingMessage, setStreamingMessage] = useState<AsyncGenerator<
+    { chunk: string },
+    any,
+    unknown
+  > | null>(null)
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [isSending, setIsSending] = useState(false)
 
   // Speech recognition hook
   const onSpeechResult = useCallback(
@@ -133,8 +131,15 @@ function RouteComponent() {
     }
   }
 
+  // Handle streaming message completion
+  const handleStreamingComplete = () => {
+    setIsStreaming(false)
+    setStreamingMessage(null)
+    chatsQuery.refetch()
+  }
+
   // Handle send message
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!messageInput.trim()) return
 
     // If no chat is selected, create a new chat with the message
@@ -148,12 +153,37 @@ function RouteComponent() {
     }
 
     // If chat is selected, send message to existing chat
-    if (sendMessageMutation.isPending) return
+    if (isSending || isStreaming) return
 
-    sendMessageMutation.mutate({
-      chatId: selectedChatId,
-      message: messageInput.trim(),
-    })
+    const message = messageInput.trim()
+    setMessageInput('')
+    setIsSending(true)
+    setIsStreaming(true)
+
+    try {
+      // Call the streaming mutation directly from tRPC client
+      const streamingResponse = await trpcClient.chat.sendMessage.mutate({
+        chatId: selectedChatId,
+        message: message,
+      })
+
+      // The response should be an AsyncGenerator
+      if (
+        streamingResponse &&
+        typeof streamingResponse[Symbol.asyncIterator] === 'function'
+      ) {
+        setStreamingMessage(
+          streamingResponse as AsyncGenerator<{ chunk: string }, any, unknown>,
+        )
+      }
+      setIsSending(false)
+    } catch (error) {
+      console.error('Error sending message:', error)
+      setIsStreaming(false)
+      setStreamingMessage(null)
+      setMessageInput(message) // Restore message input on error
+      setIsSending(false)
+    }
   }
 
   // Handle voice recording
@@ -170,16 +200,23 @@ function RouteComponent() {
   }
 
   // Handle file upload (simplified for now - could be extended to handle actual file uploads)
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0]
-    if (!file || !selectedChatId) return
+    if (!file || !selectedChatId || isSending) return
 
-    // For now, just send a text message about the file
-    // In a real implementation, you'd upload the file first
-    sendMessageMutation.mutate({
-      chatId: selectedChatId,
-      message: `📎 Uploaded file: ${file.name}`,
-    })
+    setIsSending(true)
+    try {
+      await trpcClient.chat.sendMessage.mutate({
+        chatId: selectedChatId,
+        message: `📎 Uploaded file: ${file.name}`,
+      })
+      chatsQuery.refetch()
+    } catch (error) {
+      console.error('Error uploading file:', error)
+    }
+    setIsSending(false)
 
     // Reset file input
     if (fileInputRef.current) {
@@ -189,16 +226,23 @@ function RouteComponent() {
   }
 
   // Handle image upload (simplified for now)
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0]
-    if (!file || !selectedChatId) return
+    if (!file || !selectedChatId || isSending) return
 
-    // For now, just send a text message about the image
-    // In a real implementation, you'd upload the image first
-    sendMessageMutation.mutate({
-      chatId: selectedChatId,
-      message: `🖼️ Uploaded image: ${file.name}`,
-    })
+    setIsSending(true)
+    try {
+      await trpcClient.chat.sendMessage.mutate({
+        chatId: selectedChatId,
+        message: `🖼️ Uploaded image: ${file.name}`,
+      })
+      chatsQuery.refetch()
+    } catch (error) {
+      console.error('Error uploading image:', error)
+    }
+    setIsSending(false)
 
     // Reset image input
     if (imageInputRef.current) {
@@ -225,10 +269,10 @@ function RouteComponent() {
   }
 
   return (
-    <div className="h-full w-full">
-      <div className="border-base-300 w-full border-b px-4 py-4">
-        <div className="flex w-full items-center justify-between">
-          <h2 className="text-base-content overflow-hidden text-xl font-bold text-ellipsis whitespace-nowrap">
+    <div className="h-full w-full overflow-x-hidden">
+      <div className="border-base-300 flex w-full border-b py-4">
+        <div className="flex w-full items-center justify-between px-4">
+          <h2 className="text-base-content line-clamp-1 overflow-hidden text-xl font-bold text-ellipsis">
             AI Tutor {selectedChat ? `- ${selectedChat.title}` : ''}
           </h2>
           <button onClick={handleNewChat} className="btn btn-primary">
@@ -304,39 +348,21 @@ function RouteComponent() {
               {/* Comments area */}
               <div className="mx-auto flex max-w-3xl flex-col text-sm md:text-base">
                 {selectedChat.messages.map((message) => (
-                  <div
+                  <ChatMessage
                     key={message.id}
-                    className={`chat mb-0 md:mb-2 ${!message.fromSystem ? 'chat-end' : 'chat-start'}`}
-                  >
-                    <div className="chat-image avatar">
-                      {message.fromSystem ? (
-                        <Logo className="rounded-full" />
-                      ) : (
-                        <div className="w-10 rounded-full">
-                          <img
-                            alt="Avatar"
-                            src={
-                              'https://img.daisyui.com/images/profile/demo/kenobee@192.webp'
-                            }
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="chat-bubble group relative">
-                      <Markdown>{message.message}</Markdown>
-                      {/* Delete message button */}
-                      {message.fromSystem ? null : (
-                        <button
-                          onClick={() => handleDeleteMessage(message.id)}
-                          className="btn btn-xs btn-circle btn-error absolute -top-2 -right-2 opacity-0 transition-opacity group-hover:opacity-100"
-                          title="Delete message"
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                    message={message}
+                    onDelete={handleDeleteMessage}
+                  />
                 ))}
+
+                {/* Show streaming message if active */}
+                {streamingMessage && (
+                  <StreamingMessage
+                    chunks={streamingMessage}
+                    onComplete={handleStreamingComplete}
+                  />
+                )}
+
                 <div ref={messagesEndRef} />
               </div>
             </div>
@@ -451,14 +477,16 @@ function RouteComponent() {
                   onClick={handleSendMessage}
                   disabled={
                     !messageInput.trim() ||
-                    sendMessageMutation.isPending ||
-                    createChatWithMessageMutation.isPending
+                    isSending ||
+                    createChatWithMessageMutation.isPending ||
+                    isStreaming
                   }
                   className="btn btn-primary btn-square"
                   title={selectedChatId ? 'Send message' : 'Start new chat'}
                 >
-                  {sendMessageMutation.isPending ||
-                  createChatWithMessageMutation.isPending ? (
+                  {isSending ||
+                  createChatWithMessageMutation.isPending ||
+                  isStreaming ? (
                     <span className="loading loading-spinner loading-sm"></span>
                   ) : (
                     <Send size={20} />

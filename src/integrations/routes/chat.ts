@@ -1,8 +1,10 @@
-import { TRPCRouterRecord } from '@trpc/server'
+import z from 'zod'
 import { prisma } from '../prisma/prisma'
 import { publicProcedure } from '../trpc/init'
-import z from 'zod'
-import { ChatMessage, createLLMService } from '../services/llm-service'
+import type { ChatMessage } from '../services/llm-service'
+import type { TRPCRouterRecord } from '@trpc/server'
+import { ServiceFactories } from '../services/service-factories'
+
 export const chatRouter = {
   // Get all chats for a user (in future, you might want to add user filtering)
   getAll: publicProcedure.query(async () => {
@@ -61,7 +63,7 @@ export const chatRouter = {
     .mutation(async ({ input }) => {
       try {
         // Create LLM service instance
-        const llmService = createLLMService()
+        const llmService = ServiceFactories.createLLMService()
 
         // Generate a title based on the first message
         const generatedTitle = await llmService.generateChatTitle(input.message)
@@ -82,7 +84,7 @@ export const chatRouter = {
           },
         })
 
-        const messages: ChatMessage[] = [
+        const messages: Array<ChatMessage> = [
           {
             role: 'system' as const,
             content:
@@ -92,13 +94,12 @@ export const chatRouter = {
         ]
 
         const response = await llmService.createChatCompletion(messages)
-        const aiResponse = response.content
 
         // Create AI response message
         await prisma.chatMessage.create({
           data: {
             chatId: chat.id,
-            message: aiResponse,
+            message: response.content,
             fromSystem: true,
           },
         })
@@ -163,88 +164,63 @@ export const chatRouter = {
         message: z.string().min(1, 'Message cannot be empty'),
       }),
     )
-    .mutation(async ({ input }) => {
-      try {
-        // Create user message
-        const userMessage = await prisma.chatMessage.create({
-          data: {
-            chatId: input.chatId,
-            message: input.message,
-            fromSystem: false,
-          },
-        })
+    .mutation(async function* ({ input }) {
+      // Create user message
+      const userMessage = await prisma.chatMessage.create({
+        data: {
+          chatId: input.chatId,
+          message: input.message,
+          fromSystem: false,
+        },
+      })
 
-        // Get conversation history for context
-        const previousMessages = await prisma.chatMessage.findMany({
-          where: { chatId: input.chatId },
-          orderBy: { createdAt: 'asc' },
-          take: 10, // Last 10 messages for context
-        })
+      // Get conversation history for context
+      const previousMessages = await prisma.chatMessage.findMany({
+        where: { chatId: input.chatId },
+        orderBy: { createdAt: 'asc' },
+        take: 10, // Last 10 messages for context
+      })
 
-        // Convert to LLM format
-        const conversationHistory = previousMessages
-          .slice(0, -1) // Exclude the just-created user message
-          .map((msg) => ({
-            role: msg.fromSystem ? ('assistant' as const) : ('user' as const),
-            content: msg.message,
-          }))
+      // Convert to LLM format
+      const conversationHistory = previousMessages
+        .slice(0, -1) // Exclude the just-created user message
+        .map((msg) => ({
+          role: msg.fromSystem ? ('assistant' as const) : ('user' as const),
+          content: msg.message,
+        }))
 
-        // Create LLM service instance
-        const llmService = createLLMService()
+      // Create LLM service instance
+      const llmService = ServiceFactories.createLLMService()
 
-        let aiResponse: string
+      // General chat mode
+      const messages = [
+        {
+          role: 'system' as const,
+          content:
+            'You are a helpful AI assistant. Provide clear, concise, and helpful responses.',
+        },
+        ...conversationHistory,
+        { role: 'user' as const, content: input.message },
+      ]
 
-        // General chat mode
-        const messages = [
-          {
-            role: 'system' as const,
-            content:
-              'You are a helpful AI assistant. Provide clear, concise, and helpful responses.',
-          },
-          ...conversationHistory,
-          { role: 'user' as const, content: input.message },
-        ]
-
-        const response = await llmService.createChatCompletion(messages)
-        aiResponse = response.content
-
-        // Create AI response message
-        const aiMessage = await prisma.chatMessage.create({
-          data: {
-            chatId: input.chatId,
-            message: aiResponse,
-            fromSystem: true,
-          },
-        })
-
-        return {
-          userMessage,
-          aiMessage,
+      const readableResponse = llmService.fakeStreamingCompletion()
+      let aiResponse = ''
+      for await (const chunk of readableResponse) {
+        aiResponse += chunk
+        yield {
+          chunk: chunk,
         }
-      } catch (error) {
-        console.error('Error sending message:', error)
-
-        // Create error response message
-        const errorMessage = await prisma.chatMessage.create({
-          data: {
-            chatId: input.chatId,
-            message:
-              'Lo siento, ocurrió un error al procesar tu mensaje. Por favor, intenta nuevamente.',
-            fromSystem: true,
-          },
-        })
-
-        return {
-          userMessage: await prisma.chatMessage.findFirst({
-            where: {
-              chatId: input.chatId,
-              message: input.message,
-              fromSystem: false,
-            },
-            orderBy: { createdAt: 'desc' },
-          }),
-          aiMessage: errorMessage,
-        }
+      }
+      const aiMessage = await prisma.chatMessage.create({
+        data: {
+          chatId: input.chatId,
+          message: aiResponse,
+          fromSystem: true,
+        },
+      })
+      return {
+        userMessage,
+        aiMessage,
       }
     }),
 
@@ -284,7 +260,7 @@ export const chatRouter = {
     )
     .mutation(async ({ input }) => {
       try {
-        const llmService = createLLMService()
+        const llmService = ServiceFactories.createLLMService()
         const questions = await llmService.generateQuizQuestions(
           input.content,
           input.numberOfQuestions,

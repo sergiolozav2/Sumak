@@ -8,9 +8,6 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const isNetlify = env.DEPLOY_TARGET === 'netlify'
 
-  console.log('DEPLOY_TARGET =>', env.DEPLOY_TARGET)
-  console.log('isNetlify =>', isNetlify)
-
   return {
     plugins: [
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
