@@ -63,7 +63,6 @@ jobs:
               -e OCR_MODEL=${{ secrets.OCR_MODEL }} \
               -e STORAGE_ENDPOINT=${{ secrets.STORAGE_ENDPOINT }} \
               -e STORAGE_REGION=${{ secrets.STORAGE_REGION }} \
-              -e MIGRATIONS="true" \
               -e STORAGE_ACCESS_KEY_ID=${{ secrets.STORAGE_ACCESS_KEY_ID }} \
               -e STORAGE_SECRET_ACCESS_KEY=${{ secrets.STORAGE_SECRET_ACCESS_KEY }} \
               -e VITE_STORAGE_PATH=${{ secrets.VITE_STORAGE_PATH }} \
