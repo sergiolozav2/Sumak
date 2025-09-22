@@ -1,0 +1,91 @@
+name: Manual Deploy to ECS (Environment Variables Only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy (leave empty to use current running container image)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  deploy-only:
+    environment: HuaweiEnv
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get current or specified image tag
+        id: get-tag
+        run: |
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "IMAGE_TAG=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+            echo "Using specified tag: ${{ github.event.inputs.image_tag }}"
+          else
+            echo "IMAGE_TAG=current" >> $GITHUB_ENV
+            echo "Will use current running container's image"
+          fi
+
+      - name: Deploy with updated environment variables
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_KEY }}
+          script: |
+            # Get current image if no tag specified
+            if [ "${{ env.IMAGE_TAG }}" = "current" ]; then
+              CURRENT_IMAGE=$(docker inspect sumak-app --format='{{.Config.Image}}' 2>/dev/null || echo "")
+              if [ -z "$CURRENT_IMAGE" ]; then
+                echo "Error: No running sumak-app container found and no image tag specified"
+                exit 1
+              fi
+              echo "Using current image: $CURRENT_IMAGE"
+              IMAGE_TO_USE="$CURRENT_IMAGE"
+            else
+              IMAGE_TO_USE="sumak-app:${{ env.IMAGE_TAG }}"
+              # Check if the specified image exists
+              if ! docker images --format "table {{.Repository}}:{{.Tag}}" | grep -q "^sumak-app:${{ env.IMAGE_TAG }}$"; then
+                echo "Error: Image sumak-app:${{ env.IMAGE_TAG }} not found locally"
+                echo "Available images:"
+                docker images sumak-app
+                exit 1
+              fi
+            fi
+
+            # Stop and remove current container
+            echo "Stopping current container..."
+            docker stop sumak-app || true
+            docker rm sumak-app || true
+
+            # Start new container with updated environment variables
+            echo "Starting container with image: $IMAGE_TO_USE"
+            docker run -d \
+              --name sumak-app \
+              -p 3000:3000 \
+              --restart=always \
+              -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+              -e LLM_BASE_URL="${{ secrets.LLM_BASE_URL }}" \
+              -e LLM_API_KEY="${{ secrets.LLM_API_KEY }}" \
+              -e LLM_MODEL="${{ secrets.LLM_MODEL }}" \
+              -e OCR_BASE_URL="${{ secrets.OCR_BASE_URL }}" \
+              -e OCR_API_KEY="${{ secrets.OCR_API_KEY }}" \
+              -e OCR_MODEL="${{ secrets.OCR_MODEL }}" \
+              -e STORAGE_ENDPOINT="${{ secrets.STORAGE_ENDPOINT }}" \
+              -e STORAGE_REGION="${{ secrets.STORAGE_REGION }}" \
+              -e STORAGE_ACCESS_KEY_ID="${{ secrets.STORAGE_ACCESS_KEY_ID }}" \
+              -e STORAGE_SECRET_ACCESS_KEY="${{ secrets.STORAGE_SECRET_ACCESS_KEY }}" \
+              -e VITE_STORAGE_PATH="${{ secrets.VITE_STORAGE_PATH }}" \
+              "$IMAGE_TO_USE"
+
+            # Verify deployment
+            sleep 5
+            if docker ps | grep -q sumak-app; then
+              echo "✅ Deployment successful! Container is running."
+              docker ps --filter name=sumak-app --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            else
+              echo "❌ Deployment failed! Container is not running."
+              echo "Container logs:"
+              docker logs sumak-app || true
+              exit 1
+            fi
