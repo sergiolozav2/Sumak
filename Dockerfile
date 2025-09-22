@@ -21,7 +21,6 @@
     RUN corepack enable && corepack prepare pnpm@9.12.2 --activate
     
     COPY --from=builder /app/.output /app/.output
-    COPY --from=builder /app/prisma /app/prisma
 
     ENV NODE_ENV=production
     EXPOSE 3000
