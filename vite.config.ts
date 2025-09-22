@@ -1,20 +1,17 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const isNetlify = env.DEPLOY_TARGET === 'netlify'
-
+export default defineConfig(() => {
   return {
     plugins: [
       viteTsConfigPaths({ projects: ['./tsconfig.json'] }),
       tailwindcss(),
       tanstackStart({
-        target: isNetlify ? 'netlify' : undefined,
-        customViteReactPlugin: isNetlify,
+        target: 'node-server',
+        customViteReactPlugin: true,
         spa: { enabled: true },
       }),
       viteReact(),

@@ -84,6 +84,19 @@ export const chatRouter = {
           },
         })
 
+        // Fetch all student notes to include as context
+        const studentNotes = await prisma.notes.findMany({
+          orderBy: { id: 'desc' },
+        })
+
+        // Prepare notes context for the LLM
+        const notesContext =
+          studentNotes.length > 0
+            ? studentNotes
+                .map((note) => `**${note.title}**\n${note.content}`)
+                .join('\n\n---\n\n')
+            : 'No notes available.'
+
         // Parallelize title generation and AI response
         const titlePromise = llmService
           .generateChatTitle(input.message)
@@ -102,7 +115,8 @@ export const chatRouter = {
         const messages: Array<ChatMessage> = [
           {
             role: 'system' as const,
-            content: llmService.getEducationalSystemMessage(),
+            content:
+              llmService.getEducationalSystemMessageWithNotes(notesContext),
           },
           { role: 'user' as const, content: input.message },
         ]
@@ -243,14 +257,28 @@ export const chatRouter = {
           content: msg.message,
         }))
 
+      // Fetch all student notes to include as context
+      const studentNotes = await prisma.notes.findMany({
+        orderBy: { id: 'desc' },
+      })
+
+      // Prepare notes context for the LLM
+      const notesContext =
+        studentNotes.length > 0
+          ? studentNotes
+              .map((note) => `**${note.title}**\n${note.content}`)
+              .join('\n\n---\n\n')
+          : 'No notes available.'
+
       // Create LLM service instance
       const llmService = ServiceFactories.createLLMService()
 
-      // Educational chat mode
+      // Educational chat mode with notes context
       const messages = [
         {
           role: 'system' as const,
-          content: llmService.getEducationalSystemMessage(),
+          content:
+            llmService.getEducationalSystemMessageWithNotes(notesContext),
         },
         ...conversationHistory,
         { role: 'user' as const, content: input.message },

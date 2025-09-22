@@ -30,14 +30,14 @@ jobs:
 
       - name: Check workspace contents
         run: ls -lh ${{ github.workspace }}
-      
+
       - name: Copy image to ECS
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          password: +1password
-          source: "sumak-app-${{ env.IMAGE_TAG }}.tar"
+          key: ${{ secrets.ECS_SSH_KEY }}
+          source: 'sumak-app-${{ env.IMAGE_TAG }}.tar'
           target: '/root/'
 
       - name: Deploy on ECS
@@ -45,7 +45,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          password: +1password
+          key: ${{ secrets.ECS_SSH_KEY }}
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
