@@ -36,7 +36,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          password: +1password
+          key: ${{ secrets.ECS_SSH_KEY }}
           source: 'sumak-app-${{ env.IMAGE_TAG }}.tar'
           target: '/root/'
 
@@ -45,7 +45,7 @@ jobs:
         with:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USER }}
-          password: +1password
+          key: ${{ secrets.ECS_SSH_KEY }}
           script: |
             docker stop sumak-app || true
             docker rm sumak-app || true
