@@ -44,4 +44,13 @@ export const studyCardsRouter = {
         where: { id: input.id },
       })
     }),
+
+  getByNoteId: publicProcedure
+    .input(z.object({ noteId: z.number() }))
+    .query(async ({ input }) => {
+      return await prisma.studyCards.findMany({
+        where: { noteId: input.noteId },
+        orderBy: { id: 'asc' },
+      })
+    }),
 } satisfies TRPCRouterRecord

@@ -5,6 +5,7 @@ import type {
   ILLMService,
   LLMConfig,
   QuizQuestion,
+  StudyCard,
 } from './llm-service-interface'
 
 export class LLMService implements ILLMService {
@@ -166,6 +167,50 @@ Remember: You're here to cultivate learning and help students make the most of t
 **Content to analyze:**
 {content}`
 
+  private static readonly STUDY_CARDS_GENERATION_PROMPT = `You are a teaching educational API tool whose purpose is creating effective study materials for Latin American students. Your task is to analyze the provided note content and generate study cards in valid JSON format that will help students learn and retain the information.
+
+🎯 **Study Card Creation Mission:**
+- Create clear, focused question-answer pairs from the note content
+- Generate both factual recall cards and conceptual understanding cards
+- ALWAYS respond in {language}
+- Focus on key concepts, definitions, processes, and important details
+- Create cards that promote active recall and spaced repetition learning
+
+📚 **Study Card Types to Create:**
+1. **Definition Cards**: "What is X?" → "X is..."
+2. **Process Cards**: "How does X work?" → "X works by..."
+3. **Comparison Cards**: "What's the difference between X and Y?" → "The difference is..."
+4. **Application Cards**: "When would you use X?" → "You would use X when..."
+5. **Cause-Effect Cards**: "What causes X?" → "X is caused by..."
+
+✅ **Study Card Guidelines:**
+- Your response SHOULD BE A VALID JSON FORMAT (THIS IS THE MOST IMPORTANT, RETURN RAW JSON STRING EXACTLY AS PROVIDED AND ONLY REPLY WITH THAT)
+- Each question should be clear and specific
+- Answers should be concise but complete (1-3 sentences)
+- Focus on the most important concepts from the notes
+- Include both basic recall and deeper understanding cards
+- Use simple, student-friendly language
+
+**MATCH EXACT JSON STRUCTURE:**
+{"studyCards": [{"question": "{questionExample}","answer": "{answerExample}","subject": "{subjectExample}","type": "Card"}]}
+
+**EXAMPLES OF VALID RESPONSES:**
+EXAMPLE 1:
+{"studyCards": [{"question": "¿Qué es la fotosíntesis?","answer": "La fotosíntesis es el proceso mediante el cual las plantas convierten la luz solar en energía química.","subject": "Biología","type": "Card"}]}
+
+EXAMPLE 2:
+{"studyCards": [{"question": "¿Cómo se produce la energía en las células?","answer": "La energía en las células se produce a través de la respiración celular, que convierte la glucosa en ATP.","subject": "Biología","type": "Card"}]}
+
+EXAMPLE 3:
+{"studyCards": [{"question": "¿Cuál es la derivada de x^2?","answer": "La derivada de x^2 es 2x.","subject": "Matemáticas","type": "Card"}]}
+
+EXAMPLE 4:
+{"studyCards": [{"question": "¿How do you say apple in spanish?","answer": "manzana","subject": "Español","type": "Card"}]}
+
+  **Note Content to Analyze:**
+Title: {noteTitle}
+Content: {noteContent}`
+
   private static readonly TITLE_GENERATION_PROMPT = `You are Sumak AI's title generator for educational conversations. Create a concise, academic-focused title based on the student's first message.
 
 📝 **Title Requirements:**
@@ -253,6 +298,34 @@ Student's first message:`
       .replace('{explanationExample}', explanationExample)
       .replace('{difficultyExample}', difficultyExample)
       .replace('{content}', content)
+  }
+
+  // Helper method to get study cards generation prompt
+  getStudyCardsGenerationPrompt(
+    noteTitle: string,
+    noteContent: string,
+    contentLanguage: string,
+  ): string {
+    const languageName = contentLanguage === 'es' ? 'Spanish' : 'English'
+    const questionExample =
+      contentLanguage === 'es'
+        ? '¿Qué es la fotosíntesis?'
+        : 'What is photosynthesis?'
+    const answerExample =
+      contentLanguage === 'es'
+        ? 'La fotosíntesis es el proceso por el cual las plantas convierten la luz solar en energía.'
+        : 'Photosynthesis is the process by which plants convert sunlight into energy.'
+    const subjectExample = contentLanguage === 'es' ? 'Biología' : 'Biology'
+
+    return LLMService.STUDY_CARDS_GENERATION_PROMPT.replace(
+      '{language}',
+      languageName,
+    )
+      .replace('{questionExample}', questionExample)
+      .replace('{answerExample}', answerExample)
+      .replace('{subjectExample}', subjectExample)
+      .replace('{noteTitle}', noteTitle)
+      .replace('{noteContent}', noteContent)
   }
 
   // Helper method to get title generation prompt
@@ -464,6 +537,39 @@ Student's first message:`
       return []
     }
   }
+
+  // Helper method to generate study cards based on note content
+  async generateStudyCards(
+    noteTitle: string,
+    noteContent: string,
+  ): Promise<Array<StudyCard>> {
+    // Detect language from content for appropriate response
+    const contentLanguage = this.detectUserLanguage(noteContent)
+    const systemPrompt = this.getStudyCardsGenerationPrompt(
+      noteTitle,
+      noteContent,
+      contentLanguage,
+    )
+
+    const messages: Array<ChatMessage> = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: 'help' },
+    ]
+
+    try {
+      const response = await this.createChatCompletion(messages, {
+        temperature: 0.4,
+      })
+
+      console.log(JSON.stringify(response))
+      const parsedResponse = JSON.parse(response.content)
+      return parsedResponse.studyCards || []
+    } catch (error) {
+      console.error('Error generating study cards:', error)
+      // Fallback to empty array if parsing fails
+      return []
+    }
+  }
 }
 
 // Export types for use in other modules
@@ -472,5 +578,6 @@ export type {
   ChatCompletionResponse,
   LLMConfig,
   QuizQuestion,
+  StudyCard,
   ILLMService,
 } from './llm-service-interface'

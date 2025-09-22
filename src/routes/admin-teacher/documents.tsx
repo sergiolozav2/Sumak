@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
+import Markdown from '@/components/common/markdown'
 
 export const Route = createFileRoute('/admin-teacher/documents')({
   component: RouteComponent,
@@ -287,7 +288,7 @@ function RouteComponent() {
             htmlFor="document-details-drawer"
             className="drawer-overlay"
           ></label>
-          <div className="bg-base-100 flex h-full w-96 flex-col">
+          <div className="bg-base-100 flex h-full w-full flex-col md:w-96">
             {selectedDocument && (
               <>
                 {/* Drawer header */}
@@ -355,8 +356,13 @@ function RouteComponent() {
                       </label>
                       <div className="bg-base-200 mt-2 rounded-lg p-3">
                         <p className="text-base-content/80 text-sm leading-relaxed whitespace-pre-line">
-                          {selectedDocument.ocrDescription ||
-                            'No OCR content available'}
+                          {selectedDocument.ocrDescription ? (
+                            <Markdown>
+                              {selectedDocument.ocrDescription}
+                            </Markdown>
+                          ) : (
+                            'No OCR content available'
+                          )}
                         </p>
                       </div>
                     </div>

@@ -283,6 +283,7 @@ export const chatRouter = {
         ...conversationHistory,
         { role: 'user' as const, content: input.message },
       ]
+      console.log(messages[0].content)
 
       const readableResponse = llmService.createStreamingCompletion(messages)
       let aiResponse = ''

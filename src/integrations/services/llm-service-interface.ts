@@ -25,6 +25,13 @@ export interface QuizQuestion {
   explanation: string
 }
 
+export interface StudyCard {
+  question: string
+  answer: string
+  subject: string
+  type: 'Card' | 'TrueOrFalse'
+}
+
 /**
  * Interface for LLM service implementations
  */
@@ -73,4 +80,12 @@ export interface ILLMService {
     content: string,
     numberOfQuestions?: number,
   ) => Promise<Array<QuizQuestion>>
+
+  /**
+   * Generate study cards based on note content
+   */
+  generateStudyCards: (
+    noteTitle: string,
+    noteContent: string,
+  ) => Promise<Array<StudyCard>>
 }

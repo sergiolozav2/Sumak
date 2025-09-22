@@ -11,6 +11,7 @@ import { storageClient } from '../storage/storage-client'
 import type { GetObjectCommandOutput } from '@aws-sdk/client-s3'
 import type { TRPCRouterRecord } from '@trpc/server'
 import { ServiceFactories } from '../services/service-factories'
+import { env } from '../common/env'
 
 const BUCKET_NAME = 'uploads'
 const EXPIRATION_TIME = 3600 // 1 hour in seconds
@@ -120,12 +121,13 @@ export const filesRouter = {
 
         // Process OCR if requested and file is an image or PDF
         let ocrDescription: string | null = null
+        const url = env.VITE_STORAGE_PATH + fileKey
         const ocrService = ServiceFactories.createOCRService()
         if (file.type.startsWith('image/')) {
-          ocrDescription = await ocrService.extractTextFromImage(fileKey)
+          ocrDescription = await ocrService.extractTextFromImage(url)
         }
         if (file.type === 'application/pdf') {
-          ocrDescription = await ocrService.extractContentFromDocument(fileKey)
+          ocrDescription = await ocrService.extractContentFromDocument(url)
         }
 
         // Save file metadata to database
