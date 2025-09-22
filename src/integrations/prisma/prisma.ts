@@ -9,7 +9,6 @@ if (process.env.MIGRATIONS === 'true') {
 
     const result = execSync(`pnpx prisma migrate deploy`, {
       stdio: 'inherit',
-      timeout: 60000,
     })
     console.log(result)
   } catch (error) {
