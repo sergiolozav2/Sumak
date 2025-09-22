@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-
 import { notesRouter } from '../routes/notes'
 import { studyCardsRouter } from '../routes/study-cards'
 import { chatRouter } from '../routes/chat'
@@ -409,4 +408,5 @@ export const trpcRouter = createTRPCRouter({
   chat: chatRouter,
   files: filesRouter,
 })
+
 export type TRPCRouter = typeof trpcRouter

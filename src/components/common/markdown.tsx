@@ -4,7 +4,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import './markdown.css'
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useTheme } from './theme-switcher'
-
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 interface MarkdownProps {
   children: string
 }
@@ -37,7 +39,34 @@ const Markdown = memo(function Markdown({ children }: MarkdownProps) {
     [useDark],
   )
 
-  return <ReactMarkdown components={components}>{children}</ReactMarkdown>
+  const content = processKatexInMarkdown(children)
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, [remarkMath, { singleDollarTextMath: false }]]}
+      rehypePlugins={[
+        () => {
+          return rehypeKatex({ output: 'htmlAndMathml' })
+        },
+      ]}
+      components={components}
+    >
+      {content}
+    </ReactMarkdown>
+  )
 })
 
 export default Markdown
+
+export function processKatexInMarkdown(markdown: string) {
+  const markdownWithKatexSyntax = markdown
+    .replace(/\\\\\[/g, '$$$$') // Replace '\\[' with '$$'
+    .replace(/\\\\\]/g, '$$$$') // Replace '\\]' with '$$'
+    .replace(/\\\\\(/g, '$$$$') // Replace '\\(' with '$$'
+    .replace(/\\\\\)/g, '$$$$') // Replace '\\)' with '$$'
+    .replace(/\\\[/g, '$$$$') // Replace '\[' with '$$'
+    .replace(/\\\]/g, '$$$$') // Replace '\]' with '$$'
+    .replace(/\\\(/g, '$$$$') // Replace '\(' with '$$'
+    .replace(/\\\)/g, '$$$$') // Replace '\)' with '$$';
+  return markdownWithKatexSyntax
+}

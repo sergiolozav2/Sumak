@@ -52,84 +52,6 @@ export const chatRouter = {
         },
       })
     }),
-
-  // Create a new chat with an initial message and AI-generated title
-  createWithMessage: publicProcedure
-    .input(
-      z.object({
-        message: z.string().min(1, 'Message cannot be empty'),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      try {
-        // Create LLM service instance
-        const llmService = ServiceFactories.createLLMService()
-
-        // Generate a title based on the first message
-        const generatedTitle = await llmService.generateChatTitle(input.message)
-
-        // Create the chat with the generated title
-        const chat = await prisma.chat.create({
-          data: {
-            title: generatedTitle,
-          },
-        })
-
-        // Create user message
-        await prisma.chatMessage.create({
-          data: {
-            chatId: chat.id,
-            message: input.message,
-            fromSystem: false,
-          },
-        })
-
-        const messages: Array<ChatMessage> = [
-          {
-            role: 'system' as const,
-            content:
-              'You are a helpful AI assistant. Provide clear, concise, and helpful responses.',
-          },
-          { role: 'user' as const, content: input.message },
-        ]
-
-        // Use streaming completion to get full response with thinking
-        let fullResponse = ''
-        const streamingResponse = llmService.createStreamingCompletion(messages)
-        for await (const chunk of streamingResponse) {
-          fullResponse += chunk
-        }
-
-        // Extract thinking process and final message
-        const { thinkingProcess, finalMessage } =
-          llmService.extractThinkingAndMessage(fullResponse)
-
-        // Create AI response message
-        await prisma.chatMessage.create({
-          data: {
-            chatId: chat.id,
-            message: finalMessage,
-            thinkingProcess: thinkingProcess,
-            fromSystem: true,
-          },
-        })
-
-        // Return the chat with messages
-        return await prisma.chat.findUnique({
-          where: { id: chat.id },
-          include: {
-            messages: {
-              orderBy: { createdAt: 'asc' },
-            },
-          },
-        })
-      } catch (error) {
-        console.error('Error creating chat with message:', error)
-        throw new Error('Failed to create chat. Please try again.')
-      }
-    }),
-
-  // Create a new chat with streaming response - instant creation with parallelized title generation
   createWithMessageStream: publicProcedure
     .input(
       z.object({
@@ -180,8 +102,7 @@ export const chatRouter = {
         const messages: Array<ChatMessage> = [
           {
             role: 'system' as const,
-            content:
-              'You are a helpful AI assistant. Provide clear, concise, and helpful responses.',
+            content: llmService.getEducationalSystemMessage(),
           },
           { role: 'user' as const, content: input.message },
         ]
@@ -325,12 +246,11 @@ export const chatRouter = {
       // Create LLM service instance
       const llmService = ServiceFactories.createLLMService()
 
-      // General chat mode
+      // Educational chat mode
       const messages = [
         {
           role: 'system' as const,
-          content:
-            'You are a helpful AI assistant. Provide clear, concise, and helpful responses.',
+          content: llmService.getEducationalSystemMessage(),
         },
         ...conversationHistory,
         { role: 'user' as const, content: input.message },

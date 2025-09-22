@@ -10,7 +10,7 @@ import {
   StopCircle,
   Trash2,
 } from 'lucide-react'
-import { useMutation, useQuery, keepPreviousData } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
 import { useTRPC } from '@/integrations/trpc/react'
 import { trpcClient } from '@/integrations/tanstack-query/root-provider'
@@ -43,20 +43,11 @@ function RouteComponent() {
   const trpc = useTRPC()
 
   // tRPC queries and mutations
-  const chatsQuery = useQuery({
-    ...trpc.chat.getAll.queryOptions(),
-  })
-  const createChatWithMessageMutation = useMutation(
-    trpc.chat.createWithMessage.mutationOptions({
-      onSuccess: (newChat) => {
-        if (newChat) {
-          setSelectedChatId(newChat.id)
-        }
-        chatsQuery.refetch()
-        setMessageInput('')
-      },
-    }),
-  )
+  const chatsQuery = useQuery(trpc.chat.getAll.queryOptions())
+
+  if (chatsQuery.error) {
+    console.error('Error fetching chats:', chatsQuery.error)
+  }
 
   // We'll handle streaming manually instead of using useMutation
 
@@ -89,6 +80,8 @@ function RouteComponent() {
   const [isSending, setIsSending] = useState(false)
   const [optimisticChat, setOptimisticChat] = useState<Chat | null>(null)
   const [isCreatingChat, setIsCreatingChat] = useState(false)
+  const [optimisticMessage, setOptimisticMessage] =
+    useState<DatabaseChatMessage | null>(null)
 
   // Speech recognition hook
   const onSpeechResult = useCallback(
@@ -105,7 +98,15 @@ function RouteComponent() {
 
   const chats = chatsQuery.data || []
   const allChats = optimisticChat ? [optimisticChat, ...chats] : chats
-  const selectedChat = allChats.find((chat) => chat.id === selectedChatId)
+  let selectedChat = allChats.find((chat) => chat.id === selectedChatId)
+
+  // Add optimistic message to selected chat if it exists
+  if (selectedChat && optimisticMessage) {
+    selectedChat = {
+      ...selectedChat,
+      messages: [...selectedChat.messages, optimisticMessage],
+    }
+  }
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -116,6 +117,7 @@ function RouteComponent() {
   const handleNewChat = () => {
     setSelectedChatId(null)
     setOptimisticChat(null)
+    setOptimisticMessage(null)
     setIsStreaming(false)
     setStreamingMessage(null)
   }
@@ -127,6 +129,8 @@ function RouteComponent() {
     if (optimisticChat && chat.id !== optimisticChat.id) {
       setOptimisticChat(null)
     }
+    // Clear optimistic message when switching chats
+    setOptimisticMessage(null)
   }
 
   // Handle delete chat
@@ -154,6 +158,7 @@ function RouteComponent() {
       setIsStreaming(false)
       setStreamingMessage(null)
       setOptimisticChat(null)
+      setOptimisticMessage(null) // Clear optimistic message after completion
 
       if (currentSelectedId && currentSelectedId > 0) {
         setSelectedChatId(currentSelectedId)
@@ -244,6 +249,17 @@ function RouteComponent() {
     setIsSending(true)
     setIsStreaming(true)
 
+    // Add optimistic user message for existing chat
+    const optimisticUserMessage: DatabaseChatMessage = {
+      id: -Date.now(), // Temporary negative ID
+      message: message,
+      thinkingProcess: null,
+      fromSystem: false,
+      createdAt: new Date(),
+      chatId: selectedChatId,
+    }
+    setOptimisticMessage(optimisticUserMessage)
+
     try {
       // Call the streaming mutation directly from tRPC client
       const streamingResponse = await trpcClient.chat.sendMessage.mutate({
@@ -265,6 +281,7 @@ function RouteComponent() {
       console.error('Error sending message:', error)
       setIsStreaming(false)
       setStreamingMessage(null)
+      setOptimisticMessage(null) // Clear optimistic message on error
       setMessageInput(message) // Restore message input on error
       setIsSending(false)
     }
@@ -568,17 +585,13 @@ function RouteComponent() {
                   disabled={
                     !messageInput.trim() ||
                     isSending ||
-                    createChatWithMessageMutation.isPending ||
                     isStreaming ||
                     isCreatingChat
                   }
                   className="btn btn-primary btn-square"
                   title={selectedChatId ? 'Send message' : 'Start new chat'}
                 >
-                  {isSending ||
-                  createChatWithMessageMutation.isPending ||
-                  isStreaming ||
-                  isCreatingChat ? (
+                  {isSending || isStreaming || isCreatingChat ? (
                     <span className="loading loading-spinner loading-sm"></span>
                   ) : (
                     <Send size={20} />

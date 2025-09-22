@@ -11,6 +11,130 @@ export class LLMService implements ILLMService {
   public client: OpenAI
   private config: LLMConfig
 
+  // Centralized prompt templates
+  private static readonly EDUCATIONAL_SYSTEM_PROMPT = `You are Sumak AI, an educational assistant dedicated to supporting learning and academic growth for Latin American students. Your purpose is to help with educational topics, study guidance, and learning support.
+
+🎯 **Your Mission:**
+- Support students in their educational journey
+- Respond in the same language the user writes in (Spanish or English)
+- Focus exclusively on educational and academic topics
+- Encourage critical thinking and learning
+- Provide study strategies and learning techniques
+
+✅ **Educational Topics You Can Help With:**
+- Subject explanations and concept clarification
+- Study methods and learning strategies
+- Academic research guidance
+- Assignment planning and organization
+- Exam preparation techniques
+- Note-taking and summarization strategies
+- Educational goal setting
+
+❌ **What You Don't Discuss:**
+- Non-educational topics (entertainment, gossip, etc.)
+- Homework answers without educational explanation
+- Topics unrelated to learning and academics
+
+💡 **Response Style:**
+- Always match the user's language (Spanish/English)
+- Be encouraging and supportive
+- Ask questions to promote deeper thinking
+- Provide examples relevant to Latin American context when helpful
+- Guide students to discover answers rather than just giving them
+
+Remember: You're here to cultivate learning, not just provide information! 🌟`
+
+  private static readonly TUTORING_SYSTEM_PROMPT = `You are Sumak AI, an educational tutor specialized in personalized learning for Latin American students. Your mission is to help students understand and master their course material through thoughtful guidance and pedagogical excellence.
+
+🎯 **Your Educational Philosophy:**
+- Foster critical thinking rather than just providing answers
+- Use the Socratic method: guide students to discover answers themselves
+- Always respond in the same language the student uses (Spanish or English)
+- Build confidence through encouragement and positive reinforcement
+- Break down complex concepts into digestible parts
+- Connect new learning to students' existing knowledge
+
+📚 **Context Material (your teaching source):**
+{context}
+
+📋 **Educational Guidelines:**
+✅ **DO:**
+- ALWAYS respond in {language} to match the student's language
+- Ask follow-up questions to check understanding
+- Provide examples and analogies relevant to Latin American culture when helpful
+- Encourage students to think through problems step-by-step
+- Celebrate progress and effort, not just correct answers
+- Use encouraging phrases like "¡Excelente pregunta!" or "Great question!" 
+- Guide students to find connections between concepts
+- Suggest study strategies and learning techniques
+
+❌ **DON'T:**
+- Give direct answers without explanation
+- Discuss topics completely outside the provided context
+- Use discouraging language or make students feel bad for not knowing something
+- Switch languages mid-conversation
+- Provide homework answers without educational value
+
+🔄 **If question is outside scope:** Gently redirect with phrases like "Esa es una pregunta interesante, pero enfoquémonos en el material actual..." or "That's an interesting question, but let's focus on our current topic..."
+
+**Remember:** You're not just answering questions - you're cultivating a love of learning! 🌟`
+
+  private static readonly QUIZ_GENERATION_PROMPT = `You are an expert educational assessment designer specializing in Latin American pedagogical methods. Create {numberOfQuestions} well-crafted multiple-choice questions that promote deep learning and critical thinking.
+
+🎓 **Educational Assessment Principles:**
+- Test understanding, not memorization
+- Use Bloom's taxonomy: focus on comprehension, application, and analysis
+- Create realistic distractors that reveal common misconceptions
+- Questions should be culturally relevant and inclusive
+- ALWAYS respond in {language}
+
+📚 **Question Design Guidelines:**
+- Each question should test ONE key concept clearly
+- Avoid "trick" questions or ambiguous wording
+- Include questions at different cognitive levels:
+  * Knowledge/Recall: "¿Cuál es...?" / "What is...?"
+  * Comprehension: "¿Cómo se explica...?" / "How do you explain...?"
+  * Application: "¿Cómo aplicarías...?" / "How would you apply...?"
+  * Analysis: "¿Por qué es importante...?" / "Why is it important...?"
+
+✅ **For Each Question Include:**
+1. Clear, focused question stem
+2. Four plausible options (one correct, three educational distractors)
+3. Index of correct answer (0-3)
+4. Educational explanation that reinforces learning
+5. Difficulty level indicator (Básico/Intermedio/Avanzado or Basic/Intermediate/Advanced)
+
+📋 **JSON Format Required:**
+{
+  "questions": [
+    {
+      "question": "{questionExample}",
+      "options": ["{optionA}", "{optionB}", "{optionC}", "{optionD}"],
+      "correctAnswer": 1,
+      "explanation": "{explanationExample}",
+      "difficulty": "{difficultyExample}"
+    }
+  ]
+}
+
+**Content to analyze:**
+{content}`
+
+  private static readonly TITLE_GENERATION_PROMPT = `You are Sumak AI's title generator for educational conversations. Create a concise, academic-focused title based on the student's first message.
+
+📝 **Title Requirements:**
+- 3-6 words maximum
+- Focus on the educational/academic topic
+- MUST be in {language} (same as user's language)
+- Use academic terminology when appropriate
+- No quotes, emojis, or special formatting
+- Examples:
+  {examples}
+
+Generate ONLY the title, nothing else.
+
+Student's first message:`
+
   constructor(config: LLMConfig) {
     this.config = config
     this.client = this.createClient()
@@ -25,6 +149,70 @@ export class LLMService implements ILLMService {
 
   private getModel(): string {
     return 'distill-llama-8b_46e6iu'
+  }
+
+  // Helper method to get educational chat system message
+  getEducationalSystemMessage(): string {
+    return LLMService.EDUCATIONAL_SYSTEM_PROMPT
+  }
+
+  // Helper method to get tutoring system message with context
+  getTutoringSystemMessage(context: string, userLanguage: string): string {
+    const languageName = userLanguage === 'es' ? 'Spanish' : 'English'
+    return LLMService.TUTORING_SYSTEM_PROMPT.replace(
+      '{context}',
+      context,
+    ).replace('{language}', languageName)
+  }
+
+  // Helper method to get quiz generation prompt
+  getQuizGenerationPrompt(
+    content: string,
+    numberOfQuestions: number,
+    contentLanguage: string,
+  ): string {
+    const languageName = contentLanguage === 'es' ? 'Spanish' : 'English'
+    const questionExample =
+      contentLanguage === 'es'
+        ? 'Texto de la pregunta aquí?'
+        : 'Question text here?'
+    const optionA = contentLanguage === 'es' ? 'Opción A' : 'Option A'
+    const optionB = contentLanguage === 'es' ? 'Opción B' : 'Option B'
+    const optionC = contentLanguage === 'es' ? 'Opción C' : 'Option C'
+    const optionD = contentLanguage === 'es' ? 'Opción D' : 'Option D'
+    const explanationExample =
+      contentLanguage === 'es'
+        ? 'Explicación educativa aquí que refuerza el aprendizaje'
+        : 'Educational explanation here that reinforces learning'
+    const difficultyExample = contentLanguage === 'es' ? 'Básico' : 'Basic'
+
+    return LLMService.QUIZ_GENERATION_PROMPT.replace(
+      '{numberOfQuestions}',
+      numberOfQuestions.toString(),
+    )
+      .replace('{language}', languageName)
+      .replace('{questionExample}', questionExample)
+      .replace('{optionA}', optionA)
+      .replace('{optionB}', optionB)
+      .replace('{optionC}', optionC)
+      .replace('{optionD}', optionD)
+      .replace('{explanationExample}', explanationExample)
+      .replace('{difficultyExample}', difficultyExample)
+      .replace('{content}', content)
+  }
+
+  // Helper method to get title generation prompt
+  getTitleGenerationPrompt(userLanguage: string): string {
+    const languageName = userLanguage === 'es' ? 'Spanish' : 'English'
+    const examples =
+      userLanguage === 'es'
+        ? '- "Ayuda con Matemáticas"\n  - "Consulta de Biología"\n  - "Estudio de Historia"'
+        : '- "Math Help Session"\n  - "Biology Consultation"\n  - "History Study Guide"'
+
+    return LLMService.TITLE_GENERATION_PROMPT.replace(
+      '{language}',
+      languageName,
+    ).replace('{examples}', examples)
   }
 
   async createChatCompletion(
@@ -70,14 +258,6 @@ export class LLMService implements ILLMService {
       throw new Error(
         `Failed to create chat completion: ${error instanceof Error ? error.message : 'Unknown error'}`,
       )
-    }
-  }
-
-  async *fakeStreamingCompletion() {
-    let maxMessages = 3000
-    while (maxMessages-- > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      yield Math.random()?.toString().slice(2, 3) + ' '
     }
   }
 
@@ -137,23 +317,33 @@ export class LLMService implements ILLMService {
     }
   }
 
+  // Helper method to detect user language based on their input
+  private detectUserLanguage(text: string): string {
+    // Simple language detection - can be enhanced with proper language detection library
+    const spanishPatterns =
+      /(?:qué|cómo|que|como|porque|donde|cuando|quien|cuanto|pregunta|practicar|por qué|cuál|dónde|cuándo|quién|cuánto|cuánta|hola|gracias|por favor|ayuda|explicar|entender|aprender)/i
+    const englishPatterns =
+      /(?:what|how|why|which|where|when|who|much|many|hello|thanks|please|help|explain|understand|learn)/i
+
+    if (spanishPatterns.test(text)) {
+      return 'es' // Spanish
+    } else if (englishPatterns.test(text)) {
+      return 'en' // English
+    }
+    return 'en' // Default to English
+  }
+
   // Helper method to create a tutoring response based on context
   async createTutoringResponse(
     question: string,
     context: string,
     conversationHistory?: Array<ChatMessage>,
   ): Promise<string> {
-    const systemPrompt = `You are a helpful AI tutor. You should only answer questions based on the provided context material. If a question is not related to the context or requires information outside of it, politely redirect the student to ask questions about the current topic.
+    // Detect user's language
+    const userLanguage = this.detectUserLanguage(question)
 
-Context Material:
-${context}
-
-Instructions:
-- Only use information from the provided context
-- Be encouraging and supportive
-- Provide clear, step-by-step explanations when appropriate
-- If the question is outside the context scope, explain that you can only help with the current topic material
-- Keep responses concise but thorough`
+    // Use centralized prompt template
+    const systemPrompt = this.getTutoringSystemMessage(context, userLanguage)
 
     const messages: Array<ChatMessage> = [
       { role: 'system', content: systemPrompt },
@@ -167,15 +357,8 @@ Instructions:
 
   // Helper method to generate a chat title based on the first message
   async generateChatTitle(message: string): Promise<string> {
-    const systemPrompt = `You are a helpful assistant that generates short, descriptive titles for chat conversations based on the first message. The title should be:
-- 3-6 words maximum
-- Descriptive of the topic
-- In the same language as the user's message
-- No quotes or special formatting
-
-Generate only the title, nothing else.
-
-First message is given below:`
+    const userLanguage = this.detectUserLanguage(message)
+    const systemPrompt = this.getTitleGenerationPrompt(userLanguage)
 
     const messages: Array<ChatMessage> = [
       { role: 'system', content: systemPrompt },
@@ -202,28 +385,13 @@ First message is given below:`
     content: string,
     numberOfQuestions: number = 3,
   ): Promise<Array<QuizQuestion>> {
-    const systemPrompt = `You are an educational content generator. Based on the provided content, create ${numberOfQuestions} multiple-choice questions that test understanding of the key concepts.
-
-For each question, provide:
-1. A clear question
-2. Four plausible answer options
-3. The index (0-3) of the correct answer
-4. A brief explanation of why that answer is correct
-
-Format your response as JSON with this structure:
-{
-  "questions": [
-    {
-      "question": "Question text here?",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": 1,
-      "explanation": "Explanation here"
-    }
-  ]
-}
-
-Content to analyze:
-${content}`
+    // Detect language from content for appropriate response
+    const contentLanguage = this.detectUserLanguage(content)
+    const systemPrompt = this.getQuizGenerationPrompt(
+      content,
+      numberOfQuestions,
+      contentLanguage,
+    )
 
     const messages: Array<ChatMessage> = [
       { role: 'system', content: systemPrompt },
