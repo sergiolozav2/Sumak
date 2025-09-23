@@ -127,10 +127,13 @@ function App() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <button className="flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:shadow-xl">
+                <Link
+                  to="/login"
+                  className="flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:shadow-xl"
+                >
                   <Play className="mr-2 h-5 w-5" />
                   Ver Demo Gratuito
-                </button>
+                </Link>
                 <button className="rounded-lg border-2 border-indigo-600 px-8 py-4 text-lg font-semibold text-indigo-600 transition-all hover:bg-indigo-600 hover:text-white">
                   Solicitar Información
                 </button>

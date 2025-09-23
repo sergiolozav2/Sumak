@@ -141,7 +141,7 @@ export function ChatMessage({ message, onDelete }: ChatMessageProps) {
     <div
       className={`chat mb-0 md:mb-2 ${!message.fromSystem ? 'chat-end' : 'chat-start'}`}
     >
-      <div className="chat-image avatar">
+      <div className="chat-image avatar hidden md:block">
         {message.fromSystem ? (
           <Logo className="rounded-full" />
         ) : (

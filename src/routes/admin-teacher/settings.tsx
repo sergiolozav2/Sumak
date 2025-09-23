@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import AdminLayout from '@/components/admin/admin-layout'
 
 export const Route = createFileRoute('/admin-teacher/settings')({
   component: RouteComponent,
@@ -7,7 +6,7 @@ export const Route = createFileRoute('/admin-teacher/settings')({
 
 function RouteComponent() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6 px-4 py-4">
       {/* Page header */}
       <div className="md:flex md:items-center md:justify-between">
         <div className="min-w-0 flex-1">

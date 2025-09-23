@@ -326,9 +326,10 @@ function RouteComponent() {
 
   return (
     <div className="h-full w-full overflow-x-hidden">
+      {/* Chats sidebar - constant width */}
       <div className="border-base-300 flex w-full border-b py-4">
         <div className="flex w-full items-center justify-between px-4">
-          <h2 className="text-base-content line-clamp-1 overflow-hidden text-xl font-bold text-ellipsis">
+          <h2 className="text-base-content line-clamp-1 overflow-clip text-xl font-bold text-ellipsis">
             AI Tutor {selectedChat ? `- ${selectedChat.title}` : ''}
           </h2>
           <button onClick={handleNewChat} className="btn btn-primary">
@@ -336,11 +337,8 @@ function RouteComponent() {
             New Chat
           </button>
         </div>
-      </div>
-
-      {/* Desktop layout - side by side */}
-      <div className="responsive-app-container-height flex h-full w-full flex-col overflow-clip md:max-h-full md:flex-row">
-        {/* Chats sidebar - constant width */}
+      </div>{' '}
+      <div className="responsive-app-container-height flex h-full w-full flex-col overflow-y-scroll md:flex-row">
         <div className="border-base-300 flex w-full flex-col md:w-80 md:min-w-80 md:border-r">
           {/* Chats list */}
           <div className="md:collapse-open collapse">
@@ -533,7 +531,6 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-
       {/* File Picker Dialog */}
       <FilePickerDialog
         isOpen={showFilePickerDialog}

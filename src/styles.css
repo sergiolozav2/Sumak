@@ -49,8 +49,8 @@
 }
 
 .responsive-app-container-height {
-  min-height: calc(dvh - var(--combined-height));
-  max-height: calc(dvh - var(--combined-height));
+  min-height: calc(100dvh - var(--combined-height));
+  max-height: calc(100dvh - var(--combined-height));
 }
 
 @media screen and (min-width: 768px) {
@@ -61,6 +61,7 @@
   .responsive-app-container-height {
     min-height: calc(100vh - var(--navbar-height));
     max-height: calc(100vh - var(--navbar-height));
+    height: calc(100vh - var(--combined-height));
   }
 }
 
