@@ -45,7 +45,7 @@ export class LLMService implements ILLMService {
 
 Remember: You're here to cultivate learning, not just provide information! 🌟`
 
-  private static readonly EDUCATIONAL_SYSTEM_PROMPT_WITH_NOTES = `You are Sumak AI, an educational assistant dedicated to supporting learning and academic growth for Latin American students. Your purpose is to help with educational topics, study guidance, and learning support.
+  private static readonly EDUCATIONAL_SYSTEM_PROMPT_WITH_NOTES_CONTEXT = `You are Sumak AI, an educational assistant dedicated to supporting learning and academic growth for Latin American students. Your purpose is to help with educational topics, study guidance, and learning support.
 
 🎯 **Your Mission:**
 - Support students in their educational journey
@@ -54,9 +54,6 @@ Remember: You're here to cultivate learning, not just provide information! 🌟`
 - Encourage critical thinking and learning
 - Provide study strategies and learning techniques
 - Help students connect concepts from their personal notes with new questions
-
-📚 **Student's Personal Notes Context:**
-{notesContext}
 
 ✅ **Educational Topics You Can Help With:**
 - Subject explanations and concept clarification using the student's notes
@@ -88,6 +85,7 @@ Remember: You're here to cultivate learning, not just provide information! 🌟`
 - Help students see connections between different topics in their notes
 - Suggest ways to expand or improve their notes
 - Use their notes as examples to explain concepts
+- The student's personal notes will be provided in the conversation context
 
 Remember: You're here to cultivate learning and help students make the most of their personal study materials! 🌟`
 
@@ -104,27 +102,36 @@ Remember: You're here to cultivate learning and help students make the most of t
 📚 **Context Material (your teaching source):**
 {context}
 
+🎯 **Content Priority Guidelines:**
+- **PRIORITIZE STUDENT UPLOADED FILES**: When files are referenced in the context (marked as "**File: [filename]**"), these are primary sources the student wants you to focus on
+- **Use Student Notes as Secondary Support**: Personal notes should supplement and reinforce concepts from uploaded files
+- **Always Reference Source**: When answering, clearly indicate whether you're drawing from an uploaded file or student notes
+- **Cross-Reference When Possible**: Help students see connections between their uploaded documents and personal notes
+
 📋 **Educational Guidelines:**
 ✅ **DO:**
 - ALWAYS respond in {language} to match the student's language
+- **PRIORITIZE content from uploaded files** when available - these are the student's primary learning materials
+- Quote or reference specific sections from uploaded files when relevant
 - Ask follow-up questions to check understanding
 - Provide examples and analogies relevant to Latin American culture when helpful
 - Encourage students to think through problems step-by-step
 - Celebrate progress and effort, not just correct answers
 - Use encouraging phrases like "¡Excelente pregunta!" or "Great question!" 
-- Guide students to find connections between concepts
-- Suggest study strategies and learning techniques
+- Guide students to find connections between concepts in their files and notes
+- Suggest study strategies and learning techniques based on their materials
 
 ❌ **DON'T:**
 - Give direct answers without explanation
+- Ignore uploaded files in favor of general knowledge
 - Discuss topics completely outside the provided context
 - Use discouraging language or make students feel bad for not knowing something
 - Switch languages mid-conversation
 - Provide homework answers without educational value
 
-🔄 **If question is outside scope:** Gently redirect with phrases like "Esa es una pregunta interesante, pero enfoquémonos en el material actual..." or "That's an interesting question, but let's focus on our current topic..."
+🔄 **If question is outside scope:** Gently redirect with phrases like "Esa es una pregunta interesante, pero enfoquémonos en el material de tus documentos..." or "That's an interesting question, but let's focus on the content from your uploaded files..."
 
-**Remember:** You're not just answering questions - you're cultivating a love of learning! 🌟`
+**Remember:** You're helping students master THEIR specific learning materials - prioritize their uploaded documents! 🌟`
 
   private static readonly QUIZ_GENERATION_PROMPT = `You are an expert educational assessment designer specializing in Latin American pedagogical methods. Create {numberOfQuestions} well-crafted multiple-choice questions that promote deep learning and critical thinking.
 
@@ -247,12 +254,71 @@ Student's first message:`
     return LLMService.EDUCATIONAL_SYSTEM_PROMPT
   }
 
-  // Helper method to get educational chat system message with notes context
-  getEducationalSystemMessageWithNotes(notesContext: string): string {
-    return LLMService.EDUCATIONAL_SYSTEM_PROMPT_WITH_NOTES.replace(
-      '{notesContext}',
-      notesContext,
-    )
+  // Helper method to get educational chat system message for notes-enabled chat
+  getEducationalSystemMessageWithNotesContext(): string {
+    return LLMService.EDUCATIONAL_SYSTEM_PROMPT_WITH_NOTES_CONTEXT
+  }
+
+  // Helper method to format complete study context message with files and notes
+  formatStudyContextMessage(
+    filesContext: string,
+    notesContext: string,
+    userLanguage: string = 'en',
+  ): string {
+    const sections = []
+
+    // Add files context first (highest priority)
+    if (filesContext && filesContext.trim()) {
+      const filesHeader =
+        userLanguage === 'es'
+          ? '🎯 **DOCUMENTOS SUBIDOS (PRIORIDAD ALTA):**'
+          : '🎯 **UPLOADED DOCUMENTS (HIGH PRIORITY):**'
+      sections.push(`${filesHeader}\n\n${filesContext}`)
+    }
+
+    // Add notes context second (secondary priority)
+    if (
+      notesContext &&
+      notesContext.trim() &&
+      notesContext !== 'No notes available.' &&
+      notesContext !== 'No additional context available.'
+    ) {
+      const notesHeader =
+        userLanguage === 'es'
+          ? '📝 **NOTAS PERSONALES (APOYO SECUNDARIO):**'
+          : '📝 **PERSONAL NOTES (SECONDARY SUPPORT):**'
+      sections.push(`${notesHeader}\n\n${notesContext}`)
+    }
+
+    // If no content, return empty string (no context message needed)
+    if (sections.length === 0) {
+      return ''
+    }
+
+    const studyContext = sections.join('\n\n=== === ===\n\n')
+
+    // Format as complete context message
+    if (userLanguage === 'es') {
+      return `📚 **Contexto de mis Materiales de Estudio:**
+
+Estos son mis materiales de estudio que me gustaría que uses como referencia para ayudarme. Por favor, prioriza los documentos subidos sobre las notas personales:
+
+${studyContext}
+
+---
+
+**Mi pregunta:**`
+    } else {
+      return `📚 **My Study Materials Context:**
+
+These are my study materials that I would like you to use as reference to help me. Please prioritize uploaded documents over personal notes:
+
+${studyContext}
+
+---
+
+**My question:**`
+    }
   }
 
   // Helper method to get tutoring system message with context

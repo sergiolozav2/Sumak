@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ChevronDown,
-  Image,
   Mic,
   Paperclip,
   Plus,
@@ -18,6 +17,7 @@ import {
   StreamingMessage,
   ChatMessage,
 } from '@/components/chat/streaming-message'
+import { FilePickerDialog } from '@/components/files/file-picker-dialog'
 
 export const Route = createFileRoute('/admin-teacher/chat')({
   component: RouteComponent,
@@ -70,7 +70,7 @@ function RouteComponent() {
 
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null)
   const [messageInput, setMessageInput] = useState('')
-  const [showAttachments, setShowAttachments] = useState(false)
+  const [showFilePickerDialog, setShowFilePickerDialog] = useState(false)
   const [streamingMessage, setStreamingMessage] = useState<AsyncGenerator<
     { chunk: string },
     any,
@@ -92,8 +92,6 @@ function RouteComponent() {
   )
   const speechRecognition = useSpeechRecognizer({ onResult: onSpeechResult })
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const imageInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const chats = chatsQuery.data || []
@@ -287,6 +285,15 @@ function RouteComponent() {
     }
   }
 
+  // Handle file selection from dialog
+  const handleFileSelect = (fileId: number, _fileName: string) => {
+    const fileReference = `file:${fileId}`
+    setMessageInput((prev) =>
+      prev ? `${prev} ${fileReference}` : fileReference,
+    )
+    setShowFilePickerDialog(false)
+  }
+
   // Handle voice recording
   const handleToggleSpeechRecognition = () => {
     if (!speechRecognition.isSupported) {
@@ -298,58 +305,6 @@ function RouteComponent() {
       return
     }
     speechRecognition.start()
-  }
-
-  // Handle file upload (simplified for now - could be extended to handle actual file uploads)
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0]
-    if (!file || !selectedChatId || isSending) return
-
-    setIsSending(true)
-    try {
-      await trpcClient.chat.sendMessage.mutate({
-        chatId: selectedChatId,
-        message: `📎 Uploaded file: ${file.name}`,
-      })
-      chatsQuery.refetch()
-    } catch (error) {
-      console.error('Error uploading file:', error)
-    }
-    setIsSending(false)
-
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-    setShowAttachments(false)
-  }
-
-  // Handle image upload (simplified for now)
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0]
-    if (!file || !selectedChatId || isSending) return
-
-    setIsSending(true)
-    try {
-      await trpcClient.chat.sendMessage.mutate({
-        chatId: selectedChatId,
-        message: `🖼️ Uploaded image: ${file.name}`,
-      })
-      chatsQuery.refetch()
-    } catch (error) {
-      console.error('Error uploading image:', error)
-    }
-    setIsSending(false)
-
-    // Reset image input
-    if (imageInputRef.current) {
-      imageInputRef.current.value = ''
-    }
-    setShowAttachments(false)
   }
 
   // Handle key press
@@ -490,38 +445,14 @@ function RouteComponent() {
             <div className="mx-auto max-w-3xl">
               <div className="flex items-center gap-2">
                 {/* Attachment button */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowAttachments(!showAttachments)}
-                    className="btn btn-ghost btn-sm btn-square"
-                    title="Attach files"
-                  >
-                    <Plus size={20} />
-                  </button>
-
-                  {/* Attachment dropdown */}
-                  {showAttachments && (
-                    <div className="bg-base-100 border-base-300 absolute bottom-full left-0 mb-2 flex flex-col gap-1 rounded-lg border p-2 shadow-lg">
-                      <button
-                        type="button"
-                        onClick={() => imageInputRef.current?.click()}
-                        className="btn btn-ghost btn-sm flex items-center gap-2"
-                      >
-                        <Image size={16} />
-                        Image
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="btn btn-ghost btn-sm flex items-center gap-2"
-                      >
-                        <Paperclip size={16} />
-                        File
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowFilePickerDialog(true)}
+                  className="btn btn-ghost btn-sm btn-square"
+                  title="Attach files"
+                >
+                  <Paperclip size={20} />
+                </button>
 
                 {/* Text input */}
                 <div className="flex-1">
@@ -603,20 +534,13 @@ function RouteComponent() {
         </div>
       </div>
 
-      {/* Hidden file inputs */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        onChange={handleFileUpload}
-        className="hidden"
-        accept="*/*"
-      />
-      <input
-        ref={imageInputRef}
-        type="file"
-        onChange={handleImageUpload}
-        className="hidden"
-        accept="image/*"
+      {/* File Picker Dialog */}
+      <FilePickerDialog
+        isOpen={showFilePickerDialog}
+        onClose={() => setShowFilePickerDialog(false)}
+        onSelectFile={handleFileSelect}
+        title="Select a File to Attach"
+        description="Choose a file from your documents or upload a new one to attach to your message."
       />
     </div>
   )

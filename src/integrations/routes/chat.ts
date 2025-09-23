@@ -84,6 +84,25 @@ export const chatRouter = {
           },
         })
 
+        // Extract file references from user message (format: file:{id})
+        const fileReferences = [...input.message.matchAll(/file:(\d+)/g)]
+        const fileIds = fileReferences.map((match) => parseInt(match[1], 10))
+
+        // Fetch referenced files
+        let filesContext = ''
+        if (fileIds.length > 0) {
+          const referencedFiles = await prisma.files.findMany({
+            where: {
+              id: { in: fileIds },
+            },
+          })
+
+          filesContext = referencedFiles
+            .filter((file) => file.ocrDescription) // Only include files with OCR content
+            .map((file) => `**File: ${file.title}**\n${file.ocrDescription}`)
+            .join('\n\n---\n\n')
+        }
+
         // Fetch all student notes to include as context
         const studentNotes = await prisma.notes.findMany({
           orderBy: { id: 'desc' },
@@ -96,6 +115,15 @@ export const chatRouter = {
                 .map((note) => `**${note.title}**\n${note.content}`)
                 .join('\n\n---\n\n')
             : 'No notes available.'
+
+        // Detect user's language
+        const userLanguage = input.message
+          .toLowerCase()
+          .match(
+            /[ñáéíóúü]|qué|cómo|que|como|porque|donde|cuando|quien|cuanto|pregunta|por qué|cuál|dónde|cuándo|quién|cuánto|cuánta|hola|gracias|por favor|ayuda|explicar|entender|aprender/,
+          )
+          ? 'es'
+          : 'en'
 
         // Parallelize title generation and AI response
         const titlePromise = llmService
@@ -112,13 +140,22 @@ export const chatRouter = {
             return tempTitle // Keep temp title if generation fails
           })
 
+        // Format complete context message and combine with actual user message
+        const contextMessage = llmService.formatStudyContextMessage(
+          filesContext,
+          notesContext,
+          userLanguage,
+        )
+        const combinedUserMessage = contextMessage
+          ? `${contextMessage} ${input.message}`
+          : input.message
+
         const messages: Array<ChatMessage> = [
           {
             role: 'system' as const,
-            content:
-              llmService.getEducationalSystemMessageWithNotes(notesContext),
+            content: llmService.getEducationalSystemMessageWithNotesContext(),
           },
-          { role: 'user' as const, content: input.message },
+          { role: 'user' as const, content: combinedUserMessage },
         ]
 
         const readableResponse = llmService.createStreamingCompletion(messages)
@@ -257,6 +294,24 @@ export const chatRouter = {
           content: msg.message,
         }))
 
+      // Extract file references from user message (format: file:{id})
+      const fileReferences = [...input.message.matchAll(/file:(\d+)/g)]
+      const fileIds = fileReferences.map((match) => parseInt(match[1], 10))
+      // Fetch referenced files
+      let filesContext = ''
+      if (fileIds.length > 0) {
+        const referencedFiles = await prisma.files.findMany({
+          where: {
+            id: { in: fileIds },
+          },
+        })
+
+        filesContext = referencedFiles
+          .filter((file) => file.ocrDescription) // Only include files with OCR content
+          .map((file) => `**File: ${file.title}**\n${file.ocrDescription}`)
+          .join('\n\n---\n\n')
+      }
+
       // Fetch all student notes to include as context
       const studentNotes = await prisma.notes.findMany({
         orderBy: { id: 'desc' },
@@ -273,17 +328,38 @@ export const chatRouter = {
       // Create LLM service instance
       const llmService = ServiceFactories.createLLMService()
 
+      // Detect user's language
+      const userLanguage = input.message
+        .toLowerCase()
+        .match(
+          /[ñáéíóúü]|qué|cómo|que|como|porque|donde|cuando|quien|cuanto|pregunta|por qué|cuál|dónde|cuándo|quién|cuánto|cuánta|hola|gracias|por favor|ayuda|explicar|entender|aprender/,
+        )
+        ? 'es'
+        : 'en'
+
+      // Only include context if files are referenced in the message
+      let userMessageContent = input.message
+      if (fileIds.length > 0) {
+        // Include files and notes context when files are referenced
+        const contextMessage = llmService.formatStudyContextMessage(
+          filesContext,
+          notesContext,
+          userLanguage,
+        )
+        userMessageContent = contextMessage
+          ? `${contextMessage} ${input.message}`
+          : input.message
+      }
+
       // Educational chat mode with notes context
       const messages = [
         {
           role: 'system' as const,
-          content:
-            llmService.getEducationalSystemMessageWithNotes(notesContext),
+          content: llmService.getEducationalSystemMessageWithNotesContext(),
         },
         ...conversationHistory,
-        { role: 'user' as const, content: input.message },
+        { role: 'user' as const, content: userMessageContent },
       ]
-      console.log(messages[0].content)
 
       const readableResponse = llmService.createStreamingCompletion(messages)
       let aiResponse = ''
