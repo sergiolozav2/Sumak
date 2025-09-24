@@ -18,7 +18,7 @@ Sumak transforms traditional educational content into interactive, AI-enhanced l
 
 Check out Sumak in action:
 
-https://github.com/user-attachments/assets/demo1.mp4
+https://github.com/sergiolozav2/Sumak/raw/main/docs/demo/demo1.mp4
 
 _[Demo video showcasing the complete teacher-to-student workflow]_
 
