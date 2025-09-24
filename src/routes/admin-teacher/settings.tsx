@@ -11,11 +11,10 @@ function RouteComponent() {
       <div className="md:flex md:items-center md:justify-between">
         <div className="min-w-0 flex-1">
           <h2 className="text-base-content text-2xl leading-7 font-bold sm:truncate sm:text-3xl sm:tracking-tight">
-            Configuración
+            Configuration (Mocked)
           </h2>
           <p className="text-base-content/70 text-sm">
-            Configuración general de la plataforma, IA y preferencias del
-            sistema
+            General platform configuration, AI, and system preferences
           </p>
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
@@ -33,7 +32,7 @@ function RouteComponent() {
                 d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
-            Guardar Cambios
+            Save Changes
           </button>
         </div>
       </div>
@@ -48,22 +47,22 @@ function RouteComponent() {
                   <a className="active">General</a>
                 </li>
                 <li>
-                  <a>Configuración de IA</a>
+                  <a>AI Configuration</a>
                 </li>
                 <li>
-                  <a>Usuarios y Permisos</a>
+                  <a>Users and Permissions</a>
                 </li>
                 <li>
                   <a>Integrations</a>
                 </li>
                 <li>
-                  <a>Notificaciones</a>
+                  <a>Notifications</a>
                 </li>
                 <li>
-                  <a>Seguridad</a>
+                  <a>Security</a>
                 </li>
                 <li>
-                  <a>Backup y Restauración</a>
+                  <a>Backup and Restore</a>
                 </li>
               </ul>
             </div>
@@ -75,11 +74,11 @@ function RouteComponent() {
           {/* General Settings */}
           <div className="card bg-base-200 shadow">
             <div className="card-body">
-              <h3 className="card-title">Configuración General</h3>
+              <h3 className="card-title">General Configuration</h3>
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Nombre de la Plataforma</span>
+                    <span className="label-text">Platform Name</span>
                   </label>
                   <input
                     type="text"
@@ -91,36 +90,36 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Descripción</span>
+                    <span className="label-text">Description</span>
                   </label>
                   <textarea
                     className="textarea textarea-bordered h-24"
-                    placeholder="Descripción de la plataforma"
-                    defaultValue="Plataforma educativa con inteligencia artificial para América Latina"
+                    placeholder="Platform description"
+                    defaultValue="Educational platform with artificial intelligence for Latin America"
                   ></textarea>
                 </div>
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Zona Horaria</span>
+                    <span className="label-text">Time Zone</span>
                   </label>
                   <select className="select select-bordered w-full">
-                    <option disabled>Seleccionar zona horaria</option>
+                    <option disabled>Select time zone</option>
                     <option selected>GMT-4 (La Paz, Bolivia)</option>
-                    <option>GMT-5 (Lima, Perú)</option>
+                    <option>GMT-5 (Lima, Peru)</option>
                     <option>GMT-3 (Buenos Aires, Argentina)</option>
                   </select>
                 </div>
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Idioma por Defecto</span>
+                    <span className="label-text">Default Language</span>
                   </label>
                   <select className="select select-bordered w-full">
-                    <option selected>Español</option>
+                    <option selected>Spanish</option>
                     <option>Quechua</option>
                     <option>Aymara</option>
-                    <option>Inglés</option>
+                    <option>English</option>
                   </select>
                 </div>
               </div>
@@ -130,12 +129,12 @@ function RouteComponent() {
           {/* AI Configuration */}
           <div className="card bg-base-200 shadow">
             <div className="card-body">
-              <h3 className="card-title">Configuración de IA</h3>
+              <h3 className="card-title">AI Configuration</h3>
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label cursor-pointer">
                     <span className="label-text">
-                      Habilitar Adaptación Automática
+                      Enable Automatic Adaptation
                     </span>
                     <input
                       type="checkbox"
@@ -148,7 +147,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">Predicción de Deserción</span>
+                    <span className="label-text">Dropout Prediction</span>
                     <input
                       type="checkbox"
                       className="toggle toggle-warning"
@@ -161,7 +160,7 @@ function RouteComponent() {
                 <div className="form-control">
                   <label className="label cursor-pointer">
                     <span className="label-text">
-                      Generación Automática de Contenido
+                      Automatic Content Generation
                     </span>
                     <input
                       type="checkbox"
@@ -174,9 +173,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">
-                      Nivel de Agresividad de IA
-                    </span>
+                    <span className="label-text">AI Aggressiveness Level</span>
                   </label>
                   <input
                     type="range"
@@ -186,16 +183,16 @@ function RouteComponent() {
                     className="range range-primary"
                   />
                   <div className="flex w-full justify-between px-2 text-xs">
-                    <span>Conservador</span>
-                    <span>Moderado</span>
-                    <span>Agresivo</span>
+                    <span>Conservative</span>
+                    <span>Moderate</span>
+                    <span>Aggressive</span>
                   </div>
                 </div>
 
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">
-                      Frecuencia de Análisis (horas)
+                      Analysis Frequency (hours)
                     </span>
                   </label>
                   <input
@@ -214,12 +211,12 @@ function RouteComponent() {
           {/* Performance Settings */}
           <div className="card bg-base-200 shadow">
             <div className="card-body">
-              <h3 className="card-title">Configuración de Rendimiento</h3>
+              <h3 className="card-title">Performance Configuration</h3>
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">
-                      Máximo de Estudiantes por Sesión
+                      Maximum Students per Session
                     </span>
                   </label>
                   <input
@@ -234,9 +231,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">
-                      Cache de Contenido (días)
-                    </span>
+                    <span className="label-text">Content Cache (days)</span>
                   </label>
                   <input
                     type="number"
@@ -250,7 +245,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">Compresión de Datos</span>
+                    <span className="label-text">Data Compression</span>
                     <input
                       type="checkbox"
                       className="toggle toggle-accent"
@@ -262,9 +257,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">
-                      Modo de Bajo Ancho de Banda
-                    </span>
+                    <span className="label-text">Low Bandwidth Mode</span>
                     <input type="checkbox" className="toggle toggle-info" />
                   </label>
                 </div>
@@ -275,11 +268,11 @@ function RouteComponent() {
           {/* Notification Settings */}
           <div className="card bg-base-200 shadow">
             <div className="card-body">
-              <h3 className="card-title">Configuración de Notificaciones</h3>
+              <h3 className="card-title">Notification Configuration</h3>
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">Alertas de Deserción</span>
+                    <span className="label-text">Dropout Alerts</span>
                     <input
                       type="checkbox"
                       className="toggle toggle-error"
@@ -291,7 +284,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">Reportes Semanales</span>
+                    <span className="label-text">Weekly Reports</span>
                     <input
                       type="checkbox"
                       className="toggle toggle-success"
@@ -303,9 +296,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">
-                      Notificaciones de Sistema
-                    </span>
+                    <span className="label-text">System Notifications</span>
                     <input
                       type="checkbox"
                       className="toggle toggle-neutral"
@@ -318,7 +309,7 @@ function RouteComponent() {
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">
-                      Email para Alertas Críticas
+                      Email for Critical Alerts
                     </span>
                   </label>
                   <input
@@ -335,12 +326,12 @@ function RouteComponent() {
           {/* Security Settings */}
           <div className="card bg-base-200 shadow">
             <div className="card-body">
-              <h3 className="card-title">Configuración de Seguridad</h3>
+              <h3 className="card-title">Security Configuration</h3>
               <div className="space-y-4">
                 <div className="form-control">
                   <label className="label cursor-pointer">
                     <span className="label-text">
-                      Autenticación de Dos Factores
+                      Two-Factor Authentication
                     </span>
                     <input
                       type="checkbox"
@@ -353,9 +344,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">
-                      Tiempo de Sesión (minutos)
-                    </span>
+                    <span className="label-text">Session Time (minutes)</span>
                   </label>
                   <input
                     type="number"
@@ -369,9 +358,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">
-                      Intentos de Login Máximos
-                    </span>
+                    <span className="label-text">Maximum Login Attempts</span>
                   </label>
                   <input
                     type="number"
@@ -385,7 +372,7 @@ function RouteComponent() {
 
                 <div className="form-control">
                   <label className="label cursor-pointer">
-                    <span className="label-text">Logging de Actividades</span>
+                    <span className="label-text">Activity Logging</span>
                     <input
                       type="checkbox"
                       className="toggle toggle-secondary"
@@ -401,14 +388,14 @@ function RouteComponent() {
           {/* System Status */}
           <div className="card bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-xl">
             <div className="card-body">
-              <h3 className="card-title text-white">Estado del Sistema</h3>
+              <h3 className="card-title text-white">System Status</h3>
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <div className="text-sm opacity-75">Última Actualización</div>
+                  <div className="text-sm opacity-75">Last Update</div>
                   <div className="text-lg font-bold">2025-09-08 14:32</div>
                 </div>
                 <div>
-                  <div className="text-sm opacity-75">Versión</div>
+                  <div className="text-sm opacity-75">Version</div>
                   <div className="text-lg font-bold">v2.3.1</div>
                 </div>
                 <div>
@@ -416,13 +403,13 @@ function RouteComponent() {
                   <div className="text-lg font-bold">99.8%</div>
                 </div>
                 <div>
-                  <div className="text-sm opacity-75">Usuarios Activos</div>
+                  <div className="text-sm opacity-75">Active Users</div>
                   <div className="text-lg font-bold">1,247</div>
                 </div>
               </div>
               <div className="card-actions mt-4 justify-end">
-                <button className="btn btn-neutral">Ver Logs</button>
-                <button className="btn btn-secondary">Backup Ahora</button>
+                <button className="btn btn-neutral">View Logs</button>
+                <button className="btn btn-secondary">Backup Now</button>
               </div>
             </div>
           </div>

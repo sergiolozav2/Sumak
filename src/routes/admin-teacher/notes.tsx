@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useTRPC } from '@/integrations/trpc/react'
 import { useSpeechRecognizer } from '@/hooks/use-speech-recognition'
+import toast from 'react-hot-toast'
 
 export const Route = createFileRoute('/admin-teacher/notes')({
   component: RouteComponent,
@@ -159,6 +160,8 @@ function RouteComponent() {
 
   // Action handlers
   const handleTranslate = () => {
+    toast('Feature is not implemented yet.', {})
+
     console.log('Translate action', {
       noteId: selectedNoteId,
       title,
@@ -168,6 +171,7 @@ function RouteComponent() {
   }
 
   const handleExplain = () => {
+    toast('Feature is not implemented yet.', {})
     console.log('Explain action', {
       noteId: selectedNoteId,
       title,
@@ -177,6 +181,7 @@ function RouteComponent() {
   }
 
   const handleStudy = () => {
+    toast('Feature is not implemented yet.', {})
     console.log('Study action', {
       noteId: selectedNoteId,
       title,
@@ -186,6 +191,7 @@ function RouteComponent() {
   }
 
   const handleVisualize = () => {
+    toast('Feature is not implemented yet.', {})
     console.log('Visualize action', {
       noteId: selectedNoteId,
       title,

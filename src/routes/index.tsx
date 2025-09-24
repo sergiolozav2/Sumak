@@ -8,10 +8,10 @@ import {
   ChevronUp,
   Globe,
   Heart,
+  Instagram,
   Lightbulb,
-  Mail,
+  Linkedin,
   MessageCircle,
-  Phone,
   Play,
   Shield,
   Target,
@@ -27,9 +27,14 @@ export const Route = createFileRoute('/')({
 
 function App() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index)
+  }
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
   }
 
   return (
@@ -52,19 +57,19 @@ function App() {
                 href="#features"
                 className="text-gray-600 transition-colors hover:text-indigo-600"
               >
-                Características
+                Features
               </a>
               <a
                 href="#benefits"
                 className="text-gray-600 transition-colors hover:text-indigo-600"
               >
-                Beneficios
+                Benefits
               </a>
               <a
                 href="#pricing"
                 className="text-gray-600 transition-colors hover:text-indigo-600"
               >
-                Precios
+                Pricing
               </a>
               <a
                 href="#faq"
@@ -76,12 +81,15 @@ function App() {
                 to="/login"
                 className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2 text-white transition-all hover:shadow-lg"
               >
-                Comenzar Ahora
+                Get Started
               </Link>
             </nav>
 
             <div className="md:hidden">
-              <button className="text-gray-600">
+              <button
+                className="cursor-pointer text-gray-600"
+                onClick={toggleMobileMenu}
+              >
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -92,12 +100,59 @@ function App() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
+                    d={
+                      mobileMenuOpen
+                        ? 'M6 18L18 6M6 6l12 12'
+                        : 'M4 6h16M4 12h16M4 18h16'
+                    }
                   />
                 </svg>
               </button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden">
+              <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+                <a
+                  href="#features"
+                  className="block rounded-md px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Features
+                </a>
+                <a
+                  href="#benefits"
+                  className="block rounded-md px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Benefits
+                </a>
+                <a
+                  href="#pricing"
+                  className="block rounded-md px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Pricing
+                </a>
+                <a
+                  href="#faq"
+                  className="block rounded-md px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  FAQ
+                </a>
+                <Link
+                  to="/login"
+                  className="mt-4 block rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2 text-center text-white transition-all hover:shadow-lg"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
@@ -109,20 +164,20 @@ function App() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className="inline-flex items-center rounded-full bg-indigo-100 px-4 py-2 text-sm font-medium text-indigo-800">
-                  🚀 Revolucionando la educación en América Latina
+                  🚀 Revolutionizing education in Latin America
                 </div>
                 <h1 className="text-5xl leading-tight font-bold text-gray-900 lg:text-6xl">
-                  El futuro de la
+                  The future of
                   <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     {' '}
-                    educación{' '}
+                    education{' '}
                   </span>
-                  está aquí
+                  is here
                 </h1>
                 <p className="text-xl leading-relaxed text-gray-600">
-                  Plataforma de aprendizaje con IA que personaliza la educación
-                  para cada estudiante, rompiendo el ciclo de pobreza a través
-                  de experiencias inmersivas y relevantes.
+                  AI-powered learning platform that personalizes education for
+                  each student, breaking the cycle of poverty through immersive
+                  and relevant experiences.
                 </p>
               </div>
 
@@ -132,30 +187,26 @@ function App() {
                   className="flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white transition-all hover:shadow-xl"
                 >
                   <Play className="mr-2 h-5 w-5" />
-                  Ver Demo Gratuito
+                  Watch Free Demo
                 </Link>
                 <button className="rounded-lg border-2 border-indigo-600 px-8 py-4 text-lg font-semibold text-indigo-600 transition-all hover:bg-indigo-600 hover:text-white">
-                  Solicitar Información
+                  Request Information
                 </button>
               </div>
 
               <div className="flex items-center space-x-8 pt-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-indigo-600">13%</div>
-                  <div className="text-sm text-gray-500">
-                    Crecimiento anual EdTech
-                  </div>
+                  <div className="text-3xl font-bold text-indigo-600">15%</div>
+                  <div className="text-sm text-gray-500">Sample growth</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-indigo-600">$11B</div>
-                  <div className="text-sm text-gray-500">
-                    Mercado global EdTech
-                  </div>
+                  <div className="text-3xl font-bold text-indigo-600">$15B</div>
+                  <div className="text-sm text-gray-500">Demo market size</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-indigo-600">70%</div>
+                  <div className="text-3xl font-bold text-indigo-600">60%</div>
                   <div className="text-sm text-gray-500">
-                    Estudiantes con dificultades
+                    Learning challenges
                   </div>
                 </div>
               </div>
@@ -170,26 +221,28 @@ function App() {
                         <BookOpen className="h-5 w-5 text-green-600" />
                       </div>
                       <div>
-                        <div className="font-semibold">María, 11 años</div>
+                        <div className="font-semibold text-black">
+                          María, 11 years old
+                        </div>
                         <div className="text-sm text-gray-500">
-                          Matemáticas Nivel 6
+                          Math Level 6
                         </div>
                       </div>
                     </div>
                     <div className="font-bold text-green-600">95%</div>
                   </div>
-                  <div className="rounded-lg bg-gray-100 p-4">
+                  <div className="rounded-lg bg-gray-100 p-4 text-black">
                     <div className="mb-2 text-sm font-medium">
-                      Progreso de hoy:
+                      Studied today:
                     </div>
-                    <div className="space-y-2">
+                    <div className="text-base-content space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Fracciones</span>
-                        <span className="text-green-600">✓ Completado</span>
+                        <span>Fractions</span>
+                        <span className="text-green-600">✓ Completed</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span>Problemas de la vida real</span>
-                        <span className="text-yellow-600">⏳ En progreso</span>
+                        <span>Real life problems</span>
+                        <span className="text-yellow-600">⏳ In progress</span>
                       </div>
                     </div>
                   </div>
@@ -208,11 +261,11 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              La crisis educativa que enfrentamos
+              The educational crisis we face
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
-              En América Latina, la educación tradicional no responde a las
-              necesidades de nuestros estudiantes
+              In Latin America, traditional education does not respond to our
+              students' needs
             </p>
           </div>
 
@@ -222,11 +275,11 @@ function App() {
                 <TrendingUp className="h-12 w-12" />
               </div>
               <h3 className="mb-3 text-2xl font-bold text-red-800">
-                70% de estudiantes
+                Many students
               </h3>
               <p className="text-red-700">
-                tienen dificultades graves para leer en primaria, creando una
-                base débil para todo su aprendizaje futuro.
+                face reading difficulties in elementary school, creating
+                challenges for their future learning journey.
               </p>
             </div>
 
@@ -235,11 +288,11 @@ function App() {
                 <Target className="h-12 w-12" />
               </div>
               <h3 className="mb-3 text-2xl font-bold text-orange-800">
-                80% no resuelve
+                Math challenges
               </h3>
               <p className="text-orange-700">
-                problemas matemáticos básicos, limitando sus oportunidades
-                futuras en un mundo cada vez más tecnológico.
+                Many students struggle with mathematical concepts, which may
+                limit their opportunities in our technology-driven world.
               </p>
             </div>
 
@@ -248,11 +301,11 @@ function App() {
                 <Heart className="h-12 w-12" />
               </div>
               <h3 className="mb-3 text-2xl font-bold text-purple-800">
-                Ciclo de pobreza
+                Poverty cycle
               </h3>
               <p className="text-purple-700">
-                La deserción escolar alimenta la pobreza, creando un círculo
-                vicioso que se perpetúa por generaciones.
+                School dropout feeds poverty, creating a vicious cycle that
+                perpetuates for generations.
               </p>
             </div>
           </div>
@@ -267,11 +320,11 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              Características revolucionarias
+              Revolutionary features
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
-              Tecnología de vanguardia al servicio de una educación
-              personalizada y efectiva
+              Cutting-edge technology in service of personalized and effective
+              education
             </p>
           </div>
 
@@ -281,24 +334,24 @@ function App() {
                 <Brain className="h-8 w-8" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-gray-900">
-                IA Personalizada
+                Personalized AI
               </h3>
               <p className="mb-6 text-gray-600">
-                Tutor inteligente que se adapta al ritmo, estilo de aprendizaje
-                y emociones de cada estudiante en tiempo real.
+                Intelligent tutor that adapts to each student's pace, learning
+                style, and emotions in real time.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Análisis de patrones de aprendizaje
+                  Learning pattern analysis
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Ajuste automático de dificultad
+                  Automatic difficulty adjustment
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Recomendaciones personalizadas
+                  Personalized recommendations
                 </li>
               </ul>
             </div>
@@ -308,24 +361,24 @@ function App() {
                 <Globe className="h-8 w-8" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-gray-900">
-                Experiencias Inmersivas
+                Immersive Experiences
               </h3>
               <p className="mb-6 text-gray-600">
-                Universos de aprendizaje que convierten cada lección en una
-                aventura memorable y significativa.
+                Learning universes that turn every lesson into a memorable and
+                meaningful adventure.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Escape rooms educativos
+                  Educational escape rooms
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Simulaciones interactivas
+                  Interactive simulations
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Gamificación avanzada
+                  Advanced gamification
                 </li>
               </ul>
             </div>
@@ -335,24 +388,24 @@ function App() {
                 <Users className="h-8 w-8" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-gray-900">
-                Pedagogías Integradas
+                Integrated Pedagogies
               </h3>
               <p className="mb-6 text-gray-600">
-                Combinamos lo mejor de Montessori, Waldorf y Reggio Emilia con
-                tecnología de última generación.
+                We combine the best of Montessori, Waldorf and Reggio Emilia
+                with cutting-edge technology.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Aprendizaje basado en proyectos
+                  Project-based learning
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Conexión con la realidad
+                  Connection to reality
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Desarrollo de habilidades blandas
+                  Soft skills development
                 </li>
               </ul>
             </div>
@@ -362,24 +415,24 @@ function App() {
                 <Shield className="h-8 w-8" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-gray-900">
-                Accesibilidad Total
+                Total Accessibility
               </h3>
               <p className="mb-6 text-gray-600">
-                Diseñado para funcionar en cualquier dispositivo y condición de
-                conectividad, sin excluir a nadie.
+                Designed to work on any device and connectivity condition,
+                without excluding anyone.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Modo offline disponible
+                  Offline mode available
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Optimizado para móviles
+                  Mobile optimized
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Soporte multilenguaje
+                  Multilanguage support
                 </li>
               </ul>
             </div>
@@ -389,24 +442,24 @@ function App() {
                 <Award className="h-8 w-8" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-gray-900">
-                Analytics Avanzados
+                Advanced Analytics
               </h3>
               <p className="mb-6 text-gray-600">
-                Información detallada y actionable para educadores, padres y
-                administradores educativos.
+                Detailed and actionable information for educators, parents and
+                educational administrators.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Reportes de progreso en tiempo real
+                  Real-time progress reports
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Predicción de riesgos académicos
+                  Academic risk prediction
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Insights pedagógicos
+                  Pedagogical insights
                 </li>
               </ul>
             </div>
@@ -416,24 +469,24 @@ function App() {
                 <Zap className="h-8 w-8" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-gray-900">
-                Integración Escolar
+                School Integration
               </h3>
               <p className="mb-6 text-gray-600">
-                Se integra perfectamente con el currículo existente y las
-                políticas educativas nacionales.
+                Integrates seamlessly with existing curriculum and national
+                educational policies.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Compatible con currículos oficiales
+                  Compatible with official curricula
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Capacitación para docentes
+                  Teacher training
                 </li>
                 <li className="flex items-center text-sm text-gray-600">
                   <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                  Soporte técnico continuo
+                  Continuous technical support
                 </li>
               </ul>
             </div>
@@ -446,11 +499,11 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              Impacto transformador demostrado
+              Proven transformative impact
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
-              Resultados que van más allá de las calificaciones: cambiamos vidas
-              y comunidades enteras
+              Results that go beyond grades: we change lives and entire
+              communities
             </p>
           </div>
 
@@ -458,31 +511,31 @@ function App() {
             <div className="space-y-8">
               <div className="border-l-4 border-indigo-500 pl-6">
                 <h3 className="mb-3 text-2xl font-bold text-gray-900">
-                  Para Estudiantes
+                  For Students
                 </h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Reducción del 40% en deserción escolar
+                      Improved student engagement
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Mejora del 60% en comprensión lectora
+                      Enhanced reading comprehension
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Desarrollo de habilidades del siglo XXI
+                      21st century skills development
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Mayor motivación y autoestima
+                      Higher motivation and self-esteem
                     </span>
                   </li>
                 </ul>
@@ -490,31 +543,31 @@ function App() {
 
               <div className="border-l-4 border-green-500 pl-6">
                 <h3 className="mb-3 text-2xl font-bold text-gray-900">
-                  Para Educadores
+                  For Educators
                 </h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Reducción del 70% en tareas administrativas
+                      Streamlined administrative tasks
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Insights detallados sobre cada estudiante
+                      Detailed insights about each student
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Herramientas de diferenciación automática
+                      Automatic differentiation tools
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Renovación de la pasión por enseñar
+                      Renewed passion for teaching
                     </span>
                   </li>
                 </ul>
@@ -522,31 +575,29 @@ function App() {
 
               <div className="border-l-4 border-purple-500 pl-6">
                 <h3 className="mb-3 text-2xl font-bold text-gray-900">
-                  Para Instituciones
+                  For Institutions
                 </h3>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Mejora en rankings educativos
+                      Improvement in educational rankings
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
+                    <span className="text-gray-700">Resource optimization</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
+                    <span className="text-gray-700">
+                      Higher parent satisfaction
                     </span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
                     <span className="text-gray-700">
-                      Optimización de recursos
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
-                    <span className="text-gray-700">
-                      Mayor satisfacción de padres
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="mt-0.5 mr-3 h-5 w-5 text-green-500" />
-                    <span className="text-gray-700">
-                      Innovación y diferenciación
+                      Innovation and differentiation
                     </span>
                   </li>
                 </ul>
@@ -555,40 +606,38 @@ function App() {
 
             <div className="space-y-6">
               <div className="rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 p-8 text-white">
-                <h4 className="mb-4 text-3xl font-bold">Impacto Regional</h4>
+                <h4 className="mb-4 text-3xl font-bold">Demo Impact</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
-                    <div className="text-4xl font-bold">50K+</div>
-                    <div className="text-indigo-100">
-                      Estudiantes impactados
-                    </div>
+                    <div className="text-4xl font-bold">10K+</div>
+                    <div className="text-indigo-100">Demo students</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl font-bold">200+</div>
-                    <div className="text-indigo-100">Escuelas aliadas</div>
+                    <div className="text-4xl font-bold">50+</div>
+                    <div className="text-indigo-100">Demo schools</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl font-bold">85%</div>
-                    <div className="text-indigo-100">Satisfacción docente</div>
+                    <div className="text-4xl font-bold">90%</div>
+                    <div className="text-indigo-100">Sample satisfaction</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl font-bold">5</div>
-                    <div className="text-indigo-100">Países presentes</div>
+                    <div className="text-4xl font-bold">3</div>
+                    <div className="text-indigo-100">Demo regions</div>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6">
                 <h5 className="mb-2 font-bold text-yellow-800">
-                  Caso de Éxito:
+                  Demo Success Story:
                 </h5>
                 <p className="text-sm text-yellow-700">
-                  "En la Escuela San Martín de La Paz, la deserción bajó del 35%
-                  al 12% en un año. Los estudiantes ahora ven las matemáticas
-                  como un juego, no como una tortura."
+                  "Sample Elementary School saw significant improvements in
+                  student engagement and learning outcomes after implementing
+                  our platform."
                 </p>
                 <div className="mt-2 text-sm font-medium text-yellow-600">
-                  - Directora María Gonzales
+                  - Demo Principal
                 </div>
               </div>
             </div>
@@ -601,11 +650,10 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              ¿Por qué elegir Eduverso Inteligente?
+              Why choose Sumak AI?
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
-              Comparamos nuestra solución con las alternativas tradicionales y
-              digitales
+              We compare our solution with traditional and digital alternatives
             </p>
           </div>
 
@@ -613,75 +661,75 @@ function App() {
             <table className="w-full overflow-hidden rounded-2xl bg-white shadow-lg">
               <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                 <tr>
-                  <th className="px-6 py-4 text-left">Característica</th>
+                  <th className="px-6 py-4 text-left">Feature</th>
                   <th className="px-6 py-4 text-center">
-                    Educación Tradicional
+                    Traditional Education
                   </th>
-                  <th className="px-6 py-4 text-center">Otras Plataformas</th>
+                  <th className="px-6 py-4 text-center">Other Platforms</th>
                   <th className="bg-indigo-700 px-6 py-4 text-center">
-                    Eduverso Inteligente
+                    Sumak AI
                   </th>
                 </tr>
               </thead>
               <tbody className="text-primary divide-y divide-gray-200">
                 <tr>
-                  <td className="px-6 py-4 font-medium">Personalización</td>
+                  <td className="px-6 py-4 font-medium">Personalization</td>
                   <td className="px-6 py-4 text-center text-red-600">
-                    ❌ Una talla para todos
+                    ❌ One size fits all
                   </td>
                   <td className="px-6 py-4 text-center text-yellow-600">
-                    ⚠️ Limitada
+                    ⚠️ Limited
                   </td>
                   <td className="bg-green-50 px-6 py-4 text-center text-green-600">
-                    ✅ 100% Personalizada con IA
+                    ✅ 100% AI Personalized
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 font-medium">Accesibilidad</td>
+                  <td className="px-6 py-4 font-medium">Accessibility</td>
                   <td className="px-6 py-4 text-center text-red-600">
-                    ❌ Presencial únicamente
+                    ❌ In-person only
                   </td>
                   <td className="px-6 py-4 text-center text-yellow-600">
-                    ⚠️ Requiere internet
+                    ⚠️ Requires internet
                   </td>
                   <td className="bg-green-50 px-6 py-4 text-center text-green-600">
-                    ✅ Online y offline
+                    ✅ Online and offline
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 font-medium">Relevancia cultural</td>
+                  <td className="px-6 py-4 font-medium">Cultural relevance</td>
                   <td className="px-6 py-4 text-center text-yellow-600">
-                    ⚠️ Currículo estándar
+                    ⚠️ Standard curriculum
                   </td>
                   <td className="px-6 py-4 text-center text-red-600">
-                    ❌ Contenido extranjero
+                    ❌ Foreign content
                   </td>
                   <td className="bg-green-50 px-6 py-4 text-center text-green-600">
-                    ✅ Adaptado a LATAM
+                    ✅ Adapted to LATAM
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 font-medium">Soporte docente</td>
+                  <td className="px-6 py-4 font-medium">Teacher support</td>
                   <td className="px-6 py-4 text-center text-red-600">
-                    ❌ Recursos limitados
+                    ❌ Limited resources
                   </td>
                   <td className="px-6 py-4 text-center text-yellow-600">
-                    ⚠️ Auto-servicio
+                    ⚠️ Self-service
                   </td>
                   <td className="bg-green-50 px-6 py-4 text-center text-green-600">
-                    ✅ Capacitación completa
+                    ✅ Complete training
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 font-medium">Costo</td>
+                  <td className="px-6 py-4 font-medium">Cost</td>
                   <td className="px-6 py-4 text-center text-green-600">
-                    ✅ Público gratuito
+                    ✅ Public free
                   </td>
                   <td className="px-6 py-4 text-center text-red-600">
-                    ❌ Muy costoso
+                    ❌ Very expensive
                   </td>
                   <td className="bg-green-50 px-6 py-4 text-center text-green-600">
-                    ✅ Accesible y escalable
+                    ✅ Accessible and scalable
                   </td>
                 </tr>
               </tbody>
@@ -695,10 +743,10 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              Planes diseñados para cada necesidad
+              Plans designed for every need
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
-              Desde escuelas rurales hasta sistemas educativos completos
+              From rural schools to complete educational systems
             </p>
           </div>
 
@@ -707,40 +755,40 @@ function App() {
             <div className="rounded-2xl border-2 border-gray-200 bg-white p-8 transition-colors hover:border-indigo-300">
               <div className="mb-8 text-center">
                 <h3 className="mb-2 text-2xl font-bold text-gray-900">
-                  Escuela
+                  School
                 </h3>
                 <p className="mb-4 text-gray-600">
-                  Perfecto para instituciones individuales
+                  Perfect for individual institutions
                 </p>
                 <div className="text-4xl font-bold text-gray-900">$2</div>
-                <div className="text-gray-500">por estudiante/mes</div>
+                <div className="text-gray-500">per student/month</div>
               </div>
 
-              <ul className="text-base-100 mb-8 space-y-3">
+              <ul className="text-base-content mb-8 space-y-3">
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Hasta 500 estudiantes</span>
+                  <span>Up to 500 students</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>IA personalizada básica</span>
+                  <span>Basic personalized AI</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Reportes estándar</span>
+                  <span>Standard reports</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Soporte por email</span>
+                  <span>Email support</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Capacitación online</span>
+                  <span>Online training</span>
                 </li>
               </ul>
 
               <button className="w-full rounded-lg bg-gray-100 py-3 font-semibold text-gray-800 transition-colors hover:bg-gray-200">
-                Empezar Prueba Gratuita
+                Start Free Trial
               </button>
             </div>
 
@@ -748,45 +796,45 @@ function App() {
             <div className="scale-105 transform rounded-2xl bg-gradient-to-b from-indigo-600 to-purple-600 p-8 text-white shadow-2xl">
               <div className="mb-8 text-center">
                 <div className="mb-4 inline-block rounded-full bg-yellow-400 px-3 py-1 text-sm font-medium text-yellow-800">
-                  Más Popular
+                  Most Popular
                 </div>
-                <h3 className="mb-2 text-2xl font-bold">Distrito</h3>
+                <h3 className="mb-2 text-2xl font-bold">District</h3>
                 <p className="mb-4 text-indigo-100">
-                  Para redes educativas y distritos
+                  For educational networks and districts
                 </p>
                 <div className="text-4xl font-bold">$1.5</div>
-                <div className="text-indigo-200">por estudiante/mes</div>
+                <div className="text-indigo-200">per student/month</div>
               </div>
 
               <ul className="mb-8 space-y-3">
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-400" />
-                  <span>Hasta 5,000 estudiantes</span>
+                  <span>Up to 5,000 students</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-400" />
-                  <span>IA personalizada avanzada</span>
+                  <span>Advanced personalized AI</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-400" />
-                  <span>Analytics avanzados</span>
+                  <span>Advanced analytics</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-400" />
-                  <span>Soporte prioritario 24/7</span>
+                  <span>Priority 24/7 support</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-400" />
-                  <span>Capacitación presencial</span>
+                  <span>In-person training</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-400" />
-                  <span>Integración con SIS</span>
+                  <span>SIS integration</span>
                 </li>
               </ul>
 
               <button className="w-full rounded-lg bg-white py-3 font-semibold text-indigo-600 transition-colors hover:bg-gray-50">
-                Solicitar Demo
+                Request Demo
               </button>
             </div>
 
@@ -794,46 +842,44 @@ function App() {
             <div className="rounded-2xl border-2 border-gray-200 bg-white p-8 transition-colors hover:border-purple-300">
               <div className="mb-8 text-center">
                 <h3 className="mb-2 text-2xl font-bold text-gray-900">
-                  Nacional
+                  National
                 </h3>
                 <p className="mb-4 text-gray-600">
-                  Para ministerios y sistemas nacionales
+                  For ministries and national systems
                 </p>
-                <div className="text-4xl font-bold text-gray-900">
-                  Personalizado
-                </div>
-                <div className="text-gray-500">según volumen</div>
+                <div className="text-4xl font-bold text-gray-900">Custom</div>
+                <div className="text-gray-500">based on volume</div>
               </div>
 
-              <ul className="text-base-100 mb-8 space-y-3">
+              <ul className="text-base-content mb-8 space-y-3">
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Estudiantes ilimitados</span>
+                  <span>Unlimited students</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>IA completamente personalizada</span>
+                  <span>Fully customized AI</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Dashboard gubernamental</span>
+                  <span>Government dashboard</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Soporte dedicado</span>
+                  <span>Dedicated support</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Implementación guiada</span>
+                  <span>Guided implementation</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="mr-3 h-5 w-5 text-green-500" />
-                  <span>Cumplimiento regulatorio</span>
+                  <span>Regulatory compliance</span>
                 </li>
               </ul>
 
               <button className="w-full rounded-lg bg-purple-600 py-3 font-semibold text-white transition-colors hover:bg-purple-700">
-                Contactar Ventas
+                Contact Sales
               </button>
             </div>
           </div>
@@ -841,8 +887,7 @@ function App() {
           <div className="mt-12 text-center">
             <div className="inline-flex items-center rounded-full bg-green-100 px-6 py-3 text-green-800">
               <CheckCircle className="mr-2 h-5 w-5" />
-              30 días de prueba gratuita • Sin tarjeta de crédito • Soporte
-              incluido
+              30-day free trial • No credit card • Support included
             </div>
           </div>
         </div>
@@ -853,44 +898,45 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
-              Preguntas frecuentes
+              Frequently Asked Questions
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
-              Resolvemos las dudas más comunes sobre nuestra plataforma
+              We answer the most common questions about our platform
             </p>
           </div>
 
           <div className="mx-auto max-w-4xl space-y-4">
             {[
               {
-                question: '¿Cómo funciona la IA personalizada?',
+                question: 'How does personalized AI work?',
                 answer:
-                  'Nuestra IA analiza continuamente el comportamiento, progreso y patrones de aprendizaje de cada estudiante. Utiliza algoritmos de machine learning para adaptar la dificultad, el estilo de presentación y el ritmo de las lecciones en tiempo real. También considera factores emocionales y de motivación para mantener a los estudiantes comprometidos.',
+                  "Our AI continuously analyzes each student's behavior, progress, and learning patterns. It uses machine learning algorithms to adapt difficulty, presentation style, and lesson pace in real time. It also considers emotional and motivational factors to keep students engaged.",
               },
               {
-                question: '¿Qué pasa si no tenemos buena conexión a internet?',
+                question:
+                  "What happens if we don't have good internet connection?",
                 answer:
-                  'Eduverso Inteligente está diseñado para funcionar en modo offline. Los estudiantes pueden descargar contenido previamente y trabajar sin conexión. Cuando se restablece la conexión, todos los datos se sincronizan automáticamente. También optimizamos el contenido para conexiones lentas.',
+                  'Sumak AI is designed to work offline. Students can download content in advance and work without a connection. When connectivity is restored, all data syncs automatically. We also optimize content for slow connections.',
               },
               {
-                question: '¿Los docentes necesitan capacitación especial?',
+                question: 'Do teachers need special training?',
                 answer:
-                  'Proporcionamos capacitación completa adaptada al nivel tecnológico de cada docente. Incluye tutoriales interactivos, sesiones presenciales, documentación detallada y soporte continuo. La mayoría de los docentes se sienten cómodos usando la plataforma en menos de una semana.',
+                  "We provide comprehensive training adapted to each teacher's technology level. This includes interactive tutorials, in-person sessions, detailed documentation, and ongoing support. Most teachers feel comfortable using the platform in less than a week.",
               },
               {
-                question: '¿Cómo se integra con el currículo oficial?',
+                question: 'How does it integrate with official curriculum?',
                 answer:
-                  'Trabajamos estrechamente con ministerios de educación para asegurar que todo el contenido esté alineado con los currículos nacionales. La plataforma es flexible y puede adaptarse a diferentes sistemas educativos, estándares y regulaciones locales.',
+                  'We work closely with education ministries to ensure all content aligns with national curricula. The platform is flexible and can adapt to different educational systems, standards, and local regulations.',
               },
               {
-                question: '¿Qué datos se recopilan sobre los estudiantes?',
+                question: 'What data is collected about students?',
                 answer:
-                  'Recopilamos únicamente datos educativos necesarios para personalizar el aprendizaje: progreso académico, patrones de estudio, y preferencias de aprendizaje. Todos los datos están encriptados, cumplimos con GDPR y regulaciones locales de privacidad. Los datos nunca se venden a terceros.',
+                  'We collect only educational data necessary to personalize learning: academic progress, study patterns, and learning preferences. All data is encrypted, we comply with GDPR and local privacy regulations. Data is never sold to third parties.',
               },
               {
-                question: '¿Cuánto tiempo toma ver resultados?',
+                question: 'How long does it take to see results?',
                 answer:
-                  'Los primeros indicadores de mejora suelen verse en 2-4 semanas: mayor engagement y motivación. Los resultados académicos medibles generalmente aparecen en 2-3 meses. Los impactos más profundos en deserción y habilidades blandas se observan después de 6 meses de uso constante.',
+                  'Initial improvement indicators are usually seen in 2-4 weeks: higher engagement and motivation. Measurable academic results typically appear in 2-3 months. Deeper impacts on retention and soft skills are observed after 6 months of consistent use.',
               },
             ].map((faq, index) => (
               <div
@@ -927,28 +973,28 @@ function App() {
       <section className="bg-gradient-to-r from-indigo-600 to-purple-600 py-20 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-6 text-4xl font-bold lg:text-5xl">
-            El futuro de la educación comienza hoy
+            The future of education starts today
           </h2>
           <p className="mx-auto mb-8 max-w-3xl text-xl text-indigo-100 lg:text-2xl">
-            Únete a la revolución educativa que está transformando vidas en
-            América Latina. Cada día que esperamos, más estudiantes abandonan
-            sus sueños.
+            Join the educational revolution that's transforming lives across
+            Latin America. Every day we wait, more students abandon their
+            dreams.
           </p>
 
           <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
             <button className="flex items-center justify-center rounded-lg bg-white px-8 py-4 text-lg font-semibold text-indigo-600 transition-all hover:bg-gray-100">
               <Play className="mr-2 h-5 w-5" />
-              Comenzar Prueba Gratuita
+              Start Free Trial
             </button>
             <button className="rounded-lg border-2 border-white px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-white hover:text-indigo-600">
-              Agendar Demo Personalizada
+              Schedule Personalized Demo
             </button>
           </div>
 
           <div className="space-y-2 text-center text-indigo-200">
-            <p>✅ 30 días gratis • ✅ Sin compromiso • ✅ Soporte incluido</p>
+            <p>✅ 30 days free • ✅ No commitment • ✅ Support included</p>
             <p className="text-sm">
-              Más de 200 escuelas ya confían en nosotros
+              More than 50 demo schools already trust us
             </p>
           </div>
         </div>
@@ -966,39 +1012,53 @@ function App() {
                 <span className="text-xl font-bold">Sumak AI</span>
               </div>
               <p className="text-gray-400">
-                Transformando la educación en América Latina a través de la
-                inteligencia artificial y experiencias de aprendizaje
-                personalizadas.
+                Transforming education in Latin America through artificial
+                intelligence and personalized learning experiences.
               </p>
               <div className="flex space-x-4">
-                <button className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700">
+                <a
+                  href="https://wa.me/59175034784?text=Hi%2C%20I%27d%20like%20more%20info"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-green-600"
+                >
                   <MessageCircle className="h-5 w-5" />
-                </button>
-                <button className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700">
-                  <Mail className="h-5 w-5" />
-                </button>
-                <button className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700">
-                  <Phone className="h-5 w-5" />
-                </button>
+                </a>
+                <a
+                  href="https://www.instagram.com/sumakedu/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-pink-600"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/sumak-education"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-gray-800 p-2 transition-colors hover:bg-blue-600"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
               </div>
             </div>
 
             <div>
-              <h4 className="mb-4 font-semibold">Producto</h4>
+              <h4 className="mb-4 font-semibold">Product</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Características
+                    Features
                   </a>
                 </li>
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Precios
+                    Pricing
                   </a>
                 </li>
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Casos de éxito
+                    Success Stories
                   </a>
                 </li>
                 <li>
@@ -1010,11 +1070,11 @@ function App() {
             </div>
 
             <div>
-              <h4 className="mb-4 font-semibold">Recursos</h4>
+              <h4 className="mb-4 font-semibold">Resources</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Documentación
+                    Documentation
                   </a>
                 </li>
                 <li>
@@ -1029,33 +1089,33 @@ function App() {
                 </li>
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Soporte
+                    Support
                   </a>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="mb-4 font-semibold">Empresa</h4>
+              <h4 className="mb-4 font-semibold">Company</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Sobre nosotros
+                    About Us
                   </a>
                 </li>
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Carreras
+                    Careers
                   </a>
                 </li>
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Contacto
+                    Contact
                   </a>
                 </li>
                 <li>
                   <a href="#" className="transition-colors hover:text-white">
-                    Privacidad
+                    Privacy
                   </a>
                 </li>
               </ul>
@@ -1063,15 +1123,24 @@ function App() {
           </div>
 
           <div className="mt-12 border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>
-              &copy; 2025 Eduverso Inteligente. Todos los derechos reservados.
-            </p>
+            <p>&copy; 2025 Sumak AI. All rights reserved.</p>
             <p className="mt-2 text-sm">
-              Hecho con ❤️ para transformar la educación en América Latina
+              Made with ❤️ to transform education in Latin America
             </p>
           </div>
         </div>
       </footer>
+
+      {/* Floating WhatsApp Button */}
+      <a
+        href="https://wa.me/59175034784?text=Hi%2C%20I%27d%20like%20more%20info"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-green-600 focus:ring-4 focus:ring-green-300 focus:outline-none"
+        aria-label="Contact us on WhatsApp"
+      >
+        <MessageCircle className="h-6 w-6" />
+      </a>
     </div>
   )
 }

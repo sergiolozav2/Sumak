@@ -9,6 +9,7 @@ import {
 import { ThemeSwitcher } from '../common/theme-switcher'
 import { Logo } from '../common/logo'
 import type { LinkOptions } from '@tanstack/react-router'
+import { Toaster } from 'react-hot-toast'
 
 interface AdminLayoutProps {
   children: React.ReactNode

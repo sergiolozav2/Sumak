@@ -152,6 +152,14 @@ function RouteComponent() {
     }
   }
 
+  if (fetchCards.isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <span className="loading loading-xl"></span>
+      </div>
+    )
+  }
+
   // Get unique subjects for sidebar
   const uniqueSubjects = Array.from(new Set(cards.map((card) => card.subject)))
   if (cards.length === 0) {
